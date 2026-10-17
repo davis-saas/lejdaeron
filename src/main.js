@@ -84,7 +84,7 @@ window.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape') { if (view.placing) actions.cancel(); else view.selected = null; return; }
   if (ev.key === 'p' || ev.key === 'P') return actions.togglePause();
   if (ev.key === '1' || ev.key === '2' || ev.key === '3') return actions.setSpeed(+ev.key);
-  if (ev.key === ' ') { ev.preventDefault(); return actions.callNext(); }
+  if (ev.key === ' ' || ((ev.key === 'n' || ev.key === 'N') && !view.placing)) { ev.preventDefault(); return actions.callNext(); }
   if (ev.key === 'Delete' && view.selected && view.selected.upgrades === undefined && view.selected.def.upgrades) return actions.sell(view.selected);
   if (ev.key.length === 1 && ui.hotkey(ev.key, view)) ev.preventDefault();
 });
