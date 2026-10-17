@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lejdaeron</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Alegreya+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="tb-left">
+      <button class="tb-btn" id="btn-menu" title="Menu (F10)">Menu</button>
+      <button class="tb-btn" id="btn-pause" title="Pause (P)">Pause</button>
+      <div class="tb-speed" id="speed">
+        <button data-speed="1" class="on" title="Normal speed (1)">1x</button>
+        <button data-speed="2" title="Fast (2)">2x</button>
+        <button data-speed="3" title="Fastest (3)">3x</button>
+      </div>
+    </div>
+    <div class="tb-plaque"><div class="tb-title" id="tb-title"></div></div>
+    <div class="tb-res">
+      <div class="res" title="Gold"><i class="ico ico-gold"></i><b id="r-gold">0</b></div>
+      <div class="res" title="Income every 15 seconds"><i class="ico ico-income"></i><b id="r-income">0</b><span class="res-sub" id="r-income-t"></span></div>
+      <div class="res" title="Lives"><i class="ico ico-lives"></i><b id="r-lives">0</b></div>
+      <div class="res" title="Level"><i class="ico ico-level"></i><b id="r-level">0</b></div>
+    </div>
+  </header>
+
+  <main id="stage">
+    <div id="view-wrap">
+      <canvas id="view"></canvas>
+      <div id="announce"><div class="a-title"></div><div class="a-rule"></div><div class="a-sub"></div></div>
+      <div id="error"></div>
+      <div id="msgs"></div>
+      <div id="wave-timer"></div>
+    </div>
+  </main>
+
+  <footer id="console">
+    <div class="panel" id="mm-panel"><canvas id="minimap"></canvas></div>
+    <div id="portrait-frame"><canvas id="portrait" width="128" height="128"></canvas></div>
+    <div class="panel" id="info-panel"><div id="info"></div></div>
+    <div class="panel" id="cmd-panel"><div id="commands"></div></div>
+  </footer>
+
+  <div id="tooltip"></div>
+
+  <div id="overlay" class="show">
+    <div class="ov-box">
+      <div class="ov-crest"></div>
+      <h1>Lejdaeron</h1>
+      <div class="ov-sub">Line Tower Wars rules</div>
+      <div id="ov-body">
+        <p class="ov-credit" style="font-size:12px;opacity:.75;margin:0 0 10px">Rules, towers and creeps are taken from the Warcraft III custom map <b>Line Tower Wars 45</b> by Loss05, Nob, Trymio and t3tr1s. Fan-made, not affiliated with Blizzard Entertainment. All art is original.</p>
+        <p>Twenty-eight levels of creeps march from the demon portal to your castle. Build towers beside the road, upgrade them, and hold the gate.</p>
+        <ul class="ov-keys">
+          <li><b>A</b> / <b>S</b> / <b>E</b> build Archer, Sharp or Elemental tower. Hold <b>Shift</b> to keep building.</li>
+          <li>Click a tower to see its upgrades. <b>X</b> sells it for 75% of what you spent.</li>
+          <li><b>N</b> sends the next level early. <b>P</b> pauses. <b>1</b> <b>2</b> <b>3</b> set the speed.</li>
+        </ul>
+        <div id="ov-progress"><div></div></div>
+      </div>
+      <button id="ov-btn" class="wc-btn" disabled>Loading…</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
