@@ -2,7 +2,7 @@
 // (src/render.js: x * P across, (y * SIN - z * COS + TOP) * P down), so the projection is exactly Classic's.
 // x, y is the logical point at the centre of the view; zoom is css px per logical px. The wheel and the zoom buttons
 // step between its levels (eased); a pinch zooms freely between the farthest and the closest.
-import { P } from '../render.js?v=a48717ff8443';
+import { P } from '../render.js?v=99dfd38af943';
 
 export const ZOOMS = [26, 36, 48, 62];   // css px per tile, far to close; the farthest narrows so a whole lane fits
 const EASE = 14;                         // zoom easing rate (1/s)
@@ -19,6 +19,7 @@ export class Camera {
     this.live = false;                   // a pinch is under way (caches sized to the zoom wait for its end)
     this.wheelAcc = 0; this.wheelT = 0;   // wheel delta not yet stepped (px, its sign the way it turns), the last step (ms)
     this.wheelS = 0; this.wheelST = 0;    // the way of the last step (the sign of its deltas), the last turn that way (ms)
+    this.wheelE = 0;                     // the last wheel event (ms)
     if (levels) this.levels = () => levels(this.vw, this.vh);
   }
   levels() { return [Math.max(10, Math.min(ZOOMS[0], this.vw / 54)), ...ZOOMS.slice(1)]; }
@@ -73,19 +74,23 @@ export class Camera {
     this.x = w.X - (mx - this.vw / 2) / z; this.y = w.Y - (my - this.vh / 2) / z;
     this.clamp();
   }
-  // A wheel event: +1 (zoom in), -1 or 0. Small deltas (a touchpad, a Mac's mouse) add up to one step, and steps come
-  // at most every WHEEL_GAP ms. A step always goes the way the wheel turns now: turning it the other way drops what was
-  // left of the old way (the notches of a quick spin that came during a gap, which made the next turn's first step go
-  // the old way: zoomed in, turned back to zoom out, and it zoomed in once more first), and a step against the last one
-  // also waits until the wheel has been still the old way for WHEEL_GAP (a wheel ticking back as it stops, a touchpad's
-  // lift).
+  // A wheel event: +1 (zoom in), -1 or 0. The first notch after the wheel has been still for WHEEL_GAP steps at once,
+  // whatever its size (a Mac's mouse sends a slow notch as about 4 px, a tenth of a step), unless it goes more sideways
+  // than up or down (a touchpad's sideways stroke). While the wheel turns, small deltas (a touchpad, a Mac's mouse) add
+  // up to one step, and steps come at most every WHEEL_GAP ms, so a spin does not race through the levels. A step always
+  // goes the way the wheel turns now: turning it the other way drops what was left of the old way (the notches of a quick
+  // spin that came during a gap, which made the next turn's first step go the old way: zoomed in, turned back to zoom
+  // out, and it zoomed in once more first), and a step against the last one also waits until the wheel has been still
+  // the old way for WHEEL_GAP (a wheel ticking back as it stops, a touchpad's lift).
   wheelDir(ev) {
     const now = performance.now(), d = ev.deltaMode === 1 ? ev.deltaY * 40 : ev.deltaY, s = Math.sign(d);
+    const still = now - this.wheelE >= WHEEL_GAP && Math.abs(ev.deltaY) >= Math.abs(ev.deltaX || 0);
+    this.wheelE = now;
     if (!s) return 0;
     if (s * this.wheelAcc < 0) this.wheelAcc = 0;
     if (s === this.wheelS) this.wheelST = now;
     this.wheelAcc += d;
-    if (Math.abs(this.wheelAcc) < WHEEL_STEP || now - this.wheelT < WHEEL_GAP) return 0;
+    if ((Math.abs(this.wheelAcc) < WHEEL_STEP && !still) || now - this.wheelT < WHEEL_GAP) return 0;
     if (s !== this.wheelS && now - this.wheelST < WHEEL_GAP) return 0;
     this.wheelAcc = 0; this.wheelT = this.wheelST = now; this.wheelS = s;
     return -s;

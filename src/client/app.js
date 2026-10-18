@@ -2,7 +2,7 @@
 // vs Computer playable offline after the first visit, and the mode menu's line about full screen. Safari on an iPhone
 // cannot show a page full screen, but the game added to the Home Screen opens as an app without the browser's bars
 // (app.webmanifest, the apple-mobile-web-app tags in index.html); Android Chrome can install it, or go full screen.
-import { BUILD } from '../assets.js?v=a48717ff8443';
+import { BUILD } from '../assets.js?v=99dfd38af943';
 
 const HINT_KEY = 'lejdaeron.appHint';
 let installPrompt = null;   // Chrome's install prompt, kept for the menu's Install button

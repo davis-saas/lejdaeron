@@ -1,5 +1,6 @@
-// One player's Line Tower Wars lane: a straight open field of 8 x 44 tiles that the owner mazes with towers.
-// Coordinates: u (x) runs along the lane from the spawn (u = 0) to the exit (u = 44), v (y) runs across it (0 to 8).
+// One player's Line Tower Wars lane: a straight open field of 9 x 44 tiles that the owner mazes with towers (one tile
+// wider than the map's 8, the owner's adaptation: a wall of 8 towers fits with a one-tile gap).
+// Coordinates: u (x) runs along the lane from the spawn (u = 0) to the exit (u = 44), v (y) runs across it (0 to 9).
 // Tiles with u < 2 are the spawn zone and tiles with u >= 42 the exit zone; neither can be built on.
 // Ground creeps follow a flow field (distances to the exit over the 8-connected grid, no diagonal steps past a tower
 // corner), rebuilt only when towers change. Flyers ignore towers and fly straight down the lane.
@@ -9,12 +10,12 @@
 // attack-move and stop to hit towers (and, where their weapon allows, other players' creeps); creeps carry their auras,
 // regeneration, reincarnation, evasion, hardened skin and the Phoenix's death damage; move speed follows the WC3
 // gameplay constants (150 to 400).
-import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=a48717ff8443';
-import { LTW_RULES, LTW_UNITS, LTW_TOWER_STATS, LTW_TECH, LTW_MESSAGES } from './data/ltw.js?v=a48717ff8443';
-import { Field, BUILD_TIME, TILE, isAirTarget, typeFactor, armorFactor } from './field.js?v=a48717ff8443';
+import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=99dfd38af943';
+import { LTW_RULES, LTW_UNITS, LTW_TOWER_STATS, LTW_TECH, LTW_MESSAGES } from './data/ltw.js?v=99dfd38af943';
+import { Field, BUILD_TIME, TILE, isAirTarget, typeFactor, armorFactor } from './field.js?v=99dfd38af943';
 
 export const LANE_COLS = LTW_RULES.laneLength;   // u: 44 tiles
-export const LANE_ROWS = LTW_RULES.laneWidth;    // v: 8 tiles
+export const LANE_ROWS = LTW_RULES.laneWidth;    // v: 9 tiles (the map's are 8: LTW_RULES.mapLaneWidth)
 export const SPAWN_U = LTW_RULES.spawnZone;      // u < 2: spawn zone (the map's 'depart')
 export const EXIT_U = LTW_RULES.exitZone;        // u >= 42: exit zone (the map's 'arrivee')
 const COLS = LANE_COLS, ROWS = LANE_ROWS, N = COLS * ROWS;

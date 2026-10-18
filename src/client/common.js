@@ -1,10 +1,11 @@
 // Shared bits of the Line Tower Wars client: the stacked-lane layout, player colours and number formatting.
-import { SIN } from '../level.js?v=a48717ff8443';
-import { P } from '../render.js?v=a48717ff8443';
+import { SIN } from '../level.js?v=99dfd38af943';
+import { P } from '../render.js?v=99dfd38af943';
 
-export const LANE_PITCH = 12;                  // world rows per lane band: 2 border, 8 buildable (v 0-8), 2 border
+// The lanes are 9 rows across (LTW_RULES.laneWidth, one more than the map's), as the lane art (manifest.lane) is drawn.
+export const LANE_PITCH = 13;                  // world rows per lane band: 2 border, 9 buildable (v 0-9), 2 border
 export const LANE_X0 = -4, LANE_X1 = 48;       // lane-local x covered by the lane art (spawn gate and exit portal ends)
-export const LANE_Y0 = -2, LANE_Y1 = 10;       // lane-local y covered by one band
+export const LANE_Y0 = -2, LANE_Y1 = 11;       // lane-local y covered by one band
 export const BAND = LANE_PITCH * SIN * P;      // logical px between two stacked lanes
 export const laneDY = (i) => i * BAND;         // logical px offset of the i-th lane in the stack
 
@@ -23,7 +24,7 @@ export const botNamed = (p) => !!p.difficulty && String(p.name).toLowerCase().in
 // (lane-local x, y, anchored like towers).
 export const TECH_SPOTS = [
   [-3.25, 1.5], [-2.15, 1.5], [-1.05, 1.5], [-2.7, 0.55], [-1.6, 0.55],
-  [-3.25, 6.6], [-2.15, 6.6], [-1.05, 6.6], [-2.7, 7.55], [-1.6, 7.55],
+  [-3.25, 7.6], [-2.15, 7.6], [-1.05, 7.6], [-2.7, 8.55], [-1.6, 8.55],
   [45.05, 1.5], [46.15, 1.5], [47.25, 1.5], [45.6, 0.55], [46.7, 0.55],
 ];
 // [{ id (tech building id, or null for a wisp), x, y }] for a living player.

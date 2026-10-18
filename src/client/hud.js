@@ -5,16 +5,16 @@
 // docs/SPEC-client.md lists, so it works the same on a live Match and on an online replica.
 // The build phase (docs/SPEC-ltw.md): a timer window counts down to the shrines opening, the Send and Arcade buttons say
 // why they wait, and every clock the console shows is the map's (match time minus the build phase).
-import { UI, ARMOR_NAME, ATK_NAME, kindName, specials, mapNote, placeTip, keepLine } from '../ui.js?v=a48717ff8443';
-import { TOWERS, BUILD_ROOTS } from '../data/towers.js?v=a48717ff8443';
-import { LTW_UNITS, LTW_SHOPS, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_CHAT, LTW_CREEP_FIX, LTW_MESSAGES, LTW_RULES } from '../data/ltw.js?v=a48717ff8443';
-import { unitSpeed, missingTech, requiresText, techName } from '../lane.js?v=a48717ff8443';
-import { TPS, prepWhy } from '../match.js?v=a48717ff8443';
-import { P, sx, sy } from '../render.js?v=a48717ff8443';
-import { laneDY, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, short, signed, botNamed } from './common.js?v=a48717ff8443';
-import { tipButton, heldClick, clickWord, phone } from './touch.js?v=a48717ff8443';
-import { src } from '../assets.js?v=a48717ff8443';
-import { pixelRatio } from '../device.js?v=a48717ff8443';
+import { UI, ARMOR_NAME, ATK_NAME, kindName, specials, mapNote, placeTip, cardTipRect, keepLine } from '../ui.js?v=99dfd38af943';
+import { TOWERS, BUILD_ROOTS } from '../data/towers.js?v=99dfd38af943';
+import { LTW_UNITS, LTW_SHOPS, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_CHAT, LTW_CREEP_FIX, LTW_MESSAGES, LTW_RULES } from '../data/ltw.js?v=99dfd38af943';
+import { unitSpeed, missingTech, requiresText, techName, LANE_ROWS } from '../lane.js?v=99dfd38af943';
+import { TPS, prepWhy } from '../match.js?v=99dfd38af943';
+import { P, sx, sy } from '../render.js?v=99dfd38af943';
+import { laneDY, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, short, signed, botNamed } from './common.js?v=99dfd38af943';
+import { tipButton, heldClick, clickWord, phone } from './touch.js?v=99dfd38af943';
+import { src } from '../assets.js?v=99dfd38af943';
+import { pixelRatio } from '../device.js?v=99dfd38af943';
 
 const $ = (id) => document.getElementById(id);
 export const GRID_KEYS = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V'];
@@ -252,12 +252,12 @@ export class LtwHud extends UI {
         setText(b.querySelector('.stk'), open && (s.stock < s.max || s.max < 32) ? String(s.stock) : '');
         setText(b.querySelector('.lock'), open ? '' : clock(Math.ceil(s.opensIn)));
         const rs = b.querySelector('.rs'), sw = b.querySelector('.sweep');
-        rs.style.width = open && s.stock > 0 && s.stock < s.max ? (prog * 100).toFixed(1) + '%' : '0';
+        rs.style.setProperty('--rs', open && s.stock > 0 && s.stock < s.max ? prog.toFixed(3) : '0');
         sw.style.setProperty('--p', open && s.stock < 1 ? prog.toFixed(3) : '1');
       } else if (c.arcade === 'wisp') {   // the training queue: how many, and the first one's progress along the top
         const q = c.a.wisp.queue, bt = c.a.wisp.buildTime;
         setText(b.querySelector('.stk'), q.length ? String(q.length) : '');
-        b.querySelector('.rs').style.width = q.length ? (Math.max(0, Math.min(1, 1 - q[0] / bt)) * 100).toFixed(1) + '%' : '0';
+        b.querySelector('.rs').style.setProperty('--rs', q.length ? Math.max(0, Math.min(1, 1 - q[0] / bt)).toFixed(3) : '0');
       }
     }
   }
@@ -358,7 +358,7 @@ export class LtwHud extends UI {
     }
     t.innerHTML = html;
     t.classList.add('show');
-    placeTip(t, el.getBoundingClientRect());
+    placeTip(t, cardTipRect(el));
   }
   hideTip() { this.tip = -1; $('tooltip').classList.remove('show'); }
   // A long press on a lane: a tower (with its owner and hit points), a creep (its sender) or a tech building.
@@ -612,7 +612,7 @@ export class LtwHud extends UI {
     const mi = order.indexOf(this.me);
     if (mi >= 0) {
       x.strokeStyle = 'rgba(255,216,74,0.85)'; x.lineWidth = dpr;
-      x.strokeRect(0.5 * dpr, (laneDY(mi) + sy(-0.2) - Y0) * ky, c.width - dpr, (sy(8.2) - sy(-0.2)) * ky);
+      x.strokeRect(0.5 * dpr, (laneDY(mi) + sy(-0.2) - Y0) * ky, c.width - dpr, (sy(LANE_ROWS + 0.2) - sy(-0.2)) * ky);
     }
     const [vx0, vy0, vx1, vy1] = this.mode.cam.rect();
     x.strokeStyle = 'rgba(255,255,255,0.9)'; x.lineWidth = dpr;

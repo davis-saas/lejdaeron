@@ -8,11 +8,11 @@
 //   lobby.options { extra, prep }, lobby.setOptions({ extra?, prep? }) (host only: whether '-onextra' works in the match,
 //   and the seconds of build phase before the shrines open)
 //   session.kind, .me, .world, .command(op) -> Promise<{ ok, why }>, .tick(realDt), .on(type, fn), .close()
-import { Replica } from './replica.js?v=a48717ff8443';
-import { PREP_TIME, PREP_MAX } from '../match.js?v=a48717ff8443';
-import { newNonce, verify } from './auth.js?v=a48717ff8443';
-import * as P from './protocol.js?v=a48717ff8443';
-import * as CFG from './config.js?v=a48717ff8443';
+import { Replica } from './replica.js?v=99dfd38af943';
+import { PREP_TIME, PREP_MAX } from '../match.js?v=99dfd38af943';
+import { newNonce, verify } from './auth.js?v=99dfd38af943';
+import * as P from './protocol.js?v=99dfd38af943';
+import * as CFG from './config.js?v=99dfd38af943';
 
 const { C, H } = P;
 const LEAVE_LINGER = 500;   // ms the link stays open after a LEAVE, so the host gets it

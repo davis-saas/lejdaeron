@@ -31,7 +31,8 @@ export const LTW_RULES = {
  },
  "tile": 128,
  "laneLength": 44,
- "laneWidth": 8,
+ "laneWidth": 9,
+ "mapLaneWidth": 8,
  "spawnZone": 2,
  "exitZone": 42,
  "mapLane1": {

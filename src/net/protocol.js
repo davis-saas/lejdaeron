@@ -1,8 +1,9 @@
 // The vs Players wire protocol between the host (src/net/host.js) and every replica (src/net/replica.js).
 // Every message is one ArrayBuffer whose first byte is its type. Control messages (lobby, chat, commands and their
 // results) carry UTF-8 JSON after that byte; the state stream (FRAME), PING, PONG and WATCH are binary, little endian,
-// with LEB128 varints. Both sides index towers, units and tech buildings by their position in src/data, so DATA_SIG (a
-// hash of those tables and PROTO) must match or the host refuses the join.
+// with LEB128 varints. Both sides index towers, units and tech buildings by their position in src/data and run lanes
+// of the same size, so DATA_SIG (a hash of those tables, the lane size and PROTO) must match or the host refuses the
+// join (a page of a build with 8-row lanes cannot play with one that has 9).
 //
 // A FRAME (host -> one client) is a delta against what that client already has:
 //   u8 FRAME, u8 flags (FULL, BOARD, SHOP, MEVENTS, PHASE, TECH, ARCADE), uv seq, u32 tick
@@ -32,8 +33,8 @@
 // Joining: HELLO { v, data, name, nonce, token | rejoin } -> WELCOME { you, token, phase, proof } or ERROR { fatal,
 // message, proof }; a player with a rejoin token first sends { rejoin: true } without it and gets PROOF { proof }, then
 // sends the token. Every proof is the host's signature for that nonce (src/net/auth.js).
-import { TOWERS } from '../data/towers.js?v=a48717ff8443';
-import { LTW_UNITS, LTW_SHOPS, LTW_TECH_ORDER } from '../data/ltw.js?v=a48717ff8443';
+import { TOWERS } from '../data/towers.js?v=99dfd38af943';
+import { LTW_UNITS, LTW_SHOPS, LTW_TECH_ORDER, LTW_RULES } from '../data/ltw.js?v=99dfd38af943';
 
 export const PROTO = 4;
 export const C = { HELLO: 1, LOBBY: 2, CMD: 3, WATCH: 4, PING: 5, RESYNC: 6, LEAVE: 7 };                  // client -> host
@@ -72,7 +73,8 @@ export const SOLD_INDEX = Object.fromEntries(SOLD.map((id, i) => [id, i]));
 export const TECH_IDS = LTW_TECH_ORDER.slice();
 export const TECH_INDEX = Object.fromEntries(TECH_IDS.map((id, i) => [id, i]));
 function fnv(s) { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
-export const DATA_SIG = fnv([PROTO, TOWER_IDS.join(','), UNIT_IDS.join(','), SOLD.join(','), TECH_IDS.join(',')].join('|'));
+export const DATA_SIG = fnv([PROTO, TOWER_IDS.join(','), UNIT_IDS.join(','), SOLD.join(','), TECH_IDS.join(','),
+  LTW_RULES.laneLength + 'x' + LTW_RULES.laneWidth].join('|'));
 
 const enc = new TextEncoder(), dec = new TextDecoder('utf-8', { fatal: false });
 

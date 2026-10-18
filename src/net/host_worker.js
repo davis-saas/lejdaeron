@@ -6,8 +6,8 @@
 //   { t: 'msg', peer, d }                an ArrayBuffer from a remote peer
 //   { t: 'close', message }              the host leaves: everyone is told, then the worker stops
 // and to the page: { t: 'send', peer, d }, { t: 'drop', peer }, { t: 'log', text }, { t: 'closed' }.
-import { HostCore, LOCAL } from './host.js?v=a48717ff8443';
-import { prover, remoteId } from './auth.js?v=a48717ff8443';
+import { HostCore, LOCAL } from './host.js?v=99dfd38af943';
+import { prover, remoteId } from './auth.js?v=99dfd38af943';
 
 let core = null, local = null, timer = null;
 const post = (m, transfer) => self.postMessage(m, transfer || []);

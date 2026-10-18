@@ -6,11 +6,11 @@
 // is loaded the first time vs Players is used, so Classic Defense and vs Computer never load it. The map is Line Tower
 // Wars, the one map online: the join screen and the lobby show its picture to the host and to every joiner.
 // Every name and chat line comes from other players: it is escaped before it goes into the page.
-import { screen, hideScreen, mapPicture, bindPictures } from './screens.js?v=a48717ff8443';
-import { MAP } from './maps.js?v=a48717ff8443';
-import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME, esc } from './common.js?v=a48717ff8443';
-import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=a48717ff8443';
-import { clickWord } from './touch.js?v=a48717ff8443';
+import { screen, hideScreen, mapPicture, bindPictures } from './screens.js?v=99dfd38af943';
+import { MAP } from './maps.js?v=99dfd38af943';
+import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME, esc } from './common.js?v=99dfd38af943';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=99dfd38af943';
+import { clickWord } from './touch.js?v=99dfd38af943';
 
 const $ = (id) => document.getElementById(id);
 const NAME_KEY = 'lejdaeron.name';
@@ -21,7 +21,7 @@ const REJOIN_WAIT = 15;      // seconds a rejoin after a lost connection looks f
 const MAP_ONLINE = MAP.ltw;   // the lobby carries no map: vs Players has the one
 const TRY_OTHER_NETWORK = 'Some school, office and mobile networks block direct connections between browsers. If it keeps failing, try another network (a phone hotspot works).';
 let net = null;
-const loadNet = async () => (net ||= await import('../net/session.js?v=a48717ff8443'));
+const loadNet = async () => (net ||= await import('../net/session.js?v=99dfd38af943'));
 
 export class Online {
   // ltw: the LtwMode; menu(): back to the map picker; enterGame(): main's mode switch before the game screen takes over;

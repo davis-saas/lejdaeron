@@ -4,13 +4,13 @@
 // unchanged. Per frame: the lane ground (cached at the current zoom, one canvas shared by every lane) for each lane in
 // view, then each lane's depth-sorted props, towers, creeps and tech area, then missiles, particles and bars, then the
 // name plates.
-import { Renderer, P, K, TK, sx, sy, hexA, drawFlame } from '../render.js?v=a48717ff8443';
-import { SIN, TOP, TILE } from '../level.js?v=a48717ff8443';
-import { SPAWN_U, EXIT_U, LANE_ROWS } from '../lane.js?v=a48717ff8443';
-import { mulberry32 } from '../rng.js?v=a48717ff8443';
-import { tinted } from '../assets.js?v=a48717ff8443';
-import { pixelRatio, canvasScale } from '../device.js?v=a48717ff8443';
-import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, BAND, laneDY, PLAYER_HEX, PLAYER_TEXT, techArea, botNamed } from './common.js?v=a48717ff8443';
+import { Renderer, P, K, TK, sx, sy, hexA, drawFlame } from '../render.js?v=99dfd38af943';
+import { SIN, TOP, TILE } from '../level.js?v=99dfd38af943';
+import { SPAWN_U, EXIT_U, LANE_ROWS } from '../lane.js?v=99dfd38af943';
+import { mulberry32 } from '../rng.js?v=99dfd38af943';
+import { tinted } from '../assets.js?v=99dfd38af943';
+import { pixelRatio, canvasScale } from '../device.js?v=99dfd38af943';
+import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, BAND, laneDY, PLAYER_HEX, PLAYER_TEXT, techArea, botNamed } from './common.js?v=99dfd38af943';
 
 const GX0 = sx(LANE_X0), GX1 = sx(LANE_X1), GY0 = sy(LANE_Y0), GY1 = sy(LANE_Y1);   // one band, logical px
 const REACH = 3.2 * P;              // how far tall sprites reach above their tile (logical px), for culling
@@ -531,8 +531,9 @@ export class LaneRenderer extends Renderer {
 
   // The lane owner's name plate at the spawn end (kept inside the view while any of the lane shows), and a banner
   // over eliminated lanes. view.insets keeps it clear of the top bar and the console ornaments that overlap the view's
-  // edges, view.avoid (css px rect, the map messages) is stepped around to the right, and the build phase's timer
-  // window (view.timer, css px rect) by going under it, or past it where the lane has no room below it.
+  // edges, the lane's own banners and view.avoid (css px rect, the map messages) are stepped around to the right, and
+  // the build phase's timer window (view.timer, css px rect) by going under it, or past it where the lane has no room
+  // below it.
   plate(ctx, world, slot, i, cam, view) {
     const p = world.players[slot];
     const at = cam.toScreen(sx(LANE_X0 + 0.15), laneDY(i) + sy(LANE_Y0 + 0.3));
@@ -547,6 +548,12 @@ export class LaneRenderer extends Renderer {
     if (role) w = Math.max(w, ctx.measureText(role).width);
     w += 30;
     let x = Math.max(6, at.x), y = Math.min(Math.max(top, at.y), bottom - hgt);
+    // the lane's banners in its owner's colour stay in sight: a plate held at the view's edge steps past one it covers
+    for (const b of this.props) {
+      if (!b.banner) continue;
+      const a = cam.toScreen(b.box[0], laneDY(i) + b.box[1]), z = cam.toScreen(b.box[0] + b.box[2], laneDY(i) + b.box[1] + b.box[3]);
+      if (x < z.x && a.x < x + w && y < z.y && a.y < y + hgt) x = z.x + 4;
+    }
     const t = view.timer;
     if (t && x < t[2] && t[0] < x + w && y < t[3] && t[1] < y + hgt) {
       if (t[3] + 4 + hgt <= bottom) y = t[3] + 4; else x = t[2] + 8;
@@ -685,8 +692,10 @@ function fallbackLayout(M) {
   if (small.length) for (let x = -3.4; x < 47.6; x += 1.3 + rnd() * 1.8) L.push({ type: pick(small), x, y: LANE_ROWS + 1.05 + rnd() * 0.75, flip: rnd() < 0.5 });
   if (has('portal')) L.push({ type: 'portal', x: -2.05, y: LANE_ROWS / 2 + 0.4, flip: false });
   if (has('ruin1')) L.push({ type: 'ruin1', x: 46.2, y: 3.2, flip: true });
-  if (has('ruin2')) L.push({ type: 'ruin2', x: 46.4, y: 6.6, flip: false });
+  if (has('ruin2')) L.push({ type: 'ruin2', x: 46.4, y: LANE_ROWS - 1.4, flip: false });
   if (has('lamp')) { L.push({ type: 'lamp', x: 44.4, y: 0.35, flip: false }); L.push({ type: 'lamp', x: 44.4, y: LANE_ROWS - 0.2, flip: false }); }
-  for (const [x, y] of [[-3.3, 1.2], [-3.4, 7.3], [-0.9, 0.6], [-0.7, 7.6], [47.3, 1.0], [47.2, 5.0], [47.4, 8.0]]) if (small.length) L.push({ type: pick(small), x, y, flip: rnd() < 0.5 });
+  for (const [x, y] of [[-3.3, 1.2], [-3.4, LANE_ROWS - 0.7], [-0.9, 0.6], [-0.7, LANE_ROWS - 0.4], [47.3, 1.0], [47.2, LANE_ROWS / 2 + 1], [47.4, LANE_ROWS]]) {
+    if (small.length) L.push({ type: pick(small), x, y, flip: rnd() < 0.5 });
+  }
   return L;
 }

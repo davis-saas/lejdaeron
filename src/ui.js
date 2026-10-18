@@ -1,11 +1,11 @@
 // Warcraft III Reforged-style console: resources, minimap, animated portrait + info, command card, tooltips, messages.
 // The chrome itself (frames, plates, buttons) is CSS over Blender-rendered images in assets/ui/ (see style.css).
-import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=a48717ff8443';
-import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=a48717ff8443';
-import { W, H, K, sx, sy } from './render.js?v=a48717ff8443';
-import { tipButton, heldClick, lastInput, clickWord, phone } from './client/touch.js?v=a48717ff8443';
-import { src } from './assets.js?v=a48717ff8443';
-import { pixelRatio } from './device.js?v=a48717ff8443';
+import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=99dfd38af943';
+import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=99dfd38af943';
+import { W, H, K, sx, sy } from './render.js?v=99dfd38af943';
+import { tipButton, heldClick, lastInput, clickWord, phone } from './client/touch.js?v=99dfd38af943';
+import { src } from './assets.js?v=99dfd38af943';
+import { pixelRatio } from './device.js?v=99dfd38af943';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -206,7 +206,7 @@ export class UI {
     if (note) html += `<div class="t-note">${esc(note)}</div>`;
     t.innerHTML = html;
     t.classList.add('show');
-    placeTip(t, el.getBoundingClientRect());
+    placeTip(t, cardTipRect(el));
   }
   hideTip() { $('tooltip').classList.remove('show'); }
   // A long press on the battlefield: what the unit under the finger is, over the finger (client px x, y).
@@ -419,6 +419,15 @@ export function keepLine(on) {
   const w = clickWord();
   return on ? `Each ${w.toLowerCase()} places another tower until you cancel. ${w} to turn it off.`
     : `Place one tower after another until you cancel${lastInput() === 'touch' ? '' : ' (as holding <b>Shift</b> does)'}.`;
+}
+// Where a command button's tooltip goes: on a computer's console above the whole card (and the Line Tower Wars tabs
+// over it), at its right edge, as WC3 shows it, so it never covers the buttons; in the compact layouts by the button.
+const CONSOLE_LAYOUT = window.matchMedia('(min-width: 901px) and (min-height: 501px)');
+export function cardTipRect(el) {
+  const r = el.getBoundingClientRect(), panel = el.closest('#cmd-panel');
+  if (!panel || !CONSOLE_LAYOUT.matches) return r;
+  const p = panel.getBoundingClientRect(), tabs = $('cmd-tabs'), tr = tabs && tabs.offsetParent ? tabs.getBoundingClientRect() : null;
+  return { left: r.left, right: p.right, top: Math.min(p.top, tr && tr.height ? tr.top : p.top), bottom: r.bottom };
 }
 // A tooltip next to a rect (client px): above it, else to its left (the console on the side of a landscape phone),
 // else below, always inside the window.

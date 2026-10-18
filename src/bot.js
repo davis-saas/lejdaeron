@@ -27,11 +27,11 @@
 // - Difficulty sets the reaction delay, how often it thinks, how noisy and short-sighted its choices are, the maze it
 //   aims for, how much it saves and how aggressive it is. Decisions run a few times per second on cached evaluations
 //   (flow probes and coverage are recomputed only when towers change), so ten bots fit in a browser frame budget.
-import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=a48717ff8443';
-import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_CREEP_FIX, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_ARCADE } from './data/ltw.js?v=a48717ff8443';
-import { typeFactor, armorFactor, avgDamage, TILE } from './field.js?v=a48717ff8443';
-import { flowField, INF, LANE_COLS, LANE_ROWS, SPAWN_U, EXIT_U, tileOf, unitSpeed, RESOURCE_MAX } from './lane.js?v=a48717ff8443';
-import { mulberry32 } from './rng.js?v=a48717ff8443';
+import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=99dfd38af943';
+import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_CREEP_FIX, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_ARCADE } from './data/ltw.js?v=99dfd38af943';
+import { typeFactor, armorFactor, avgDamage, TILE } from './field.js?v=99dfd38af943';
+import { flowField, INF, LANE_COLS, LANE_ROWS, SPAWN_U, EXIT_U, tileOf, unitSpeed, RESOURCE_MAX } from './lane.js?v=99dfd38af943';
+import { mulberry32 } from './rng.js?v=99dfd38af943';
 
 const COLS = LANE_COLS, ROWS = LANE_ROWS, N = COLS * ROWS;
 const SOLD = LTW_SHOPS.flatMap(s => s.units);
@@ -200,10 +200,12 @@ function airCov(i, ri) {
 }
 
 // Maze templates: walls across the lane, gaps alternating between the two edges.
-//   serpentine: a 7-tile wall every 2 columns (20 walls, 140 towers, ~174-tile path against 41 open)
-//   loose:      a 6-tile wall every 3 columns (13 walls, 78 towers, ~94-tile path)
+//   serpentine: an 8-tile wall (a one-tile gap) every 2 columns (20 walls, 160 towers, ~193-tile path against 41 open)
+//   loose:      a 6-tile wall (a three-tile gap) every 3 columns (13 walls, 78 towers, ~82-tile path), the easy bots'.
+//               78 towers is what it had on the map's 8-row lanes; walls of 7 (91 towers, ~106 tiles) made easy bots
+//               so hard to break that in 4-bot rings they often outlived the normal ones
 function makeTemplate(kind, flip) {
-  const [first, step, span] = kind === 'loose' ? [3, 3, 6] : [3, 2, 7];
+  const [first, step, span] = kind === 'loose' ? [3, 3, ROWS - 3] : [3, 2, ROWS - 1];
   const walls = [];
   for (let c = first, w = 0; c < EXIT_U; c += step, w++) {
     const gapLow = (w % 2 === 0) !== flip;          // the gap is at v = 0 (and the wall at the high v side)

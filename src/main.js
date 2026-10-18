@@ -5,21 +5,21 @@
 // Classic's camera starts on the whole map (on a touch screen: the map filling the stage, from its west end); the wheel,
 // the + and - buttons and a pinch zoom it up to about 2.5 times closer, and a right or middle drag, the arrow keys or a
 // finger pan it, anywhere on the stage (also on the bands beside a map zoomed out).
-import { Game, TOWERS, LEVELS } from './game.js?v=a48717ff8443';
-import { buildable } from './level.js?v=a48717ff8443';
-import { loadAssets } from './assets.js?v=a48717ff8443';
-import { Renderer, W, H, P } from './render.js?v=a48717ff8443';
-import { FX } from './fx.js?v=a48717ff8443';
-import { UI } from './ui.js?v=a48717ff8443';
-import { SIN, TOP } from './level.js?v=a48717ff8443';
-import { LtwMode } from './client/ltw.js?v=a48717ff8443';
-import { Online } from './client/online.js?v=a48717ff8443';
-import { Camera } from './client/camera.js?v=a48717ff8443';
-import { Gestures, isTouch, lastInput, phone, touchFirst } from './client/touch.js?v=a48717ff8443';
-import { screen, hideScreen, screenShown, mapPicker, mapScreen, mapPicture, bindPictures, setupScreen, settingsLine, bindSettings } from './client/screens.js?v=a48717ff8443';
-import { MAP } from './client/maps.js?v=a48717ff8443';
-import { startApp } from './client/app.js?v=a48717ff8443';
-import { frameDue } from './device.js?v=a48717ff8443';
+import { Game, TOWERS, LEVELS } from './game.js?v=99dfd38af943';
+import { buildable } from './level.js?v=99dfd38af943';
+import { loadAssets } from './assets.js?v=99dfd38af943';
+import { Renderer, W, H, P } from './render.js?v=99dfd38af943';
+import { FX } from './fx.js?v=99dfd38af943';
+import { UI } from './ui.js?v=99dfd38af943';
+import { SIN, TOP } from './level.js?v=99dfd38af943';
+import { LtwMode } from './client/ltw.js?v=99dfd38af943';
+import { Online } from './client/online.js?v=99dfd38af943';
+import { Camera } from './client/camera.js?v=99dfd38af943';
+import { Gestures, isTouch, lastInput, phone, touchFirst } from './client/touch.js?v=99dfd38af943';
+import { screen, hideScreen, screenShown, mapPicker, mapScreen, mapPicture, bindPictures, setupScreen, settingsLine, bindSettings } from './client/screens.js?v=99dfd38af943';
+import { MAP } from './client/maps.js?v=99dfd38af943';
+import { startApp } from './client/app.js?v=99dfd38af943';
+import { frameDue } from './device.js?v=99dfd38af943';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('view'), stage = $('stage');

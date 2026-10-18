@@ -13,13 +13,13 @@
 // player may do). world.tech(slot) and world.arcade(slot) run the engine's own Match code on the mirrored state, so their
 // reasons read exactly as the host's. The build phase: the phase comes in the frames and its length in START's options;
 // world.prepLeft and the shop and Arcade countdowns run on the host's clock, playTime and incomeTimer on world.time.
-import { Lane, tileIndex } from '../lane.js?v=a48717ff8443';
-import { TOWERS } from '../data/towers.js?v=a48717ff8443';
-import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_ARCADE } from '../data/ltw.js?v=a48717ff8443';
-import { TILE } from '../field.js?v=a48717ff8443';
-import { Match, TPS, PREP_TIME, PREP_MAX } from '../match.js?v=a48717ff8443';
-import * as P from './protocol.js?v=a48717ff8443';
-import { NET_TICKS, OTHER_TICKS } from './config.js?v=a48717ff8443';
+import { Lane, tileIndex } from '../lane.js?v=99dfd38af943';
+import { TOWERS } from '../data/towers.js?v=99dfd38af943';
+import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_ARCADE } from '../data/ltw.js?v=99dfd38af943';
+import { TILE } from '../field.js?v=99dfd38af943';
+import { Match, TPS, PREP_TIME, PREP_MAX } from '../match.js?v=99dfd38af943';
+import * as P from './protocol.js?v=99dfd38af943';
+import { NET_TICKS, OTHER_TICKS } from './config.js?v=99dfd38af943';
 
 const { F, LB, CM, CF, EV } = P;
 const FAR = 1e9;                          // "until further notice" for slowUntil and stunUntil

@@ -9,9 +9,9 @@
 // light art) and `sx`, `sy` are in the image's pixels, so a sprite's source rectangle is sx, sy, w * ss, h * ss (a
 // frame's: sx + col * fw * ss, ...). The light atlases are trusted only while light.json says they were made from this
 // manifest (after a repack, until they are made again, everything loads at full size).
-import { LIGHT } from './device.js?v=a48717ff8443';
+import { LIGHT } from './device.js?v=99dfd38af943';
 
-export const BUILD = 'a48717ff8443';
+export const BUILD = '99dfd38af943';
 const V = BUILD || String(Date.now());
 const url = (path) => `assets/${path}?v=${V}`;
 

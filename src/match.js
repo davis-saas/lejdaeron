@@ -25,9 +25,9 @@
 // warnings, victory checks, leaver sweeps, '-onextra') count from the end of the phase: m.playTime is the map's clock
 // (negative during the phase), m.prepLeft the seconds the phase has left. m.time and m.ticks keep counting from the first
 // tick (lanes, bots, events). The phase ends with a 'play' match event.
-import { Lane, addGold, addLumber, requiresText, techUnlocks } from './lane.js?v=a48717ff8443';
-import { LTW_RULES, LTW_UNITS, LTW_SHOPS, LTW_CREEP_FIX, LTW_COLORS, LTW_MESSAGES, LTW_TECH, LTW_TECH_ORDER, LTW_ARCADE, LTW_CHAT } from './data/ltw.js?v=a48717ff8443';
-import { mulberry32 } from './rng.js?v=a48717ff8443';
+import { Lane, addGold, addLumber, requiresText, techUnlocks } from './lane.js?v=99dfd38af943';
+import { LTW_RULES, LTW_UNITS, LTW_SHOPS, LTW_CREEP_FIX, LTW_COLORS, LTW_MESSAGES, LTW_TECH, LTW_TECH_ORDER, LTW_ARCADE, LTW_CHAT } from './data/ltw.js?v=99dfd38af943';
+import { mulberry32 } from './rng.js?v=99dfd38af943';
 
 export const TPS = 60;                 // fixed ticks per second
 export const STEP = 1 / TPS;

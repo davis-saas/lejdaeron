@@ -12,12 +12,12 @@
 // holds that key, so knowing the room code (or the link) is not enough to pose as the host.
 // Both entry points take optional { net, worker, timers, storage } (and hostLobby a match seed) so tests can run them
 // on a fake network, on a virtual clock, reproducibly.
-import { Lobby, systemTimers } from './client.js?v=a48717ff8443';
-import { PortTransport, Loopback } from './transport.js?v=a48717ff8443';
-import { HostCore, LOCAL } from './host.js?v=a48717ff8443';
-import { jsonMsg, H } from './protocol.js?v=a48717ff8443';
-import { hostKey, prover, remoteId, KEY_RE } from './auth.js?v=a48717ff8443';
-import * as CFG from './config.js?v=a48717ff8443';
+import { Lobby, systemTimers } from './client.js?v=99dfd38af943';
+import { PortTransport, Loopback } from './transport.js?v=99dfd38af943';
+import { HostCore, LOCAL } from './host.js?v=99dfd38af943';
+import { jsonMsg, H } from './protocol.js?v=99dfd38af943';
+import { hostKey, prover, remoteId, KEY_RE } from './auth.js?v=99dfd38af943';
+import * as CFG from './config.js?v=99dfd38af943';
 
 export { CFG as netConfig };
 
@@ -145,7 +145,7 @@ export async function hostLobby({ name = 'Host', net = null, worker = true, time
   const unhook = () => { globalThis.removeEventListener?.('beforeunload', bye); globalThis.removeEventListener?.('pagehide', bye); };
   globalThis.addEventListener?.('beforeunload', bye);
   globalThis.addEventListener?.('pagehide', bye);
-  try { remote = net ? await net(room, 'host') : await (await import('./trystero.js?v=a48717ff8443')).createTrysteroTransport({ room, role: 'host', log }); }
+  try { remote = net ? await net(room, 'host') : await (await import('./trystero.js?v=99dfd38af943')).createTrysteroTransport({ room, role: 'host', log }); }
   catch (e) { unhook(); throw e; }
   const bridge = worker && typeof Worker !== 'undefined' ? workerHost(room, name, remote, log, key) : inlineHost(room, name, remote, timers, log, seed, key);
   lobby = new Lobby({ transport: bridge.ui, name, room, link: inviteLink(room, globalThis.location, key.fingerprint), isHost: true, timers, onClose: () => bridge.stop() });
@@ -175,7 +175,7 @@ function dropper(remote, timers) {
 }
 
 function workerHost(room, name, remote, log, key) {
-  const w = new Worker(new URL('./host_worker.js?v=a48717ff8443', import.meta.url), { type: 'module' });
+  const w = new Worker(new URL('./host_worker.js?v=99dfd38af943', import.meta.url), { type: 'module' });
   const ch = new MessageChannel();
   const ui = new PortTransport(ch.port2, { id: 'ui', peer: 'host' });
   let stopped = false;
@@ -238,7 +238,7 @@ export async function joinLobby(invite, { name = 'Player', key = undefined, net 
   const store = storage || (globalThis.localStorage ? browserStorage() : noStorage);
   const CANCELLED = 'Joining was cancelled.';
   if (signal && signal.aborted) throw new Error(CANCELLED);
-  const transport = net ? await net(code, 'join') : await (await import('./trystero.js?v=a48717ff8443')).createTrysteroTransport({ room: code, role: 'join', log });
+  const transport = net ? await net(code, 'join') : await (await import('./trystero.js?v=99dfd38af943')).createTrysteroTransport({ room: code, role: 'join', log });
   if (signal && signal.aborted) { transport.close(); throw new Error(CANCELLED); }
   if (onTransport) onTransport(transport);
   const wait = store.wait ? store.wait(code) : 0;   // the link is connecting meanwhile; the lobby says hello once it's up

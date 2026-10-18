@@ -4520,17 +4520,17 @@
  "shadows": true,
  "lane": {
   "ground": {
-   "file": "lane_ground.jpg",
+   "file": "lane9_ground.jpg",
    "w": 4992,
-   "h": 883,
-   "src": "lane_ground.jpg"
+   "h": 957,
+   "src": "lane9_ground.jpg"
   },
   "x0": -4,
   "y0": -2,
   "x1": 48,
-  "y1": 10,
+  "y1": 11,
   "ppu": 96,
-  "pitch": 12,
+  "pitch": 13,
   "layout": [
    {
     "type": "lane_tree1",
@@ -4955,162 +4955,162 @@
    {
     "type": "lane_waygate",
     "x": -2.0,
-    "y": 4.0,
+    "y": 4.5,
     "flip": false
    },
    {
     "type": "lane_portal",
     "x": 46.0,
-    "y": 4.0,
+    "y": 4.5,
     "flip": false
    },
    {
     "type": "lane_brazier",
     "x": -0.55,
-    "y": 7.25,
+    "y": 8.25,
     "flip": false
    },
    {
     "type": "lane_brazier",
     "x": 44.55,
-    "y": 7.25,
+    "y": 8.25,
     "flip": false
    },
    {
     "type": "lane_wall",
     "x": 10.5,
-    "y": 8.58,
+    "y": 9.58,
     "flip": false
    },
    {
     "type": "lane_wall",
     "x": 33.5,
-    "y": 8.58,
+    "y": 9.58,
     "flip": false
    },
    {
     "type": "lane_bush",
     "x": 24.91,
-    "y": 8.59,
+    "y": 9.59,
     "flip": false
    },
    {
     "type": "lane_rock2",
     "x": 7.77,
-    "y": 8.6,
+    "y": 9.6,
     "flip": false
    },
    {
     "type": "lane_bush",
     "x": 41.7,
-    "y": 8.6,
+    "y": 9.6,
     "flip": false
    },
    {
     "type": "lane_rock1",
     "x": -3.4,
-    "y": 8.61,
+    "y": 9.61,
     "flip": false
    },
    {
     "type": "lane_rock2",
     "x": 22.03,
-    "y": 8.61,
+    "y": 9.61,
     "flip": false
    },
    {
     "type": "lane_bush",
     "x": 30.21,
-    "y": 8.61,
+    "y": 9.61,
     "flip": false
    },
    {
     "type": "lane_bush",
     "x": 19.37,
-    "y": 8.62,
+    "y": 9.62,
     "flip": false
    },
    {
     "type": "lane_rock2",
     "x": -0.28,
-    "y": 8.63,
+    "y": 9.63,
     "flip": false
    },
    {
     "type": "lane_bush",
     "x": 5.56,
-    "y": 8.63,
+    "y": 9.63,
     "flip": false
    },
    {
     "type": "lane_rock1",
     "x": 36.08,
-    "y": 8.63,
+    "y": 9.63,
     "flip": false
    },
    {
     "type": "lane_rock2",
     "x": 27.81,
-    "y": 8.64,
+    "y": 9.64,
     "flip": false
    },
    {
     "type": "lane_bush",
     "x": 44.25,
-    "y": 8.64,
+    "y": 9.64,
     "flip": false
    },
    {
     "type": "lane_bush",
     "x": 2.5,
-    "y": 8.65,
+    "y": 9.65,
     "flip": false
    },
    {
     "type": "lane_rock2",
     "x": 46.69,
-    "y": 8.66,
+    "y": 9.66,
     "flip": false
    },
    {
     "type": "lane_rock1",
     "x": 39.04,
-    "y": 8.67,
+    "y": 9.67,
     "flip": false
    },
    {
     "type": "lane_bush",
     "x": 16.36,
-    "y": 8.68,
+    "y": 9.68,
     "flip": false
    },
    {
     "type": "lane_rock2",
     "x": 13.75,
-    "y": 8.7,
+    "y": 9.7,
     "flip": false
    },
    {
     "type": "lane_brazier",
     "x": 1.0,
-    "y": 8.72,
+    "y": 9.72,
     "flip": false
    },
    {
     "type": "lane_brazier",
     "x": 43.0,
-    "y": 8.72,
+    "y": 9.72,
     "flip": false
    }
   ],
   "spawn": {
    "x": -2.0,
-   "y": 4.0,
+   "y": 4.5,
    "z": 1.27
   },
   "exit": {
    "x": 46.0,
-   "y": 4.0,
+   "y": 4.5,
    "z": 1.15
   }
  }
