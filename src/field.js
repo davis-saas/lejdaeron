@@ -5,7 +5,7 @@
 // Movement is pluggable: a mover's advance(c, tiles) moves a creep `tiles` along its route and returns true when the
 // creep has reached the end. Classic Defense (src/game.js) uses a fixed road; Line Tower Wars lanes (src/lane.js) use
 // a flow field. Subclasses decide what an arrival or a kill means by overriding arrive(c) and kill(c).
-import { DAMAGE, ARMOR } from './data/rules.js?v=91305a8026e8';
+import { DAMAGE, ARMOR } from './data/rules.js?v=a48717ff8443';
 
 export const TILE = 128;             // WC3 units per tile (one tower footprint)
 export const BUILD_TIME = 1.0;       // construction animation, seconds

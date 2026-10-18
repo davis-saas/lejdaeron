@@ -6,18 +6,18 @@
 // banner shows while the host doesn't answer. The lobby and the screens after a lost connection are src/client/online.js.
 // A finger plays it too (src/client/touch.js): taps, long presses for what hovering shows, one finger to pan, two to
 // pinch, and buttons over the view for the zoom and the jumps that F1 and F2 make.
-import { createLocalSession } from '../session_local.js?v=91305a8026e8';
-import { FX } from '../fx.js?v=91305a8026e8';
-import { P, sx, sy } from '../render.js?v=91305a8026e8';
-import { SIN, TOP } from '../level.js?v=91305a8026e8';
-import { LTW_UNITS, LTW_RULES, LTW_TECH } from '../data/ltw.js?v=91305a8026e8';
-import { Camera } from './camera.js?v=91305a8026e8';
-import { Gestures, isTouch, lastInput, clickWord } from './touch.js?v=91305a8026e8';
-import { LaneRenderer } from './lanes.js?v=91305a8026e8';
-import { LtwHud, TECH_TAB } from './hud.js?v=91305a8026e8';
-import { screen, hideScreen, screenShown, slotsFor, settingsLine, bindSettings } from './screens.js?v=91305a8026e8';
-import { LIGHT, pixelRatio } from '../device.js?v=91305a8026e8';
-import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, laneDY, laneOrder, techArea, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, ordinal, short, botNamed } from './common.js?v=91305a8026e8';
+import { createLocalSession } from '../session_local.js?v=a48717ff8443';
+import { FX } from '../fx.js?v=a48717ff8443';
+import { P, sx, sy } from '../render.js?v=a48717ff8443';
+import { SIN, TOP } from '../level.js?v=a48717ff8443';
+import { LTW_UNITS, LTW_RULES, LTW_TECH } from '../data/ltw.js?v=a48717ff8443';
+import { Camera } from './camera.js?v=a48717ff8443';
+import { Gestures, isTouch, lastInput, clickWord } from './touch.js?v=a48717ff8443';
+import { LaneRenderer } from './lanes.js?v=a48717ff8443';
+import { LtwHud, TECH_TAB, mapClock } from './hud.js?v=a48717ff8443';
+import { screen, hideScreen, screenShown, slotsFor, settingsLine, bindSettings } from './screens.js?v=a48717ff8443';
+import { LIGHT, pixelRatio } from '../device.js?v=a48717ff8443';
+import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, laneDY, laneOrder, techArea, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, ordinal, short, botNamed } from './common.js?v=a48717ff8443';
 
 const $ = (id) => document.getElementById(id);
 const PAN = 1100;          // css px per second for the arrow keys and the screen edges
@@ -91,7 +91,7 @@ export class LtwMode {
     for (const s of this.order) this.fxs[s] = new FX({ lane: true, maxParts: MAX_FX_PARTS });
     this.inView = new Set();
     this.view = { me, target: null, feeder: null, sel: null, placing: null, hover: null, hoverTower: null, hoverSlot: null, shift: false,
-      keep: false, insets: INSETS, avoid: null };
+      keep: false, insets: INSETS, avoid: null, timer: null };
     this.stats = { sent: 0, sentGold: 0, peakIncome: w.players[me] ? w.players[me].income : 0, out: [] };
     this.clock = 0; this.overT = 0; this.lastTime = w.time; this.outAt = null; this.shownOut = false; this.shownEnd = false;
     this.mine = new Map();        // my towers by id last frame: one that vanished destroyed is announced
@@ -146,7 +146,8 @@ export class LtwMode {
     this.touch = null; this.armed = null;
     $('msgs').innerHTML = ''; $('msgs').style.left = ''; $('income-list').classList.remove('show');
     $('announce').classList.remove('show'); $('error').classList.remove('show'); $('net-banner').classList.remove('show');
-    document.body.classList.remove('ltw', 'online');
+    if ($('prep-timer')) $('prep-timer').classList.remove('show');
+    document.body.classList.remove('ltw', 'online', 'prep');
     this.canvas.classList.remove('placing');
     this.keys.clear(); this.drag = null; this.mmDrag = false;
   }
@@ -270,7 +271,7 @@ export class LtwMode {
     const quit = !on ? 'Quit to menu' : on.isHost ? 'End the game' : 'Leave the game';
     this.inMenu = true;   // online there is no pause: Esc and F10 still close the menu
     screen({
-      title: local ? 'Paused' : 'Menu', sub: `${local ? 'vs Computer' : `vs Players · Room ${on ? on.room : ''}`} · ${clock(this.world.time)}`,
+      title: local ? 'Paused' : 'Menu', sub: `${local ? 'vs Computer' : `vs Players · Room ${on ? on.room : ''}`} · ${this.world.phase === 'prep' ? 'build phase' : mapClock(this.world)}`,
       body: `${settingsLine()}${keysHelp(!local)}${on ? `<p class="ov-note" id="ov-quit-note">${on.isHost ? 'Your browser runs this match: if you leave, it ends for everyone.' : `If you leave, your lane is out of the game. A dropped connection keeps your seat for ${LTW_RULES.reconnectGrace} seconds: open the invite link again to get back in.`}</p>` : ''}
         <div class="ov-actions">${local ? '<button class="wc-btn small" id="ov-restart">Restart</button>' : ''}<button class="wc-btn small" id="ov-quit">${quit}</button></div>`,
       primary: { label: 'Resume', run: () => this.resume() },
@@ -675,11 +676,17 @@ export class LtwMode {
     if (this.destroying.size > 64) this.destroying.clear();
   }
   // The map messages sit bottom left, as in WC3, but step past the spawn waygate (and the tech area) when that end of
-  // a lane is in view; the name plates in turn keep out of the messages (view.avoid).
+  // a lane is in view; the name plates in turn keep out of the messages (view.avoid) and out from under the build
+  // phase's timer window (view.timer: at the top left of an upright phone, lower down while the chat line is open).
   layoutMessages() {
     const m = $('msgs'), left = Math.round(Math.max(MSG_LEFT, Math.min(this.renderer.vw * 0.4, this.cam.toScreen(sx(0.1), 0).x)));
     if (left !== this.msgLeft) { this.msgLeft = left; m.style.left = left + 'px'; $('chat').style.left = left + 'px'; }
     this.view.avoid = m.childElementCount ? [m.offsetLeft, m.offsetTop, m.offsetLeft + m.offsetWidth, m.offsetTop + m.offsetHeight] : null;
+    const t = $('prep-timer');
+    if (t && t.classList.contains('show')) {   // centred by a transform on a computer, so measured on the screen
+      const r = t.getBoundingClientRect(), o = this.canvas.getBoundingClientRect();
+      this.view.timer = [r.left - o.left, r.top - o.top, r.right - o.left, r.bottom - o.top];
+    } else this.view.timer = null;
   }
   track(e) {
     const st = this.stats, me = this.me;
@@ -716,7 +723,7 @@ export class LtwMode {
     const sub = won ? 'The last one standing' : final && champ ? `${champ} has won the game`
       : !p.alive ? (by ? `${by} took your last life` : 'Your lane has fallen') : `${ordinal(place)} of ${n}`;
     const rows = table.map((q, i) => {
-      const res = q.slot === w.winner ? 'Winner' : q.alive ? `${q.lives} lives` : q.label ? esc(q.label) : q.left ? 'Left' : `Out at ${clock(q.eliminatedAt ?? w.time)}`;
+      const res = q.slot === w.winner ? 'Winner' : q.alive ? `${q.lives} lives` : q.label ? esc(q.label) : q.left ? 'Left' : `Out at ${mapClock(w, q.eliminatedAt ?? w.time)}`;
       return `<div class="st-row${q.slot === me ? ' me' : ''}"><span class="st-place">${ordinal(i + 1)}</span><i class="sw" style="background:${PLAYER_HEX[q.slot]}"></i>`
         + `<b style="color:${PLAYER_TEXT[q.slot]}">${esc(q.name)}</b><em>${q.slot === me ? 'you' : q.kind === 'bot' && !botNamed(q) ? esc(DIFF_NAME[q.difficulty] || '') : ''}</em><span>${res}</span></div>`;
     }).join('');
@@ -724,7 +731,7 @@ export class LtwMode {
       title: won ? 'Victory' : 'Defeat', sub, wide: true,
       body: `<div class="end-grid"><div class="ov-stats">
           <span>Place</span><b>${ordinal(place)} of ${n}</b>
-          <span>Time</span><b>${clock(p.alive ? w.time : (p.eliminatedAt ?? w.time))}</b>
+          <span>Time</span><b>${mapClock(w, p.alive ? w.time : (p.eliminatedAt ?? w.time))}</b>
           <span>Creeps killed</span><b>${lane.stats.kills}</b>
           <span>Lives lost</span><b>${lost}</b>
           <span>Lives stolen</span><b>${stolen}</b>

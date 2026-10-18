@@ -3,12 +3,14 @@
 // (seats, the -onextra option, chat, Ready and Start) and what follows a lost connection: rejoining (the seat is kept
 // for 60 seconds) and clear screens for a host who left, a kick, a full or already started game. The match itself is
 // LtwMode.attach(session, { online }) with the online differences (src/client/ltw.js). The netcode (src/net/session.js)
-// is loaded the first time vs Players is used, so Classic Defense and vs Computer never load it.
+// is loaded the first time vs Players is used, so Classic Defense and vs Computer never load it. The map is Line Tower
+// Wars, the one map online: the join screen and the lobby show its picture to the host and to every joiner.
 // Every name and chat line comes from other players: it is escaped before it goes into the page.
-import { screen, hideScreen } from './screens.js?v=91305a8026e8';
-import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME, esc } from './common.js?v=91305a8026e8';
-import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=91305a8026e8';
-import { clickWord } from './touch.js?v=91305a8026e8';
+import { screen, hideScreen, mapPicture, bindPictures } from './screens.js?v=a48717ff8443';
+import { MAP } from './maps.js?v=a48717ff8443';
+import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME, esc } from './common.js?v=a48717ff8443';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=a48717ff8443';
+import { clickWord } from './touch.js?v=a48717ff8443';
 
 const $ = (id) => document.getElementById(id);
 const NAME_KEY = 'lejdaeron.name';
@@ -16,12 +18,13 @@ const MAX_LOG = 60;          // lobby chat lines kept
 const KICK_ARM = 3000;       // ms a Kick button waits for its second click
 const GRACE = LTW_RULES.reconnectGrace;
 const REJOIN_WAIT = 15;      // seconds a rejoin after a lost connection looks for the host (it answers at once if it is there)
+const MAP_ONLINE = MAP.ltw;   // the lobby carries no map: vs Players has the one
 const TRY_OTHER_NETWORK = 'Some school, office and mobile networks block direct connections between browsers. If it keeps failing, try another network (a phone hotspot works).';
 let net = null;
-const loadNet = async () => (net ||= await import('../net/session.js?v=91305a8026e8'));
+const loadNet = async () => (net ||= await import('../net/session.js?v=a48717ff8443'));
 
 export class Online {
-  // ltw: the LtwMode; menu(): back to the mode menu; enterGame(): main's mode switch before the game screen takes over;
+  // ltw: the LtwMode; menu(): back to the map picker; enterGame(): main's mode switch before the game screen takes over;
   // playing(): whether a Classic or vs Computer game is running
   constructor({ ltw, menu, enterGame, playing }) {
     this.ltw = ltw; this.toMenu = menu; this.enterGame = enterGame; this.playing = playing;
@@ -59,7 +62,7 @@ export class Online {
     }
     this.joinScreen(inv);
   }
-  // After the mode menu came back: an invite that waited for the game to end.
+  // After the map picker came back: an invite that waited for the game to end.
   resume() {
     const inv = this.pending;
     this.pending = null;
@@ -71,10 +74,12 @@ export class Online {
   }
 
   // ---------------------------------------------------------------- the vs Players menu
-  menu() {
+  // back: where Back (and Esc) go: Line Tower Wars' screen (the map picker by default)
+  menu({ back = this.toMenu } = {}) {
+    const leave = () => { this.cancel(); back(); };
     this.setHash(null);
     screen({
-      title: 'vs Players', sub: 'Line Tower Wars online', wide: true,
+      title: 'vs Players', sub: 'Line Tower Wars online', wide: true, back: leave,
       body: `<div class="on-wrap">
           <label class="on-field"><span>Your name</span><input id="on-name" maxlength="16" autocomplete="nickname" spellcheck="false" placeholder="Player"></label>
           <div class="on-cards">
@@ -96,7 +101,7 @@ export class Online {
     $('on-host').onclick = () => this.host();
     $('on-join').onclick = () => this.joinTyped();
     $('on-link').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); this.joinTyped(); } };
-    $('on-back').onclick = () => { this.cancel(); this.toMenu(); };
+    $('on-back').onclick = leave;
   }
   // Gives up the host or join that is running (Back): its progress stops, and what it brings later is left at once.
   cancel() {
@@ -144,9 +149,11 @@ export class Online {
   // The screen an invite link opens: a name, then Join. With a seat token for the room in this browser (a reopened
   // link, a reload) it joins at once.
   async joinScreen(inv, { again = false } = {}) {
+    const back = () => { this.cancel(); this.setHash(null); this.toMenu(); };   // also gives up a join that runs
     screen({
-      title: again ? 'Rejoin game' : 'Join game', sub: `Room ${inv.room}`, wide: true,
+      title: again ? 'Rejoin game' : 'Join game', sub: `Room ${inv.room}`, wide: true, back,
       body: `<div class="on-wrap narrow">
+          ${mapRow()}
           <label class="on-field"><span>Your name</span><input id="on-name" maxlength="16" autocomplete="nickname" spellcheck="false" placeholder="Player"></label>
           <p class="on-note">${again ? `Your seat is kept for ${GRACE} seconds after the connection dropped.` : 'You were invited to a game of Line Tower Wars. The host picks the seats and starts the game; press Ready in the lobby when you are.'}</p>
           <p class="on-status" id="on-status"></p>
@@ -154,11 +161,12 @@ export class Online {
         <div class="ov-actions"><button class="wc-btn small" id="on-back">Back</button></div>`,
       primary: { label: again ? 'Rejoin' : 'Join', run: () => this.join(inv) },
     });
+    bindPictures();
     const nm = $('on-name');
     nm.value = this.name();
     nm.oninput = () => this.saveName(nm.value.trim());
     nm.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); this.join(inv); } };
-    $('on-back').onclick = () => { this.cancel(); this.setHash(null); this.toMenu(); };   // also gives up a join that runs
+    $('on-back').onclick = back;
     if (inv.key === null || inv.key === '') {
       $('ov-btn').disabled = true;
       return this.status(inv.key === null ? 'This link has no host key. Ask the host for the whole invite link.' : 'This invite link is cut short. Copy the whole link from the host again.', 'bad');
@@ -221,7 +229,7 @@ export class Online {
     }
     const back = () => { this.setHash(null); this.invite = null; this.toMenu(); };
     screen({
-      title, sub: `Room ${inv.room}`, wide: true,
+      title, sub: `Room ${inv.room}`, wide: true, back,
       body: `<div class="on-wrap narrow"><p class="on-text">${text}</p>${tip ? `<p class="on-note">${tip}</p>` : ''}</div>
         ${retry ? '<div class="ov-actions"><button class="wc-btn small" id="on-back">Back to menu</button></div>' : ''}`,
       primary: retry ? { label: 'Try again', run: () => this.joinScreen(inv, { again }) } : { label: 'Back to menu', run: back },
@@ -253,6 +261,7 @@ export class Online {
       body: `<div class="lobby">
           <div class="lb-seats" id="lb-seats"></div>
           <div class="lb-side">
+            ${mapRow()}
             <div class="lb-invite">
               <span class="lb-label">Invite link</span>
               <div class="lb-linkrow"><input id="lb-link" class="on-input" readonly value="${esc(inv.link || l.link)}"><button class="lb-btn" id="lb-copy">Copy</button></div>
@@ -270,6 +279,7 @@ export class Online {
         </div>`,
       primary: l.isHost ? { label: 'Start game', run: () => this.start() } : { label: 'Ready', run: () => this.toggleReady() }, cls: 'lobby-box',
     });
+    bindPictures();
     $('lb-copy').onclick = () => this.copyLink();
     $('lb-link').onclick = () => $('lb-link').select();
     const say = () => { const v = $('lb-in').value.trim(); if (v) { this.lobby.chat(v); $('lb-in').value = ''; } };
@@ -465,9 +475,14 @@ export class Online {
     screen({
       title: what[0], sub: what[1], wide: true,
       body: `<div class="on-wrap narrow"><p class="on-text">${what[2]}</p></div>`,
-      primary: { label: 'Back to menu', run: () => this.toMenu() },
+      primary: { label: 'Back to menu', run: () => this.toMenu() }, back: () => this.toMenu(),
     });
   }
+}
+
+// The game's map on the join screen and in the lobby: its picture, its name and how many play it.
+function mapRow(m = MAP_ONLINE) {
+  return `<div class="lb-map">${mapPicture(m, 'thumb')}<span class="lb-mapinfo"><span class="lb-label">Map</span><b>${m.name}</b><em>${m.players}</em></span></div>`;
 }
 
 // What the join screen says while joinLobby runs, from the transport's own diagnostics.

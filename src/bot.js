@@ -21,14 +21,17 @@
 //   requirements the bot owns. Rich hard and insane bots also train an Arcade wisp when a building still adds value.
 // - Lumber (phase 3). Far ahead, hard and insane bots buy the Arcade's lumber for a lumber send the next opponent cannot
 //   kill, then send it. Towers that attackers destroy leave holes in the maze walls, which the wall logic rebuilds.
+// - The build phase (docs/SPEC-ltw.md). The bot thinks as usual (its decisions follow match.time), puts all its gold
+//   into the maze and raises its tech, and sends nothing until the shrines open. Shop unlocks, Creep Fix and the late
+//   game are read on the map's clock (match.playTime).
 // - Difficulty sets the reaction delay, how often it thinks, how noisy and short-sighted its choices are, the maze it
 //   aims for, how much it saves and how aggressive it is. Decisions run a few times per second on cached evaluations
 //   (flow probes and coverage are recomputed only when towers change), so ten bots fit in a browser frame budget.
-import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=91305a8026e8';
-import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_CREEP_FIX, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_ARCADE } from './data/ltw.js?v=91305a8026e8';
-import { typeFactor, armorFactor, avgDamage, TILE } from './field.js?v=91305a8026e8';
-import { flowField, INF, LANE_COLS, LANE_ROWS, SPAWN_U, EXIT_U, tileOf, unitSpeed, RESOURCE_MAX } from './lane.js?v=91305a8026e8';
-import { mulberry32 } from './rng.js?v=91305a8026e8';
+import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=a48717ff8443';
+import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_CREEP_FIX, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_ARCADE } from './data/ltw.js?v=a48717ff8443';
+import { typeFactor, armorFactor, avgDamage, TILE } from './field.js?v=a48717ff8443';
+import { flowField, INF, LANE_COLS, LANE_ROWS, SPAWN_U, EXIT_U, tileOf, unitSpeed, RESOURCE_MAX } from './lane.js?v=a48717ff8443';
+import { mulberry32 } from './rng.js?v=a48717ff8443';
 
 const COLS = LANE_COLS, ROWS = LANE_ROWS, N = COLS * ROWS;
 const SOLD = LTW_SHOPS.flatMap(s => s.units);
@@ -374,7 +377,7 @@ export class Bot {
   // Call after every match.step(dt). Decisions follow the match clock, so a replay with the same calls is identical.
   tick(dt = 0) {
     const m = this.m, p = m.players[this.slot];
-    if (!p || !p.alive || p.left || m.phase !== 'playing') return;   // a kicked bot gives no more orders
+    if (!p || !p.alive || p.left || (m.phase !== 'playing' && m.phase !== 'prep')) return;   // a kicked bot gives no more orders
     if (m.time + 1e-9 < this.nextThink) return;
     this.nextThink = m.time + this.cfg.think * (0.75 + 0.5 * this.rng());
     this.think();
@@ -460,13 +463,13 @@ export class Bot {
   }
   // Far ahead, hard and insane bots save lumber for the lumber send the next opponent is least able to kill.
   lumberPlan(p, tv, myInc, farAhead) {
-    const m = this.m, cfg = this.cfg, slot = this.slot, now = m.time, LC = LTW_ARCADE.lumber.cost;
+    const m = this.m, cfg = this.cfg, slot = this.slot, mapT = m.playTime, LC = LTW_ARCADE.lumber.cost;
     if (!farAhead) { this.lumberGoal = null; return; }
     if (!this.lumberGoal) {
       let best = null;
       for (const id of SOLD) {
         const u = LTW_UNITS[id], ui = UIDX[id];
-        if (!u.lumber || now < u.stock.start) continue;
+        if (!u.lumber || mapT < u.stock.start) continue;
         const st = m.stockOf(slot, id);
         if (st.count < 1) continue;
         const inc = u.income[String(slot)] || 0;
@@ -497,7 +500,7 @@ export class Bot {
 
   // ---------- perception ----------
   observe(p) {
-    const m = this.m, cfg = this.cfg, now = m.time, lane = m.lanes[this.slot];
+    const m = this.m, cfg = this.cfg, now = m.time, lane = m.lanes[this.slot], mapT = m.playTime;
     if (this.lastLives !== null && p.lives < this.lastLives) this.leakT = now;
     this.lastLives = p.lives;
     // creeps entering the lane, noticed after the reaction delay; old sightings fade (90 s)
@@ -517,7 +520,7 @@ export class Bot {
     let ps = 0, hpg = 0, hpgW = 0;
     for (const id of SOLD) {
       const u = LTW_UNITS[id];
-      if (u.lumber > fLumber || u.stock.start > now + cfg.foresight) continue;
+      if (u.lumber > fLumber || u.stock.start > mapT + cfg.foresight) continue;
       if (u.cost > fInc * cfg.afford) continue;   // more than a few ticks of the feeder's income
       const hp = u.hp * u.copies;
       let w = hp * (u.cost >= fInc * 0.1 ? 1 : 0.15);
@@ -566,12 +569,14 @@ export class Bot {
   // ---------- gold: a defence account and a sending account ----------
   accounts(p) {
     const cfg = this.cfg, now = this.m.time;
-    // what could come (forecast) moves the share up to 0.75; creeps actually in the lane and leaks move it further
+    // what could come (forecast) moves the share up to 0.75; creeps actually in the lane and leaks move it further;
+    // in the build phase nothing can be sent, so all of it goes into the maze
     let s = Math.min(0.75, cfg.defBase + cfg.defGain * (this.risk - 1));
     s = Math.max(s, cfg.defBase + cfg.defGain * (this.danger - 1));
     if (this.danger > 1.4) s = Math.max(s, 0.85);
     if (now - this.leakT < cfg.leakMemory) s = Math.max(s, cfg.leakShare);
     s = Math.min(0.97, Math.max(cfg.defMin, s));
+    if (this.m.phase === 'prep') s = 1;
     this.share = s;
     const g = p.gold;
     if (this.lastGold === null) { this.defAcc = g * s; this.sendAcc = g - this.defAcc; }
@@ -685,7 +690,7 @@ export class Bot {
     }
     // swaps: sell a cheap maze tower and start a strong line on its tile (rare). Only toward nodes worth several times
     // what the tower cost, so the sale refund never makes a sideways move look cheap.
-    if (cfg.replace && now > 300 && this.mazeDone > 0.97 && now - this.lastSwap > 6 && now - this.lastSwapLook > 3 && this.prefer.size === 0) {
+    if (cfg.replace && m.playTime > 300 && this.mazeDone > 0.97 && now - this.lastSwap > 6 && now - this.lastSwapLook > 3 && this.prefer.size === 0) {
       this.lastSwapLook = now;
       let best = null;
       for (const t of lane.towers) {
@@ -768,7 +773,8 @@ export class Bot {
 
   // ---------- sending ----------
   attack(p) {
-    const m = this.m, cfg = this.cfg, now = m.time, slot = this.slot;
+    const m = this.m, cfg = this.cfg, now = m.time, slot = this.slot, mapT = m.playTime;
+    if (m.phase === 'prep') return;   // the shrines and the Arcade are shut
     const T = m.next(slot);
     if (T === null || T === slot) return;
     const tv = this.view(T), tp = m.players[T];
@@ -778,11 +784,11 @@ export class Bot {
     if (cfg.lumber) this.lumberPlan(p, tv, myInc, farAhead);
     const tBusy = cfg.weak ? tv.busy(cfg.alpha) : { ground: 0, air: 0 };
     const lifeVal = 20 * Math.max(50, myInc) / Math.max(1, tp.lives);
-    const fixIn = (() => { const per = FIX[String(T)]; return per ? per - (now % per) : Infinity; })();
+    const fixIn = (() => { const per = FIX[String(T)]; return per ? per - (mapT % per) : Infinity; })();
     const opts = [];
     for (const id of SOLD) {
       const u = LTW_UNITS[id], ui = UIDX[id];
-      if (u.lumber > p.lumber || now < u.stock.start) continue;
+      if (u.lumber > p.lumber || mapT < u.stock.start) continue;
       const st = m.stockOf(slot, id);
       if (st.count < 1) continue;
       const inc = u.income[String(slot)] || 0;

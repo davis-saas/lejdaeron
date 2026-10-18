@@ -7,16 +7,16 @@
 //   s.command({ type: 'send', unit: 'n00E' }).then(r => r.ok || ui.error(r.why));
 //   s.command({ type: 'chat', text: '-destroy', towers: [id] });   // chat goes through match.command: 'chat' {slot, name, text}
 //   s.speed = 2; s.paused = true;
-import { Match, STEP } from './match.js?v=91305a8026e8';
-import { Bot } from './bot.js?v=91305a8026e8';
+import { Match, STEP } from './match.js?v=a48717ff8443';
+import { Bot } from './bot.js?v=a48717ff8443';
 
 const MAX_CATCHUP = 1.0;     // seconds of real time one timer call may make up (background tabs fire about once a second)
 const BUDGET = 40;           // ms of simulation per call; beyond it the match runs slower instead of freezing the page
 const MAX_EVENTS = 4000;     // events kept while nobody reads them (a hidden page has no animation frames)
 const IDLE = 100;            // ms without a tick() call before the timer steps the match itself
 
-export function createLocalSession({ slots, seed = randomSeed(), me = 1 } = {}) {
-  const match = new Match({ slots, seed });
+export function createLocalSession({ slots, seed = randomSeed(), me = 1, options = {} } = {}) {
+  const match = new Match({ slots, seed, options });   // options: as Match's (the build phase is on by default)
   const bots = slots.filter(s => s.kind === 'bot').map(s => new Bot(match, s.slot, s.difficulty || 'normal'));
   const handlers = {};
   const emit = (type, data) => { for (const fn of handlers[type] || []) fn(data); };

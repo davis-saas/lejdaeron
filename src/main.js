@@ -1,23 +1,25 @@
-// Entry point: loads the Blender sprites and shows the mode menu. Classic Defense runs its simulation on a timer and
-// draws with requestAnimationFrame; vs Computer and vs Players (Line Tower Wars) are the LtwMode in src/client/ltw.js,
-// and src/client/online.js holds the vs Players menu, join screens and lobby (an invite link #room=... opens it).
+// Entry point: loads the Blender sprites and shows the map picker (src/client/screens.js): the Classic map is Classic
+// Defense, Line Tower Wars is played vs Computer or vs Players. Classic Defense runs its simulation on a timer and draws
+// with requestAnimationFrame; vs Computer and vs Players are the LtwMode in src/client/ltw.js, and src/client/online.js
+// holds the vs Players menu, join screens and lobby (an invite link #room=... opens it, past the picker).
 // Classic's camera starts on the whole map (on a touch screen: the map filling the stage, from its west end); the wheel,
 // the + and - buttons and a pinch zoom it up to about 2.5 times closer, and a right or middle drag, the arrow keys or a
 // finger pan it, anywhere on the stage (also on the bands beside a map zoomed out).
-import { Game, TOWERS, LEVELS } from './game.js?v=91305a8026e8';
-import { buildable } from './level.js?v=91305a8026e8';
-import { loadAssets } from './assets.js?v=91305a8026e8';
-import { Renderer, W, H, P } from './render.js?v=91305a8026e8';
-import { FX } from './fx.js?v=91305a8026e8';
-import { UI } from './ui.js?v=91305a8026e8';
-import { SIN, TOP } from './level.js?v=91305a8026e8';
-import { LtwMode } from './client/ltw.js?v=91305a8026e8';
-import { Online } from './client/online.js?v=91305a8026e8';
-import { Camera } from './client/camera.js?v=91305a8026e8';
-import { Gestures, isTouch, lastInput, phone, touchFirst } from './client/touch.js?v=91305a8026e8';
-import { screen, hideScreen, screenShown, modeMenu, setupScreen, settingsLine, bindSettings, TITLE } from './client/screens.js?v=91305a8026e8';
-import { startApp } from './client/app.js?v=91305a8026e8';
-import { frameDue } from './device.js?v=91305a8026e8';
+import { Game, TOWERS, LEVELS } from './game.js?v=a48717ff8443';
+import { buildable } from './level.js?v=a48717ff8443';
+import { loadAssets } from './assets.js?v=a48717ff8443';
+import { Renderer, W, H, P } from './render.js?v=a48717ff8443';
+import { FX } from './fx.js?v=a48717ff8443';
+import { UI } from './ui.js?v=a48717ff8443';
+import { SIN, TOP } from './level.js?v=a48717ff8443';
+import { LtwMode } from './client/ltw.js?v=a48717ff8443';
+import { Online } from './client/online.js?v=a48717ff8443';
+import { Camera } from './client/camera.js?v=a48717ff8443';
+import { Gestures, isTouch, lastInput, phone, touchFirst } from './client/touch.js?v=a48717ff8443';
+import { screen, hideScreen, screenShown, mapPicker, mapScreen, mapPicture, bindPictures, setupScreen, settingsLine, bindSettings } from './client/screens.js?v=a48717ff8443';
+import { MAP } from './client/maps.js?v=a48717ff8443';
+import { startApp } from './client/app.js?v=a48717ff8443';
+import { frameDue } from './device.js?v=a48717ff8443';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('view'), stage = $('stage');
@@ -279,8 +281,11 @@ window.addEventListener('keydown', (ev) => {
   if (mode === 'ltw') return;
   if (ev.target instanceof HTMLInputElement || ev.target instanceof HTMLSelectElement) return;   // typing a name, a link, lobby chat
   if (ev.key === 'Shift') view.shift = true;
-  if (!started) { if (ev.key === 'Enter' && $('ov-btn').style.display !== 'none' && !$('ov-btn').disabled) $('ov-btn').click(); return; }
-  if (over) { if (ev.key === 'Enter') $('ov-btn').click(); return; }
+  // Enter on the menus presses the dialog's main button, unless one of the dialog's buttons has the focus (a card, Back,
+  // the main button itself: Enter presses that one)
+  const enter = ev.key === 'Enter' && !(ev.target instanceof HTMLButtonElement && $('overlay').contains(ev.target));
+  if (!started) { if (enter && $('ov-btn').style.display !== 'none' && !$('ov-btn').disabled) $('ov-btn').click(); return; }
+  if (over) { if (enter) $('ov-btn').click(); return; }
   if (ev.key === 'F10' || (ev.key === 'Escape' && paused)) { ev.preventDefault(); return paused ? actions.togglePause() : actions.menu(); }
   if (paused) return;
   if (ev.key === 'Escape') { if (view.placing) actions.cancel(); else view.selected = null; return; }
@@ -353,13 +358,20 @@ function toMenu() {
   fit();
   resetView();
   ui.lastInfo = ''; ui.refresh(true);
-  modeMenu({ classic: classicIntro, computer: computerSetup, players: () => online.menu() });
+  mapMenu();
   online.resume();   // an invite link opened during the game that just ended
 }
+// The map picker, and what each map leads to: the Classic map's intro (Classic Defense), Line Tower Wars' screen with
+// vs Computer and vs Players. Every Back goes one screen back, to the picker in the end.
+function mapMenu() { mapPicker({ pick: (m) => ({ classic: classicIntro, ltw: ltwScreen })[m.id]() }); }
+function ltwScreen() { mapScreen(MAP.ltw, { run: { computer: computerSetup, players: () => online.menu({ back: ltwScreen }) }, back: mapMenu }); }
 function classicIntro() {
-  screen({ title: TITLE, sub: 'Classic Defense', body: CLASSIC_INTRO + '<div class="ov-actions"><button class="wc-btn small" id="ov-back">Back</button></div>',
+  screen({ title: 'Classic Defense', sub: MAP.classic.name, wide: true, cls: 'map-box', back: mapMenu,
+    body: `<div class="map-ways">${mapPicture(MAP.classic, 'big')}<div class="map-side">${CLASSIC_INTRO}</div></div>`
+      + '<div class="ov-actions"><button class="wc-btn small" id="ov-back">Back</button></div>',
     primary: { label: 'Begin', run: beginClassic } });
-  $('ov-back').onclick = () => toMenu();
+  bindPictures();
+  $('ov-back').onclick = mapMenu;
 }
 function beginClassic() {
   mode = 'classic'; started = true;
@@ -372,7 +384,7 @@ function enterLtw() { mode = 'ltw'; renderer.static = null; }
 function computerSetup() {
   setupScreen({
     start: (setup) => { enterLtw(); ltw.start(setup); },
-    back: () => toMenu(),
+    back: ltwScreen,
   });
 }
 

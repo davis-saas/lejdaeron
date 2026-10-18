@@ -1,10 +1,13 @@
-// The overlay dialogs: the mode menu, the vs Computer setup and a helper every mode uses for its pause and end screens.
-// They all reuse the one dialog in index.html (#overlay: crest, h1, .ov-sub, #ov-body and #ov-foot with the main #ov-btn).
-// The body scrolls when the window is too short for it; the dialog's own buttons stay in view under it.
-import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME } from './common.js?v=91305a8026e8';
-import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=91305a8026e8';
-import { LIGHT, capped, setCapped } from '../device.js?v=91305a8026e8';
-import { appHint, bindAppHint } from './app.js?v=91305a8026e8';
+// The overlay dialogs: the map picker (the start screen: the maps as pictures), a map's screen with the ways to play
+// it, the vs Computer setup and a helper every mode uses for its pause and end screens. They all reuse the one dialog
+// in index.html (#overlay: crest, h1, .ov-sub, #ov-body and #ov-foot with the main #ov-btn). The body scrolls when the
+// window is too short for it; the dialog's own buttons stay in view under it. On the menu screens the arrow keys move
+// between the cards and the mode buttons, Enter presses the one in focus and Esc goes back.
+import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME } from './common.js?v=a48717ff8443';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=a48717ff8443';
+import { LIGHT, capped, setCapped } from '../device.js?v=a48717ff8443';
+import { appHint, bindAppHint } from './app.js?v=a48717ff8443';
+import { MAPS, MAP, playable, previewUrl } from './maps.js?v=a48717ff8443';
 
 const $ = (id) => document.getElementById(id);
 const box = () => document.querySelector('.ov-box');
@@ -14,9 +17,12 @@ const CREDIT = document.querySelector('.ov-credit') ? document.querySelector('.o
 const SETUP_KEY = 'lejdaeron.vsComputer';
 const MAX_BOTS = 7;
 
-// screen({ title, sub, body, primary: { label, run, disabled }, wide, cls }) shows the dialog; buttons in `body` are
-// wired by the caller after it returns. cls: an extra class for the box (the lobby's is wider still).
-export function screen({ title, sub = '', body = '', primary = null, wide = false, cls = '' }) {
+// screen({ title, sub, body, primary: { label, run, disabled }, wide, cls, back }) shows the dialog; buttons in `body`
+// are wired by the caller after it returns. cls: an extra class for the box (the lobby's is wider still). back: what Esc
+// does (the screen's Back button), on screens that have a way back.
+let onEsc = null;
+export function screen({ title, sub = '', body = '', primary = null, wide = false, cls = '', back = null }) {
+  onEsc = back;
   $('overlay').classList.add('show');
   box().className = 'ov-box' + (wide ? ' wide' : '') + (cls ? ' ' + cls : '');
   box().querySelector('h1').textContent = title;
@@ -29,9 +35,49 @@ export function screen({ title, sub = '', body = '', primary = null, wide = fals
   b.style.display = primary ? '' : 'none';
   if (primary) { b.textContent = primary.label; b.disabled = !!primary.disabled; b.onclick = primary.run; }
   else b.onclick = null;
+  if (keyboard) navFocus();
 }
-export function hideScreen() { $('overlay').classList.remove('show'); }
+export function hideScreen() { $('overlay').classList.remove('show'); onEsc = null; }
 export const screenShown = () => $('overlay').classList.contains('show');
+
+// ---------------------------------------------------------------- keys on the menu screens
+// The arrow keys move the focus to the nearest card or mode button ([data-nav]) that way; the first press, or a new
+// screen while the keys are in use, puts it on the screen's first one (or the map or the way to play picked last, so
+// Esc and Enter go back and forth). Enter presses it, as it presses any button; Esc does what the screen's Back does. A
+// press of the mouse or a finger ends the keys' turn.
+let keyboard = false, lastMap = null, lastMode = null;
+const ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+const typing = (t) => t instanceof HTMLInputElement || t instanceof HTMLSelectElement || t instanceof HTMLTextAreaElement;
+function navItems() { return [...$('ov-body').querySelectorAll('[data-nav]')].filter(b => !b.disabled); }
+const pickedLast = (b) => (b.dataset.map ? b.dataset.map === lastMap : b.dataset.mode === lastMode);
+function navFocus() {
+  const items = navItems(), b = items.find(pickedLast) || items[0];
+  if (b && !items.includes(document.activeElement)) b.focus({ preventScroll: true });
+}
+function navStep([dx, dy]) {
+  const items = navItems(), cur = document.activeElement;
+  if (!items.includes(cur)) return navFocus();
+  const r = cur.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  let best = null, bestD = Infinity;
+  for (const b of items) {
+    const q = b.getBoundingClientRect(), x = q.left + q.width / 2 - cx, y = q.top + q.height / 2 - cy;
+    const along = x * dx + y * dy, across = Math.abs(x * dy - y * dx);
+    if (b === cur || along < 8) continue;
+    if (along + 2 * across < bestD) { bestD = along + 2 * across; best = b; }
+  }
+  if (best) { best.focus({ preventScroll: true }); best.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+}
+window.addEventListener('pointerdown', () => { keyboard = false; }, true);
+window.addEventListener('keydown', (ev) => {
+  if (!screenShown() || ev.defaultPrevented) return;
+  if (ev.key === 'Escape' && onEsc) { ev.preventDefault(); onEsc(); return; }
+  if (ev.key === 'Tab' || ev.key === 'Enter') keyboard = true;
+  const d = ARROWS[ev.key];
+  if (!d || typing(ev.target) || !navItems().length) return;
+  ev.preventDefault();
+  keyboard = true;
+  navStep(d);
+});
 
 // The pause menus' settings, at the top of the menu (above the help, which may scroll): the frame rate (src/device.js;
 // 30 saves battery, the default on a phone), where the light set is loaded (phones, tablets, computers with little
@@ -44,19 +90,59 @@ export function bindSettings() {
   if (b) b.onclick = () => { setCapped(!capped()); b.textContent = fpsLabel(); b.setAttribute('aria-pressed', String(capped())); };
 }
 
-// ---------------------------------------------------------------- mode menu
-export function modeMenu({ classic, computer, players = null }) {
+// ---------------------------------------------------------------- the map picker
+// The start screen: one card per map (src/client/maps.js), its picture first, its name and players under it. A playable
+// map's card leads to the ways to play it (pick(map)); a locked one says "Coming later", can't be pressed and starts
+// nothing.
+export function mapPicker({ pick }) {
   screen({
-    title: TITLE, sub: 'Choose your battle',
-    body: `<div class="modes">
-      <button class="mode" data-mode="classic"><b>Classic Defense</b><span>One road and 28 levels of creeps. Build, upgrade and hold the castle.</span></button>
-      <button class="mode" data-mode="computer"><b>vs Computer</b><span>Line Tower Wars against 1 to 7 computer players. Maze your lane, send creeps, steal lives.</span></button>
-      <button class="mode" data-mode="players" ${players ? '' : 'disabled'}><b>vs Players</b><span>${players ? 'Line Tower Wars online, 2 to 8 players. Host a game and send the invite link; empty seats can be computers.' : 'Online with friends · coming soon'}</span></button>
-    </div>${appHint()}${CREDIT}`,
+    title: TITLE, sub: 'Choose a map', cls: 'picker',
+    body: `<div class="maps">${MAPS.map(mapCard).join('')}</div>${appHint()}${CREDIT}`,
   });
   bindAppHint();
-  const run = { classic, computer, players };
-  for (const b of document.querySelectorAll('#ov-body .mode')) b.onclick = () => { const f = run[b.dataset.mode]; if (f) f(); };
+  bindPictures();
+  for (const b of document.querySelectorAll('#ov-body .map-card')) {
+    const m = MAP[b.dataset.map];
+    if (playable(m)) b.onclick = () => { lastMap = m.id; pick(m); };
+  }
+}
+function mapCard(m) {
+  const open = playable(m);
+  return `<button class="map-card${open ? '' : ' locked'}" data-map="${m.id}" data-nav ${open ? '' : 'disabled'} aria-label="${m.name}, ${m.players}${open ? '' : ', coming later'}">
+    ${mapPicture(m)}<span class="map-cap"><b>${m.name}</b><em>${m.players}</em></span></button>`;
+}
+// A map's picture in the minimap's frame; until it exists (or if it fails to load) an empty map. A picture of another
+// shape than the frame's 2:1 is shown whole (bindPictures, after screen()). cls: 'big' on a map's own screen, 'thumb'
+// on the join screen and in the lobby.
+export function mapPicture(m, cls = '') {
+  return `<span class="map-pic${cls ? ' ' + cls : ''}"><img src="${previewUrl(m)}" alt="" draggable="false">${playable(m) ? '' : '<span class="map-lock">Coming later</span>'}</span>`;
+}
+export function bindPictures(root = $('ov-body')) {
+  for (const img of root.querySelectorAll('.map-pic img')) {
+    const pic = img.parentElement;
+    const shown = () => {
+      pic.classList.toggle('none', !img.naturalWidth);
+      pic.classList.toggle('fit', !!img.naturalWidth && Math.abs(img.naturalWidth / img.naturalHeight - 2) > 0.2);
+    };
+    if (img.complete) shown();
+    else { img.onload = shown; img.onerror = shown; }
+  }
+}
+
+// A map's screen: its picture and what it is, then one button per way to play it (run[mode id]; a mode without one
+// shows disabled). Back and Esc call back (the picker).
+export function mapScreen(m, { run, back }) {
+  screen({
+    title: m.name, sub: 'Choose how to play', wide: true, cls: 'map-box', back,
+    body: `<div class="map-ways">${mapPicture(m, 'big')}
+        <div class="map-side"><p class="map-about">${m.about}</p>
+          <div class="modes">${m.modes.map(d => `<button class="mode" data-mode="${d.id}" data-nav ${run[d.id] ? '' : 'disabled'}><b>${d.name}</b><span>${d.text}</span></button>`).join('')}</div></div>
+      </div>
+      <div class="ov-actions"><button class="wc-btn small" id="ov-back">Back</button></div>`,
+  });
+  bindPictures();
+  for (const b of document.querySelectorAll('#ov-body .mode')) b.onclick = () => { const f = run[b.dataset.mode]; if (f) { lastMode = b.dataset.mode; f(); } };
+  $('ov-back').onclick = back;
 }
 
 // ---------------------------------------------------------------- vs Computer setup
@@ -100,7 +186,7 @@ export function setupScreen({ start, back }) {
           ${LTW_RULES.incomeInterval} seconds. Sending creeps to the next player raises your income (a few of the strongest lower it). A creep
           that gets through steals a life for its sender, then walks on into the next lane. The last player standing wins.</p>
         <div class="ov-actions"><button class="wc-btn small" id="su-back">Back</button></div>`,
-      primary: { label: 'Start', run: () => { saveSetup(setup); start({ bots: setup.bots.slice() }); } },
+      primary: { label: 'Start', run: () => { saveSetup(setup); start({ bots: setup.bots.slice() }); } }, back,
     });
     $('ov-body').scrollTop = top;
     for (const row of document.querySelectorAll('#ov-body .seat[data-i]')) {

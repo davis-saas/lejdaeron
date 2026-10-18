@@ -9,17 +9,25 @@
 //   m.step(dt);   // runs as many fixed 1/60 s ticks as dt covers
 //
 // Events: m.events holds match events (sent, stolen, eliminated, creepfix, income, message, won, over, skip, left;
-// phase 3: tech, techLost, arcade, wisp, extra, extraOn, extraOff, chat, kicked); each m.lanes[slot].events holds that
-// lane's combat events (shot, impact, death, leak, build, upgrade, sell, bash, ...; phase 3: attack, damaged, hurt,
-// destroyed, blast, reincarnate, reborn, evade). Consumers read and clear them (clearEvents() clears all).
+// phase 3: tech, techLost, arcade, wisp, extra, extraOn, extraOff, chat, kicked; play: the build phase is over); each
+// m.lanes[slot].events holds that lane's combat events (shot, impact, death, leak, build, upgrade, sell, bash, ...;
+// phase 3: attack, damaged, hurt, destroyed, blast, reincarnate, reborn, evade). Consumers read and clear them
+// (clearEvents() clears all).
 //
 // Phase 3 commands: { type: 'tech', id } spends a wisp on a tech building, { type: 'arcade', item: 'lumber' | 'wisp' }
 // buys at the Arcade, { type: 'chat', text, towers?, tech? } says something and runs the map's chat commands,
 // { type: 'destroy', tower | towers, tech? } kills your own towers or tech buildings. new Match({ ..., options: { extra } })
 // turns '-onextra' off for a lobby (on by default, like the map).
-import { Lane, addGold, addLumber, requiresText, techUnlocks } from './lane.js?v=91305a8026e8';
-import { LTW_RULES, LTW_UNITS, LTW_SHOPS, LTW_CREEP_FIX, LTW_COLORS, LTW_MESSAGES, LTW_TECH, LTW_TECH_ORDER, LTW_ARCADE, LTW_CHAT } from './data/ltw.js?v=91305a8026e8';
-import { mulberry32 } from './rng.js?v=91305a8026e8';
+//
+// The build phase (the owner's adaptation, docs/SPEC-ltw.md): a match opens with options.prep seconds (PREP_TIME, 30, by
+// default; 0 plays the map as it is) in phase 'prep', in which players build, upgrade, sell, raise tech and chat, but the
+// shrines and the Arcade are shut, so no creep can come. The map's own timers (income, shop stock, Creep Fix and its
+// warnings, victory checks, leaver sweeps, '-onextra') count from the end of the phase: m.playTime is the map's clock
+// (negative during the phase), m.prepLeft the seconds the phase has left. m.time and m.ticks keep counting from the first
+// tick (lanes, bots, events). The phase ends with a 'play' match event.
+import { Lane, addGold, addLumber, requiresText, techUnlocks } from './lane.js?v=a48717ff8443';
+import { LTW_RULES, LTW_UNITS, LTW_SHOPS, LTW_CREEP_FIX, LTW_COLORS, LTW_MESSAGES, LTW_TECH, LTW_TECH_ORDER, LTW_ARCADE, LTW_CHAT } from './data/ltw.js?v=a48717ff8443';
+import { mulberry32 } from './rng.js?v=a48717ff8443';
 
 export const TPS = 60;                 // fixed ticks per second
 export const STEP = 1 / TPS;
@@ -29,12 +37,20 @@ const R = LTW_RULES;
 const fail = (why) => ({ ok: false, why });
 const fill = (text, vars) => text.replace(/\{(\w+)\}/g, (_, k) => vars[k]);
 const ARC = LTW_ARCADE;
+export const PREP_TIME = 30;           // seconds of build phase before the shrines open (the owner's adaptation)
+export const PREP_MAX = 300;           // the longest build phase a lobby may ask for
+// "30 seconds", "1 second": a wait the build phase still has, rounded up, as the refusals and the console say it.
+export function waitText(seconds) { const n = Math.max(1, Math.ceil(seconds - 1e-9)); return n + (n === 1 ? ' second' : ' seconds'); }
+export const prepWhy = (left) => `The shrines open in ${waitText(left)}.`;
+export const prepArcadeWhy = (left) => `The Arcade opens in ${waitText(left)}.`;
 
 export class Match {
   constructor({ slots = [], seed = 1, rng = null, options = {} } = {}) {
     this.seed = seed;
-    // Lobby options: extra (default true, like the map): whether '-onextra' works.
-    this.options = { extra: (options && typeof options.extra === 'boolean') ? options.extra : LTW_RULES.extra };
+    // Lobby options: extra (default true, like the map): whether '-onextra' works; prep: seconds of build phase.
+    const prep = options && typeof options.prep === 'number' && options.prep >= 0 && options.prep <= PREP_MAX ? options.prep : PREP_TIME;
+    this.options = { extra: (options && typeof options.extra === 'boolean') ? options.extra : LTW_RULES.extra, prep };
+    this.prepTicks = T(prep);           // the map's clock starts when the build phase ends
     this.extra = { on: false, slot: null };   // the map's udg_cont / udg_player: one player at a time, first come
     this.rng = rng || mulberry32(seed);
     this.ticks = 0; this.time = 0; this.acc = 0;
@@ -64,7 +80,7 @@ export class Match {
     // The ring: occupied slots in slot order, empty slots pruned. Eliminated players stay listed but are skipped.
     this.ring = list.map(s => s.slot);
     this.transit = [];                  // creeps stopped for 1 s at a skipped lane: { creep, lane, at }
-    this.winner = null; this.phase = 'playing'; this.overAt = null;
+    this.winner = null; this.phase = this.prepTicks > 0 ? 'prep' : 'playing'; this.overAt = null;
     this.timers = {
       income: T(R.incomeInterval), sweep: T(R.leaverSweep), victory: T(R.victoryInterval), victoryDelay: T(R.victoryDelay),
       skip: T(R.skipWait),
@@ -75,7 +91,11 @@ export class Match {
   }
 
   // ---------- queries ----------
-  get incomeTimer() { return (this.timers.income - this.ticks % this.timers.income) / TPS; }
+  // The map's clock: seconds since the build phase ended (negative during it). Every map timer counts on it.
+  get playTime() { return (this.ticks - this.prepTicks) / TPS; }
+  get prepLeft() { return Math.max(0, this.prepTicks - this.ticks) / TPS; }
+  // Seconds to the next income tick (the first comes one interval after the build phase).
+  get incomeTimer() { const k = this.ticks - this.prepTicks, T = this.timers.income; return (k < 0 ? T - k : T - k % T) / TPS; }
   // The player in `slot`, or null. Slots are integers: '3' (a DOM dataset value, a JSON key) or 'toString' is not a slot,
   // because every ring check compares slots with ===.
   player(slot) { return Number.isInteger(slot) && Object.hasOwn(this.players, slot) ? this.players[slot] : null; }
@@ -99,11 +119,12 @@ export class Match {
     return ring[i >= 0 ? (i + 1) % n : Math.max(0, ring.findIndex(s => s > slot))];
   }
 
-  // Shop stock for one player and unit, brought up to the current tick (WC3 shop rules from usma/usrg/usst).
+  // Shop stock for one player and unit, brought up to the current tick (WC3 shop rules from usma/usrg/usst). Ticks are
+  // match ticks; a unit's start time counts from the end of the build phase.
   stockOf(slot, unit) {
     const u = LTW_UNITS[unit];
     let st = this.stock[slot][unit];
-    if (!st) st = this.stock[slot][unit] = { count: 0, next: null, open: false, startTick: T(u.stock.start), regen: T(u.stock.replenish) };
+    if (!st) st = this.stock[slot][unit] = { count: 0, next: null, open: false, startTick: this.prepTicks + T(u.stock.start), regen: T(u.stock.replenish) };
     if (!st.open && this.ticks >= st.startTick) { st.open = true; st.count = u.stock.max; st.next = null; }
     while (st.next !== null && this.ticks >= st.next) {
       st.count++;
@@ -115,7 +136,7 @@ export class Match {
   arcadeStock(slot) {
     const spec = ARC.lumber.stock, key = ARC.lumber.item;
     let st = this.itemStock[slot][key];
-    if (!st) st = this.itemStock[slot][key] = { count: 0, next: null, open: false, startTick: T(spec.start), regen: T(spec.replenish) };
+    if (!st) st = this.itemStock[slot][key] = { count: 0, next: null, open: false, startTick: this.prepTicks + T(spec.start), regen: T(spec.replenish) };
     if (!st.open && this.ticks >= st.startTick) { st.open = true; st.count = spec.max; st.next = null; }
     while (st.next !== null && this.ticks >= st.next) {
       st.count++;
@@ -167,7 +188,8 @@ export class Match {
   //     | { type: 'chat', text, towers?, tech? } | { type: 'destroy', tower?, towers?, tech? }.
   //     `slot` must be an integer slot of this match. `tower` is a tower id (or the tower object). A leave's grace is
   //     seconds, at most LTW_RULES.reconnectGrace (default 0). An eliminated player can only chat, and one who has left
-  //     (or was kicked) can do nothing until they rejoin. Returns { ok, why, ... }.
+  //     (or was kicked) can do nothing until they rejoin. During the build phase sends and the Arcade are refused
+  //     ("The shrines open in 30 seconds.", "The Arcade opens in ..."). Returns { ok, why, ... }.
   command(slot, op) {
     const p = this.player(slot);
     if (!p) return fail('No such player.');
@@ -250,6 +272,8 @@ export class Match {
     const p = this.player(slot);
     if (!p) return 'No such player.';
     if (!p.alive) return 'You have been eliminated.';
+    if (item !== 'lumber' && item !== 'wisp') return 'Unknown item.';
+    if (this.phase === 'prep') return prepArcadeWhy(this.prepLeft);
     if (item === 'lumber') {
       const st = this.arcadeStock(slot);
       if (!st.open) return 'Not available yet.';
@@ -257,13 +281,10 @@ export class Match {
       if (p.gold < ARC.lumber.cost) return 'Not enough gold.';
       return null;
     }
-    if (item === 'wisp') {
-      if (p.training.length >= LTW_RULES.trainQueue) return 'The training queue is full.';
-      if (p.gold < ARC.wisp.cost) return 'Not enough gold.';
-      if (p.lumber < ARC.wisp.lumber) return 'Not enough lumber.';
-      return null;
-    }
-    return 'Unknown item.';
+    if (p.training.length >= LTW_RULES.trainQueue) return 'The training queue is full.';
+    if (p.gold < ARC.wisp.cost) return 'Not enough gold.';
+    if (p.lumber < ARC.wisp.lumber) return 'Not enough lumber.';
+    return null;
   }
   buyArcade(slot, item) {
     const why = this.whyNotArcade(slot, item);
@@ -360,6 +381,7 @@ export class Match {
   send(slot, unit) {
     const u = typeof unit === 'string' && Object.hasOwn(LTW_UNITS, unit) ? LTW_UNITS[unit] : null, p = this.players[slot];
     if (!u || !u.sold) return fail('Unknown unit.');
+    if (this.phase === 'prep') return fail(prepWhy(this.prepLeft));
     const st = this.stockOf(slot, unit);
     if (!st.open) return fail('Not available yet.');
     if (st.count < 1) return fail('Out of stock.');
@@ -429,12 +451,15 @@ export class Match {
   run(seconds) { const n = T(seconds); for (let i = 0; i < n && this.phase !== 'over'; i++) this.tick(); }
   tick() {
     this.ticks++; this.time = this.ticks / TPS;
-    const k = this.ticks, tm = this.timers;
+    // k: the map's clock in ticks. The build phase ends on the tick the clock reaches 0, so with no build phase (or
+    // after it) every timer fires on the same map tick as in the map.
+    const k = this.ticks - this.prepTicks, tm = this.timers;
+    if (this.phase === 'prep' && k >= 0) { this.phase = 'playing'; this.emit({ type: 'play' }); }
     // creeps that waited 1 s at a skipped lane move on
     if (this.transit.length) {
-      const due = this.transit.filter(e => e.at <= k);
+      const now = this.ticks, due = this.transit.filter(e => e.at <= now);
       if (due.length) {
-        this.transit = this.transit.filter(e => e.at > k);
+        this.transit = this.transit.filter(e => e.at > now);
         for (const e of due) this.enter(e.creep, this.after(e.lane));
       }
     }
@@ -446,6 +471,7 @@ export class Match {
       for (const c of list) this.leak(s, c);
     }
     if (this.ring.some(sl => this.players[sl].training.length)) this.finishTraining();
+    if (k <= 0) return;   // the build phase: no map timer runs yet
     if (k % tm.income === 0) this.payIncome();
     if (k % tm.sweep === 0 && this.phase === 'playing') this.sweepLeavers();   // a declared winner is never swept
     for (const s of this.ring) {
@@ -455,7 +481,7 @@ export class Match {
     for (const w of tm.warnings) if (k % w.every === 0) this.message(null, w.text);
     if (tm.lag && k % tm.lag.every === 0) this.message(null, tm.lag.text);
     if (this.winner === null && this.overAt === null && k % tm.victory === 0) this.checkVictory();
-    if (this.overAt !== null && k >= this.overAt) { this.phase = 'over'; this.emit({ type: 'over', winner: this.winner }); }
+    if (this.overAt !== null && this.ticks >= this.overAt) { this.phase = 'over'; this.emit({ type: 'over', winner: this.winner }); }
   }
   // A creep reaches lane `to` (the map teleports it into depart_N). The creep owner's own lane and a dead player's lane
   // stop it for 1 s (the map's 'Copier') and pass it on to the next lane in the ring, one lane at a time.
@@ -502,7 +528,7 @@ export class Match {
   // Once the match is decided nobody else is eliminated.
   eliminate(slot, by = null, reason = 'lives') {
     const p = this.player(slot);
-    if (!p || !p.alive || this.phase !== 'playing') return;
+    if (!p || !p.alive || this.phase === 'won' || this.phase === 'over') return;
     p.alive = false; p.eliminatedAt = this.time; p.eliminatedBy = by;
     p.training = [];   // (an '-onextra' they turned on stays on, as the map's udg_player does: nobody else can take it)
     this.lanes[slot].clearTowers();

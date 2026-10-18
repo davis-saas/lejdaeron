@@ -17,12 +17,12 @@
 // lane as soon as they happen, the board (with tech and Arcade training), their own shop and Arcade stock and the match
 // events. Crowded lanes stream at a lower rate. A frame is a delta against what that player already has, so a player who
 // misses one asks for a full one.
-import { Match, STEP, TPS } from '../match.js?v=91305a8026e8';
-import { Bot } from '../bot.js?v=91305a8026e8';
-import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=91305a8026e8';
-import * as P from './protocol.js?v=91305a8026e8';
-import * as CFG from './config.js?v=91305a8026e8';
-import { NONCE_RE } from './auth.js?v=91305a8026e8';
+import { Match, STEP, TPS, PREP_TIME, PREP_MAX } from '../match.js?v=a48717ff8443';
+import { Bot } from '../bot.js?v=a48717ff8443';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=a48717ff8443';
+import * as P from './protocol.js?v=a48717ff8443';
+import * as CFG from './config.js?v=a48717ff8443';
+import { NONCE_RE } from './auth.js?v=a48717ff8443';
 
 const { C, H, F, LB, CM, CF, EV } = P;
 export const LOCAL = 'local';
@@ -64,7 +64,8 @@ export class HostCore {
     this.seats = [];
     for (let s = 1; s <= seats; s++) this.seats[s] = { slot: s, kind: 'open', name: '', difficulty: 'normal', ready: false, peer: null, token: null, connected: false, dropAt: 0 };
     Object.assign(this.seats[1], { kind: 'human', name: P.cleanName(hostName) || 'Host', ready: true });
-    this.options = { extra: LTW_RULES.extra };   // lobby options, passed to the Match (extra: '-onextra' works)
+    // lobby options, passed to the Match: extra ('-onextra' works), prep (seconds of build phase)
+    this.options = { extra: LTW_RULES.extra, prep: PREP_TIME };
     this.match = null; this.bots = []; this.t0 = null; this.done = 0;
     this.lanes = {};                     // per lane: event log, tower versions
     this.mlog = []; this.mseq = 0;       // match events
@@ -276,9 +277,13 @@ export class HostCore {
     if (kind === 'bot') { seat.difficulty = DIFFS.includes(difficulty) ? difficulty : 'normal'; seat.name = botName(seat.difficulty); }
     this.lobbyChanged();
   }
-  setOptions({ extra }) {
-    if (this.phase !== 'lobby' || typeof extra !== 'boolean') return;
-    this.options.extra = extra;
+  // Each option is optional: extra a boolean, prep whole seconds from 0 to PREP_MAX (no lobby screen offers it yet).
+  setOptions({ extra, prep }) {
+    if (this.phase !== 'lobby') return;
+    const okExtra = typeof extra === 'boolean', okPrep = P.isInt(prep, 0, PREP_MAX);
+    if (!okExtra && !okPrep) return;
+    if (okExtra) this.options.extra = extra;
+    if (okPrep) this.options.prep = prep;
     this.lobbyChanged();
   }
   kickSlot(slot) {

@@ -1,7 +1,7 @@
 // Visual effects: projectiles, impacts, beams, corpses, floating text and ambient particles.
-import { P, sx, sy, hexA, drawFlame } from './render.js?v=91305a8026e8';
-import { SIN, TILE } from './level.js?v=91305a8026e8';
-import { LIGHT, FX_DENSITY } from './device.js?v=91305a8026e8';
+import { P, sx, sy, hexA, drawFlame } from './render.js?v=a48717ff8443';
+import { SIN, TILE } from './level.js?v=a48717ff8443';
+import { LIGHT, FX_DENSITY } from './device.js?v=a48717ff8443';
 
 const COL = {
   arrow: '#e8d8b0', spear: '#d8c8a0', bullet: '#ffe9a0', blood: '#c01818', quake: '#b08a5a', wisp: '#bfe8ff', frost: '#8fe0ff',

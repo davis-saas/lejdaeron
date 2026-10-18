@@ -7,8 +7,8 @@
 // - Star topology: right after a link opens both ends say whether they are the host or a player, and a link that isn't
 //   host <-> player (two players, or two hosts on the same room code) is refused, so players only talk to the host.
 // - ICE uses the public STUN servers and optional TURN relays from src/net/config.js.
-import * as CFG from './config.js?v=91305a8026e8';
-import { Transport } from './transport.js?v=91305a8026e8';
+import * as CFG from './config.js?v=a48717ff8443';
+import { Transport } from './transport.js?v=a48717ff8443';
 
 // Trystero gives a second joinRoom for the same room the first one's room object, so a second transport would take over
 // the first one's handlers and closing either would cut both: one live transport per room and page.
@@ -17,7 +17,7 @@ export async function createTrysteroTransport({ room, role = 'join', log = () =>
   if (live.has(room)) throw new Error(`This page is already in room ${room}.`);
   live.add(room);
   try {
-    const lib = await import('./vendor/trystero.js?v=91305a8026e8');
+    const lib = await import('./vendor/trystero.js?v=a48717ff8443');
     return new TrysteroTransport(lib, { room, role, log });
   } catch (e) { live.delete(room); throw e; }
 }

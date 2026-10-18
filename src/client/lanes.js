@@ -4,13 +4,13 @@
 // unchanged. Per frame: the lane ground (cached at the current zoom, one canvas shared by every lane) for each lane in
 // view, then each lane's depth-sorted props, towers, creeps and tech area, then missiles, particles and bars, then the
 // name plates.
-import { Renderer, P, K, TK, sx, sy, hexA, drawFlame } from '../render.js?v=91305a8026e8';
-import { SIN, TOP, TILE } from '../level.js?v=91305a8026e8';
-import { SPAWN_U, EXIT_U, LANE_ROWS } from '../lane.js?v=91305a8026e8';
-import { mulberry32 } from '../rng.js?v=91305a8026e8';
-import { tinted } from '../assets.js?v=91305a8026e8';
-import { pixelRatio, canvasScale } from '../device.js?v=91305a8026e8';
-import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, BAND, laneDY, PLAYER_HEX, PLAYER_TEXT, techArea, botNamed } from './common.js?v=91305a8026e8';
+import { Renderer, P, K, TK, sx, sy, hexA, drawFlame } from '../render.js?v=a48717ff8443';
+import { SIN, TOP, TILE } from '../level.js?v=a48717ff8443';
+import { SPAWN_U, EXIT_U, LANE_ROWS } from '../lane.js?v=a48717ff8443';
+import { mulberry32 } from '../rng.js?v=a48717ff8443';
+import { tinted } from '../assets.js?v=a48717ff8443';
+import { pixelRatio, canvasScale } from '../device.js?v=a48717ff8443';
+import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, BAND, laneDY, PLAYER_HEX, PLAYER_TEXT, techArea, botNamed } from './common.js?v=a48717ff8443';
 
 const GX0 = sx(LANE_X0), GX1 = sx(LANE_X1), GY0 = sy(LANE_Y0), GY1 = sy(LANE_Y1);   // one band, logical px
 const REACH = 3.2 * P;              // how far tall sprites reach above their tile (logical px), for culling
@@ -531,7 +531,8 @@ export class LaneRenderer extends Renderer {
 
   // The lane owner's name plate at the spawn end (kept inside the view while any of the lane shows), and a banner
   // over eliminated lanes. view.insets keeps it clear of the top bar and the console ornaments that overlap the view's
-  // edges, and view.avoid (css px rect, the map messages) is stepped around to the right.
+  // edges, view.avoid (css px rect, the map messages) is stepped around to the right, and the build phase's timer
+  // window (view.timer, css px rect) by going under it, or past it where the lane has no room below it.
   plate(ctx, world, slot, i, cam, view) {
     const p = world.players[slot];
     const at = cam.toScreen(sx(LANE_X0 + 0.15), laneDY(i) + sy(LANE_Y0 + 0.3));
@@ -545,8 +546,11 @@ export class LaneRenderer extends Renderer {
     ctx.font = "600 11px 'Alegreya Sans', sans-serif";
     if (role) w = Math.max(w, ctx.measureText(role).width);
     w += 30;
-    let x = Math.max(6, at.x);
-    const y = Math.min(Math.max(top, at.y), bottom - hgt);
+    let x = Math.max(6, at.x), y = Math.min(Math.max(top, at.y), bottom - hgt);
+    const t = view.timer;
+    if (t && x < t[2] && t[0] < x + w && y < t[3] && t[1] < y + hgt) {
+      if (t[3] + 4 + hgt <= bottom) y = t[3] + 4; else x = t[2] + 8;
+    }
     if (y + hgt <= floor) {   // only the lane's north border shows: no plate under the console
       const a = view.avoid;
       if (a && x < a[2] && a[0] < x + w && y < a[3] && a[1] < y + hgt) x = a[2] + 8;

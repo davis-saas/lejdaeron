@@ -32,7 +32,7 @@ button { font: inherit; color: inherit; }
 input, select { touch-action: manipulation; }
 /* preload the hover/active chrome so the first hover does not flicker */
 #app::after { content: ''; position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;
-  background: url(assets/ui/button_hover.png?v=91305a8026e8), url(assets/ui/button_active.png?v=91305a8026e8), url(assets/ui/button_empty.png?v=91305a8026e8), url(assets/ui/btn_wide_hover.png?v=91305a8026e8); }
+  background: url(assets/ui/button_hover.png?v=a48717ff8443), url(assets/ui/button_active.png?v=a48717ff8443), url(assets/ui/button_empty.png?v=a48717ff8443), url(assets/ui/btn_wide_hover.png?v=a48717ff8443); }
 
 .gold-text { background: linear-gradient(#fff3c4 0%, #f6d27a 38%, #c8922e 62%, #f4cf72 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
@@ -41,7 +41,7 @@ input, select { touch-action: manipulation; }
 #topbar::before {
   content: ''; position: absolute; left: 0; right: 0; top: 0; height: 56px; z-index: -1; pointer-events: none;
   border-style: solid; border-color: transparent; border-width: 0 75px;
-  border-image: url(assets/ui/topbar.png?v=91305a8026e8) 0 96 fill / 0 75px stretch;
+  border-image: url(assets/ui/topbar.png?v=a48717ff8443) 0 96 fill / 0 75px stretch;
   filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75));
 }
 .tb-left { display: flex; flex: none; gap: 4px; align-items: center; }
@@ -49,16 +49,16 @@ input, select { touch-action: manipulation; }
   height: 26px; padding: 0 12px; cursor: pointer; font: 700 12px/16px var(--title); letter-spacing: 0.08em; color: var(--gold-l);
   text-shadow: 0 1px 1px #000, 0 0 4px #000; background: none;
   border-style: solid; border-color: transparent; border-width: 7px 10px;
-  border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 7px 10px stretch;
+  border-image: url(assets/ui/btn_wide.png?v=a48717ff8443) 22 34 fill / 7px 10px stretch;
 }
-.tb-btn:hover, .tb-speed button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; }
+.tb-btn:hover, .tb-speed button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); color: #fff; }
 .tb-btn:active, .tb-speed button:active { transform: translateY(1px); }
 .tb-speed { display: flex; gap: 1px; margin-left: 6px; }
 .tb-speed button { padding: 0 3px; min-width: 38px; }
-.tb-speed button.on { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; text-shadow: 0 0 6px rgba(255,210,100,0.9), 0 1px 1px #000; }
+.tb-speed button.on { border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); color: #fff; text-shadow: 0 0 6px rgba(255,210,100,0.9), 0 1px 1px #000; }
 
 .tb-plaque { position: absolute; left: 50%; top: 0; width: 280px; height: 78px; transform: translateX(-50%); pointer-events: none;
-  background: url(assets/ui/topbar_center.png?v=91305a8026e8) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7)); }
+  background: url(assets/ui/topbar_center.png?v=a48717ff8443) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7)); }
 .tb-title { position: absolute; left: 56px; right: 56px; top: 9px; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .tb-title b { font: 800 15px/1.05 var(--title); letter-spacing: 0.12em; text-transform: uppercase; filter: drop-shadow(0 1px 1px #000); }
 .tb-title small { display: block; max-width: 100%; margin-top: 2px; font: 600 11px/1.1 var(--body); color: var(--muted); letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 1px #000; }
@@ -71,12 +71,12 @@ input, select { touch-action: manipulation; }
 #r-gold { color: #ffe08a; }
 .res-sub { color: var(--muted); font-size: 12px; font-weight: 600; }
 .ico { width: 24px; height: 24px; display: inline-block; flex: 0 0 auto; background: center / contain no-repeat; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.8)); }
-.ico-gold { background-image: url(assets/ui/res_gold.png?v=91305a8026e8); }
-.ico-income { background-image: url(assets/ui/res_income.png?v=91305a8026e8); }
-.ico-lives { background-image: url(assets/ui/res_lives.png?v=91305a8026e8); }
-.ico-level { background-image: url(assets/ui/res_level.png?v=91305a8026e8); }
-.ico-lumber { background-image: url(assets/ui/res_lumber.png?v=91305a8026e8); }
-.ico-wisp { background-image: url(assets/ui/res_wisp.png?v=91305a8026e8); }
+.ico-gold { background-image: url(assets/ui/res_gold.png?v=a48717ff8443); }
+.ico-income { background-image: url(assets/ui/res_income.png?v=a48717ff8443); }
+.ico-lives { background-image: url(assets/ui/res_lives.png?v=a48717ff8443); }
+.ico-level { background-image: url(assets/ui/res_level.png?v=a48717ff8443); }
+.ico-lumber { background-image: url(assets/ui/res_lumber.png?v=a48717ff8443); }
+.ico-wisp { background-image: url(assets/ui/res_wisp.png?v=a48717ff8443); }
 
 /* ---------------- battlefield ---------------- */
 #stage { position: relative; background: radial-gradient(ellipse at center, #10140c, #000 75%); overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -99,13 +99,13 @@ input, select { touch-action: manipulation; }
 #msgs { position: absolute; left: 16px; bottom: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; max-width: min(620px, 55%); pointer-events: none; font: 700 14px var(--body); }
 #msgs div { text-shadow: 0 1px 2px #000, 0 0 6px #000; transition: opacity 1s; }
 #wave-timer { position: absolute; right: 12px; top: 12px; padding: 0 6px; min-width: 150px; font: 700 14px var(--title); color: var(--gold-l); text-shadow: 0 1px 2px #000; pointer-events: none;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 18px stretch; }
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 18px stretch; }
 #wave-timer:empty { display: none; }
 #wave-timer.tap { pointer-events: auto; cursor: pointer; }   /* a finger calls the level by tapping it */
 /* what a finger does next (placing a tower), over the bottom of the view */
 #hint { position: absolute; left: 50%; bottom: 10px; z-index: 3; display: none; max-width: calc(100% - 120px); padding: 0 6px; transform: translateX(-50%);
   font: 700 13px/1.3 var(--body); color: var(--gold-l); text-align: center; text-shadow: 0 1px 2px #000; pointer-events: none;
-  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 16px stretch; }
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 16px stretch; }
 #hint.show { display: block; }
 #msgs.hinted { bottom: 54px; }
 #wave-timer small { display: block; font: 600 12px var(--body); color: var(--muted); letter-spacing: 0; }
@@ -114,25 +114,25 @@ input, select { touch-action: manipulation; }
 #console {
   position: relative; z-index: 5; display: grid; align-items: stretch;
   grid-template-columns: minmax(210px, 290px) auto minmax(0, 1fr) auto; gap: 10px; padding: 30px 30px 8px 30px;
-  background: #15130f url(assets/ui/console_bg.png?v=91305a8026e8) repeat-x 0 0 / auto 100%;
+  background: #15130f url(assets/ui/console_bg.png?v=a48717ff8443) repeat-x 0 0 / auto 100%;
   box-shadow: 0 -6px 14px rgba(0,0,0,0.75);
 }
 #console::before, #console::after {
   content: ''; position: absolute; top: -4px; width: 88px; height: 88px; z-index: 3; pointer-events: none;
-  background: url(assets/ui/corner.png?v=91305a8026e8) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
+  background: url(assets/ui/corner.png?v=a48717ff8443) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
 }
 #console::before { left: -4px; }
 #console::after { right: -4px; transform: scaleX(-1); }
 .panel {
   position: relative; min-width: 0; min-height: 0;
   border-style: solid; border-color: transparent; border-width: 18px;
-  border-image: url(assets/ui/frame_gold.png?v=91305a8026e8) 64 / 32px round;
+  border-image: url(assets/ui/frame_gold.png?v=a48717ff8443) 64 / 32px round;
   background: radial-gradient(ellipse at 50% 0%, rgba(60,52,40,0.55), rgba(0,0,0,0) 70%), linear-gradient(#0f0d0b, #070605);
   background-clip: padding-box; background-origin: padding-box;
   box-shadow: inset 0 0 18px rgba(0,0,0,0.9);
   filter: drop-shadow(0 3px 4px rgba(0,0,0,0.7));
 }
-#mm-panel { display: flex; align-items: center; justify-content: center; border-width: 22px; border-image: url(assets/ui/frame_minimap.png?v=91305a8026e8) 72 / 36px stretch; background: #000; background-clip: padding-box; }
+#mm-panel { display: flex; align-items: center; justify-content: center; border-width: 22px; border-image: url(assets/ui/frame_minimap.png?v=a48717ff8443) 72 / 36px stretch; background: #000; background-clip: padding-box; }
 #minimap { width: 100%; height: 100%; display: block; }
 /* zoom in / out, small round buttons on the minimap frame's left edge (as WC3 keeps its minimap buttons beside it) */
 #mm-zoom { position: absolute; z-index: 2; left: -19px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 5px; }
@@ -148,7 +148,7 @@ input, select { touch-action: manipulation; }
   background: radial-gradient(circle at 50% 38%, #26303e, #07090c 78%); }
 #portrait-frame::after { content: ''; position: absolute; pointer-events: none;
   left: calc(var(--pw) * -36 / 216); top: calc(var(--pw) * -108 / 216); width: calc(var(--pw) * 288 / 216); height: calc(var(--pw) * 360 / 216);
-  background: url(assets/ui/portrait_frame.png?v=91305a8026e8) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75)); }
+  background: url(assets/ui/portrait_frame.png?v=a48717ff8443) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75)); }
 #portrait { width: 100%; height: 100%; display: block; }
 
 #info-panel { display: flex; padding: 2px 8px; }
@@ -190,8 +190,8 @@ input, select { touch-action: manipulation; }
 #commands { display: grid; grid-template-columns: repeat(4, var(--btn)); grid-template-rows: repeat(3, var(--btn)); gap: var(--gap); }
 .cmd { position: relative; width: var(--btn); height: var(--btn); padding: 0; cursor: pointer; border: 0; background: #0b0a09; overflow: visible; }
 .cmd canvas { position: absolute; left: 2px; top: 2px; width: calc(100% - 4px); height: calc(100% - 4px); display: block; transition: filter 0.15s; }
-.cmd::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: url(assets/ui/button.png?v=91305a8026e8) 0 0 / 100% 100% no-repeat; }
-.cmd:hover::after { background-image: url(assets/ui/button_hover.png?v=91305a8026e8); }
+.cmd::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: url(assets/ui/button.png?v=a48717ff8443) 0 0 / 100% 100% no-repeat; }
+.cmd:hover::after { background-image: url(assets/ui/button_hover.png?v=a48717ff8443); }
 .cmd:hover canvas { filter: brightness(1.18) saturate(1.08); }
 .cmd:hover { box-shadow: 0 0 10px rgba(255,205,90,0.55); }
 .cmd:active canvas { transform: translateY(1px); filter: brightness(0.9); }
@@ -200,13 +200,13 @@ input, select { touch-action: manipulation; }
 .cmd.poor canvas { filter: grayscale(0.85) brightness(0.5); }
 .cmd.poor .cost { color: #ff7a6a; }
 .cmd.empty { cursor: default; background: transparent; box-shadow: none; }
-.cmd.empty::after { background-image: url(assets/ui/button_empty.png?v=91305a8026e8); }
-.cmd.active::after { background-image: url(assets/ui/button_active.png?v=91305a8026e8); }
+.cmd.empty::after { background-image: url(assets/ui/button_empty.png?v=a48717ff8443); }
+.cmd.active::after { background-image: url(assets/ui/button_active.png?v=a48717ff8443); }
 .cmd.active { box-shadow: 0 0 12px rgba(125,255,90,0.6); }
 
 /* ---------------- tooltip ---------------- */
 #tooltip { position: fixed; z-index: 10; max-width: 330px; padding: 2px 4px; pointer-events: none; display: none; font-size: 14px;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 18px stretch;
   filter: drop-shadow(0 6px 12px rgba(0,0,0,0.75)); }
 #tooltip.show { display: block; }
 #tooltip .t-title { font: 800 15px var(--body); color: #fff; letter-spacing: 0.01em; }
@@ -228,13 +228,13 @@ input, select { touch-action: manipulation; }
 .ov-box { position: relative; display: flex; flex-direction: column; align-items: stretch; width: min(580px, 94vw); max-height: calc(100vh - var(--crest-room) - 14px);
   max-height: calc(100dvh - var(--crest-room) - 14px);   /* a phone's browser bars: the dialog's buttons stay above them */
   padding: 46px 30px 18px; text-align: center;
-  border-style: solid; border-color: transparent; border-width: 34px; border-image: url(assets/ui/dialog.png?v=91305a8026e8) 120 fill / 60px round;
+  border-style: solid; border-color: transparent; border-width: 34px; border-image: url(assets/ui/dialog.png?v=a48717ff8443) 120 fill / 60px round;
   filter: drop-shadow(0 20px 40px rgba(0,0,0,0.9)); }
 .ov-box > h1, .ov-box > .ov-sub, #ov-foot { flex: none; }
 #ov-foot { display: flex; flex-direction: column; align-items: center; }
 #ov-foot > .ov-actions { margin-top: 8px; }
 .ov-crest { position: absolute; left: 50%; top: -158px; width: 236px; height: 184px; transform: translateX(-50%); pointer-events: none;
-  background: url(assets/ui/crest.png?v=91305a8026e8) center / contain no-repeat; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8)); }
+  background: url(assets/ui/crest.png?v=a48717ff8443) center / contain no-repeat; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8)); }
 .ov-box h1 { margin: 0; font: 900 46px/1.1 var(--title); letter-spacing: 0.08em;
   background: linear-gradient(#fff6cf 0%, #f8d77e 40%, #c58c26 62%, #f6d47a 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 3px 0 #000) drop-shadow(0 0 14px rgba(232,192,90,0.25)); }
@@ -253,8 +253,8 @@ input, select { touch-action: manipulation; }
 #ov-progress div { height: 100%; width: 0%; background: linear-gradient(#fff0b8, #e0a83a 50%, #8a5a18); transition: width 0.2s; }
 .wc-btn { min-width: 210px; height: 46px; padding: 0 22px; cursor: pointer; font: 800 17px/1 var(--title); letter-spacing: 0.12em; color: var(--gold-l);
   text-shadow: 0 1px 1px #000, 0 0 6px #000; background: none;
-  border-style: solid; border-color: transparent; border-width: 11px 17px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 11px 17px stretch; }
-.wc-btn:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
+  border-style: solid; border-color: transparent; border-width: 11px 17px; border-image: url(assets/ui/btn_wide.png?v=a48717ff8443) 22 34 fill / 11px 17px stretch; }
+.wc-btn:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
 .wc-btn:active:not(:disabled) { transform: translateY(1px); }
 .wc-btn:disabled { opacity: 0.6; cursor: default; }
 
@@ -265,7 +265,7 @@ body.ltw .classic-only, body.ltw #commands, body.ltw #wave-timer { display: none
 /* ---------------- Line Tower Wars: scoreboard (multiboard) and the income list under it ---------------- */
 #side { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; pointer-events: none; }
 #board { position: relative; min-width: 214px; padding: 0 3px 1px; font: 700 13px/1.25 var(--body); color: var(--text); pointer-events: auto;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 18px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); user-select: none; }
 .bd-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 3px 3px; margin-bottom: 2px;
   border-bottom: 1px solid; border-image: linear-gradient(90deg, rgba(232,192,90,0.7), rgba(232,192,90,0.08)) 1; }
@@ -297,7 +297,7 @@ body.ltw .classic-only, body.ltw #commands, body.ltw #wave-timer { display: none
 .bd-row .xt.on { display: inline-block; }
 /* a click or a tap puts the income list away until the next one (#side lets everything else through to the map) */
 #income-list { display: none; min-width: 150px; padding: 0 4px 1px; font: 700 12.5px/1.3 var(--body); color: var(--text); pointer-events: auto; cursor: pointer;
-  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 16px stretch;
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 16px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); animation: fade-in 0.25s; }
 #income-list.show { display: block; }
 .il-title { font: 800 11px var(--title); letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-l); text-shadow: 0 1px 1px #000; margin-bottom: 2px; }
@@ -313,9 +313,9 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 #cmd-tabs { display: flex; flex-direction: column; gap: 2px; width: 74px; }
 .cmd-tab { position: relative; flex: 1; min-height: 0; padding: 0 2px; cursor: pointer; font: 800 11px/1 var(--body); letter-spacing: 0.02em; color: var(--muted); white-space: nowrap;
   text-shadow: 0 1px 1px #000; background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 5px 9px stretch; }
-.cmd-tab:hover { color: #fff; border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); }
-.cmd-tab.on { color: var(--gold-l); border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); text-shadow: 0 0 6px rgba(255,210,100,0.85), 0 1px 1px #000; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=a48717ff8443) 22 34 fill / 5px 9px stretch; }
+.cmd-tab:hover { color: #fff; border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); }
+.cmd-tab.on { color: var(--gold-l); border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); text-shadow: 0 0 6px rgba(255,210,100,0.85), 0 1px 1px #000; }
 .cmd-tab .tab-n { margin-left: 4px; color: #a6d6ff; font-size: 10px; }
 .cmd-tab .tab-n:empty { display: none; }
 /* the card keeps one size; the Tech tab packs its 5 x 3 grid (one column per element) into it (--tb, set on :root so
@@ -376,7 +376,7 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 
 /* ---------------- Line Tower Wars: the chat line (Enter or the Chat button) ---------------- */
 #chat { position: absolute; left: 16px; bottom: 10px; z-index: 4; display: none; align-items: center; gap: 6px; width: min(460px, calc(100% - 32px)); padding: 0 4px;
-  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 16px stretch;
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 16px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); }
 #chat.open { display: flex; }
 #chat label { font: 800 13px var(--body); color: var(--gold-l); white-space: nowrap; text-shadow: 0 1px 1px #000; }
@@ -384,8 +384,8 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
   border: 1px solid rgba(232,192,90,0.35); outline: none; }
 #chat input:focus { border-color: rgba(255,216,74,0.7); }
 #chat button { height: 24px; padding: 0 10px; cursor: pointer; font: 700 11px/1 var(--title); letter-spacing: 0.06em; color: var(--gold-l); background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 5px 9px stretch; }
-#chat button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=a48717ff8443) 22 34 fill / 5px 9px stretch; }
+#chat button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); color: #fff; }
 
 /* ---------------- menu, setup and end screens ---------------- */
 .ov-box.wide { width: min(720px, 96vw); }
@@ -411,13 +411,67 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 .ov-app-x:hover { color: var(--gold-l); }
 .modes { display: flex; flex-direction: column; gap: 8px; max-width: 470px; margin: 4px auto 16px; }
 .mode { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 14px 8px; cursor: pointer; background: none; color: var(--gold-l); text-align: center;
-  border-style: solid; border-color: transparent; border-width: 12px 18px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 12px 18px stretch; }
+  border-style: solid; border-color: transparent; border-width: 12px 18px; border-image: url(assets/ui/btn_wide.png?v=a48717ff8443) 22 34 fill / 12px 18px stretch; }
 .mode b { font: 800 19px/1.1 var(--title); letter-spacing: 0.1em; text-transform: uppercase; text-shadow: 0 1px 1px #000, 0 0 6px #000; }
 .mode span { font: 600 13.5px/1.25 var(--body); color: var(--muted); text-shadow: 0 1px 1px #000; }
-.mode:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); }
+.mode:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); }
 .mode:hover:not(:disabled) b { color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
 .mode:active:not(:disabled) { transform: translateY(1px); }
 .mode:disabled { opacity: 0.5; cursor: default; }
+.mode:focus-visible { outline: none; border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgba(255,200,80,0.5); }
+/* the map picker (src/client/screens.js): a card per map, its picture in the minimap's frame, its name and players under
+   it; two by two, as wide as the window's height lets both rows show (a short window takes one row of four, a phone a
+   column or a row of its own, below). A locked map is greyed with "Coming later" over it. */
+.ov-box.picker { width: min(1180px, 96vw, max(620px, calc(2 * (100vh - var(--crest-room)) - 620px)));
+  width: min(1180px, 96vw, max(620px, calc(2 * (100dvh - var(--crest-room)) - 620px))); }
+.maps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; margin: 2px 0 14px; }
+.map-card { display: flex; flex-direction: column; gap: 5px; min-width: 0; padding: 7px 7px 6px; cursor: pointer; text-align: left; color: var(--gold-l);
+  background: linear-gradient(rgba(46,39,28,0.85), rgba(16,13,9,0.55)); border: 1px solid rgba(232,192,90,0.2); box-shadow: inset 0 0 18px rgba(0,0,0,0.5);
+  transition: border-color 0.15s, box-shadow 0.15s; }
+.map-card:hover:not(:disabled), .map-card:focus-visible { border-color: rgba(255,216,120,0.7); box-shadow: inset 0 0 18px rgba(0,0,0,0.5), 0 0 14px rgba(255,200,80,0.35); }
+.map-card:focus-visible { outline: none; box-shadow: inset 0 0 18px rgba(0,0,0,0.5), 0 0 0 2px var(--gold), 0 0 18px rgba(255,200,80,0.5); }
+.map-card:hover:not(:disabled) .map-pic img, .map-card:focus-visible .map-pic img { filter: brightness(1.12) saturate(1.08); }
+.map-card:active:not(:disabled) { transform: translateY(1px); }
+.map-card:disabled { cursor: default; }
+.map-cap { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 10px; flex-wrap: wrap; padding: 0 4px; }
+.map-cap b { font: 800 16px/1.15 var(--title); letter-spacing: 0.08em; text-transform: uppercase; text-shadow: 0 1px 1px #000, 0 0 6px #000; }
+.map-cap em { font: 600 13px var(--body); font-style: normal; color: var(--muted); white-space: nowrap; }
+.map-card:hover:not(:disabled) .map-cap b, .map-card:focus-visible .map-cap b { color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
+.map-card.locked .map-cap b { color: var(--muted); }
+/* the picture: 2:1 in the frame; a picture of another shape is shown whole (.fit), a missing one is an unexplored map */
+.map-pic { position: relative; display: block; flex: none; border-style: solid; border-color: transparent; border-width: 14px;
+  border-image: url(assets/ui/frame_minimap.png?v=a48717ff8443) 72 / 28px stretch; background: #050403 padding-box; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.7)); }
+.map-pic img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; object-fit: cover; transition: filter 0.15s; -webkit-user-drag: none; }
+.map-pic.fit img { object-fit: contain; }
+.map-pic.none img { visibility: hidden; }
+.map-pic.none { background: radial-gradient(ellipse at 50% 50%, rgba(232,192,90,0.1), transparent 65%),
+  repeating-linear-gradient(0deg, rgba(232,192,90,0.07) 0 1px, transparent 1px 22px), repeating-linear-gradient(90deg, rgba(232,192,90,0.07) 0 1px, transparent 1px 22px), #0b0907;
+  background-clip: padding-box; }
+.map-pic.none::before { content: ''; position: absolute; inset: 0; margin: auto; width: 26%; height: 40%; opacity: 0.3;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8c05a' stroke-width='1.2' stroke-linejoin='round'%3E%3Cpath d='M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14'/%3E%3C/svg%3E") center / contain no-repeat; }
+/* a locked map: dimmed, but with its players' colours, so the layout still reads; "Coming later" sits on the frame's top
+   edge (top: minus half the frame), off the map */
+.map-card.locked .map-pic img { filter: saturate(0.55) brightness(0.72); }
+.map-lock { position: absolute; left: 50%; top: -7px; transform: translate(-50%, -50%); padding: 1px 10px; white-space: nowrap;
+  font: 800 11px/1.2 var(--title); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-l); text-shadow: 0 1px 1px #000;
+  border-style: solid; border-color: transparent; border-width: 6px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 12px stretch; }
+/* a map's own screen (and Classic's intro): the picture beside what the map is and its ways to play, as a WC3 game
+   setup shows the map; upright windows put the picture on top (below) */
+.ov-box.map-box { width: min(1060px, 96vw); }
+.map-ways { display: flex; align-items: center; gap: 18px; margin: 4px 0 12px; }
+.map-pic.big { width: 56%; }
+.map-side { display: flex; flex-direction: column; gap: 10px; flex: 1 1 0; min-width: 0; }
+#ov-body .map-about { margin: 0; color: var(--muted); font-size: 14.5px; text-align: left; }
+#ov-body .map-side p { margin: 0; text-align: left; }
+.map-side .modes { width: 100%; margin: 0; }
+.map-side .ov-keys { margin: 0; }
+/* the lobby's (and the join screen's) map: a small picture, its name and players */
+.lb-map { display: flex; align-items: center; gap: 12px; text-align: left; }
+.on-wrap .lb-map { justify-content: center; margin: 0 auto 12px; }
+.map-pic.thumb { width: 132px; border-width: 8px; border-image-width: 16px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.7)); }
+.lb-mapinfo { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.lb-mapinfo b { font: 800 15px/1.15 var(--title); letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold-l); text-shadow: 0 1px 1px #000; }
+.lb-mapinfo em { font: 600 13px var(--body); font-style: normal; color: var(--muted); }
 .setup { display: flex; flex-direction: column; gap: 4px; max-width: 540px; margin: 0 auto 8px; text-align: left; }
 .seat { display: grid; grid-template-columns: 14px 96px minmax(0, 1fr) 26px; align-items: center; gap: 10px; padding: 4px 8px; min-height: 34px;
   background: linear-gradient(90deg, rgba(46,39,28,0.8), rgba(16,13,9,0.35)); border: 1px solid rgba(232,192,90,0.16); }
@@ -505,8 +559,8 @@ body.online #btn-pause, body.online #speed { display: none !important; }
 .lb-room { font-size: 13px; color: var(--muted); }
 .lb-room b { font: 800 15px var(--title); letter-spacing: 0.14em; color: #fff; }
 .lb-btn { flex: none; height: 26px; padding: 0 12px; cursor: pointer; font: 700 11.5px/1 var(--title); letter-spacing: 0.06em; color: var(--gold-l); background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 5px 9px stretch; text-shadow: 0 1px 1px #000; }
-.lb-btn:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=a48717ff8443) 22 34 fill / 5px 9px stretch; text-shadow: 0 1px 1px #000; }
+.lb-btn:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=a48717ff8443); color: #fff; }
 .lb-net { min-height: 18px; font-size: 13px; color: #e6dcc6; }
 .lb-opt { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted); }
 .lb-opt b { color: #ffd84a; }
@@ -528,7 +582,7 @@ body.online #btn-pause, body.online #speed { display: none !important; }
 .tb-net { display: inline-flex; align-items: center; margin-left: 8px; font: 700 12px var(--body); color: #e6dcc6; white-space: nowrap; text-shadow: 0 1px 1px #000; }
 .tb-net span { color: var(--muted); margin-left: 4px; }
 #net-banner { position: absolute; left: 50%; top: 58px; z-index: 5; display: none; flex-direction: column; align-items: center; gap: 1px; padding: 2px 16px; transform: translateX(-50%);
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 18px stretch;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8)); pointer-events: none; animation: banner 1.2s ease-in-out infinite alternate; }
 #net-banner.show { display: flex; }
 #net-banner b { font: 800 15px var(--title); letter-spacing: 0.08em; color: #ffd84a; text-shadow: 0 1px 1px #000; }
@@ -574,6 +628,11 @@ body.online #btn-pause, body.online #speed { display: none !important; }
   .cmd-tab { font-size: 10px; }
   .end-grid { grid-template-columns: 1fr; }
   .on-cards { grid-template-columns: 1fr; }
+  /* a map's screen: the picture on top, as large as the height lets the rest show under it */
+  .map-ways { flex-direction: column; gap: 10px; }
+  .map-pic.big { width: min(100%, max(300px, calc(2 * (100vh - var(--crest-room)) - 1000px))); width: min(100%, max(300px, calc(2 * (100dvh - var(--crest-room)) - 1000px))); }
+  .map-side { width: 100%; max-width: 560px; }
+  #ov-body .map-about, #ov-body .map-side p { text-align: center; }
   .lobby { grid-template-columns: 1fr; grid-template-areas: "seats" "side" "chat"; }
   .ov-box h1 { font-size: 34px; }
   .a-title { font-size: 30px; }
@@ -601,6 +660,25 @@ body.online #btn-pause, body.online #speed { display: none !important; }
   /* the lobby chat moves up beside the seats, under the invite and the option, so the whole lobby fits */
   .lobby { grid-template-areas: "seats side" "seats chat"; }
   #ov-body .lb-rules { display: none; }
+}
+/* a short computer window: the maps in one row of four, each name on one line with the players under it, so the four
+   captions match */
+@media (max-height: 700px) and (min-width: 1000px) {
+  .ov-box.picker { width: min(1180px, 96vw); }
+  .maps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .map-cap { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; gap: 1px; }
+  .map-cap b { font-size: clamp(11.5px, 1.1vw, 15px); letter-spacing: 0.06em; white-space: nowrap; }
+}
+/* a short narrow window (half a laptop's screen): a map's picture stays beside its ways to play, as on a phone on its
+   side, where the picture on top would push the second way to play out of view */
+@media (min-width: 601px) and (max-width: 900px) and (min-height: 501px) and (max-height: 760px) {
+  .map-ways { flex-direction: row; gap: 14px; }
+  .map-pic.big { width: 46%; }
+  .map-side { width: auto; max-width: none; gap: 8px; }
+  #ov-body .map-about, #ov-body .map-side p { text-align: left; }
+}
+@media (min-width: 601px) and (max-width: 900px) and (min-height: 501px) and (max-height: 580px) {
+  #ov-body .map-about { display: none; }   /* the buttons say what each way to play is */
 }
 /* ---------------- phones (and other narrow windows), upright: a compact top bar and a console under the battlefield,
    the command card beside the info panel, Line Tower Wars' tabs in one row above them; the minimap and the portrait
@@ -647,13 +725,14 @@ body.online #btn-pause, body.online #speed { display: none !important; }
   body.ltw #cmd-tabs { grid-area: tabs; flex-direction: row; width: auto; height: 36px; gap: 2px; }
   .cmd-tab { font-size: 10.5px; padding: 0 1px; border-width: 5px 6px; border-image-width: 5px 6px; }
   body.ltw #ltw-commands { grid-area: cmd; justify-self: end; align-self: center; box-sizing: content-box; padding: 2px;
-    border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/frame_gold.png?v=91305a8026e8) 64 / 20px round;
+    border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/frame_gold.png?v=a48717ff8443) 64 / 20px round;
     background: linear-gradient(#0f0d0b, #070605) padding-box; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.7)); }
   #ltw-commands.tech { width: calc(5 * var(--tb) + 4 * var(--gap)); }
   #wave-timer { font-size: 12px; min-width: 0; right: 6px; top: 6px; }
   #tooltip { max-width: calc(100vw - 16px); font-size: 13px; }
   #msgs { left: 10px; bottom: 8px; max-width: 72%; font-size: 12px; }
   #msgs div:nth-last-child(n+5) { display: none; }
+  #error { bottom: 150px; padding: 0 12px; font-size: 16px; }   /* a refusal: above the map buttons and the messages */
   #hint { font-size: 12px; max-width: calc(100% - 70px); bottom: 6px; }
   #side { right: 6px; top: 6px; }
   #board { min-width: 170px; font-size: 12px; }
@@ -686,6 +765,18 @@ body.online #btn-pause, body.online #speed { display: none !important; }
   .lb-seat.human .lb-who em { grid-area: you; }
   .lb-seat.human .lb-tag { grid-area: tag; margin-left: 0; }
   .lb-seat.human > :last-child { grid-area: rm; }
+  .ov-box.map-box h1 { font-size: 27px; letter-spacing: 0.04em; }   /* a map's or a mode's name on one line */
+  /* the map picker: the playable maps across the dialog, the locked ones two to a row under them */
+  .maps { gap: 8px; margin-bottom: 10px; }
+  .map-card:not(.locked) { grid-column: span 2; }
+  .map-card.locked { padding: 5px 5px 4px; }
+  .map-card.locked .map-pic { border-width: 9px; border-image-width: 18px; }
+  .map-card.locked .map-pic img { aspect-ratio: 4 / 3; }   /* the side bands give way to the map (the middle square) */
+  .map-card.locked .map-cap { padding: 0 2px; }
+  .map-card.locked .map-cap b { font-size: 11.5px; letter-spacing: 0.04em; }
+  .map-card.locked .map-cap em { font-size: 11.5px; white-space: normal; }
+  .map-lock { top: -4.5px; padding: 0 6px; font-size: 9.5px; letter-spacing: 0.08em; border-width: 4px; border-image-width: 8px; }
+  .map-pic.thumb { width: 108px; }
 }
 @media (max-height: 700px) and (min-width: 901px) {
   :root { --con-h: 180px; --pw: 100px; --btn: 38px; }
@@ -770,10 +861,11 @@ body.online #btn-pause, body.online #speed { display: none !important; }
 @media (orientation: portrait) and (max-width: 600px) and (pointer: coarse) {
   body:not(.rotate-ok) #rotate-hint { position: absolute; left: 4px; right: 4px; bottom: 4px; z-index: 6; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 0 0 8px;
     pointer-events: none; font: 700 13px/1.25 var(--body); color: var(--gold-l); text-shadow: 0 1px 1px #000;
-    border-style: solid; border-color: transparent; border-width: 8px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 16px stretch; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.8)); }
+    border-style: solid; border-color: transparent; border-width: 8px; border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 16px stretch; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.8)); }
   #rotate-hint span::before { content: ''; display: inline-block; width: 11px; height: 17px; margin-right: 8px; vertical-align: -3px; border: 2px solid var(--gold-l); border-radius: 3px; transform: rotate(-90deg); }
   #rotate-hint button { flex: none; width: 40px; height: 40px; padding: 0; cursor: pointer; pointer-events: auto; font: 800 15px var(--body); color: var(--gold-l); background: none; border: 0; }
   body:not(.rotate-ok) #view-tools, body:not(.rotate-ok) #msgs { bottom: 64px; }
+  body:not(.rotate-ok) #error { bottom: 206px; }
   body:not(.rotate-ok) #msgs.hinted { bottom: 110px; }
   body:not(.rotate-ok) #hint { bottom: 62px; }
   body:not(.rotate-ok) #side { bottom: 210px; }
@@ -845,6 +937,31 @@ body.online #btn-pause, body.online #speed { display: none !important; }
   .mode { flex: 1 1 0; justify-content: flex-start; padding: 4px 8px 6px; }
   .mode b { font-size: 15px; }
   .mode span { font-size: 12.5px; }
+  /* the map picker: one row that the finger swipes, two maps and a half in view (the next one shows at the edge) */
+  .ov-box.picker { width: min(780px, 96vw); }
+  .maps { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 6px; padding: 3px 0 4px; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; touch-action: pan-x pan-y; scrollbar-width: thin; scrollbar-color: #6a5228 transparent; }
+  .map-card { flex: 0 0 min(270px, 36vw); scroll-snap-align: start; padding: 6px 6px 5px; gap: 4px; }
+  .map-pic { border-width: 10px; border-image-width: 20px; }
+  .map-lock { top: -5px; }
+  .map-cap b { font-size: 13.5px; }
+  .map-cap em { font-size: 12px; }
+  /* a map's screen: the picture beside its ways to play (the buttons say what each is; the map's own line gives way) */
+  .map-ways { flex-direction: row; align-items: center; gap: 14px; margin-bottom: 6px; }
+  .map-pic.big { width: 46%; }
+  .map-side { flex: 1 1 0; min-width: 0; gap: 6px; }
+  #ov-body .map-about { display: none; }
+  #ov-body .map-side p { text-align: left; }
+  .map-side .modes { flex-direction: column; gap: 6px; margin: 0; }
+  .map-side .mode { flex: none; }
+  .map-side .ov-keys { padding-left: 16px; }
+  .map-pic.thumb { width: 88px; border-width: 6px; border-image-width: 12px; }
+  .lb-map { gap: 10px; }
+  .on-wrap .lb-map { margin-bottom: 6px; }
+  .lb-mapinfo { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 0 8px; }
+  .lb-mapinfo .lb-label { flex-basis: 100%; }
+  .lb-mapinfo b { font-size: 13px; }
+  .lb-mapinfo em { font-size: 12px; }
   .end-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
   .lobby { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "seats side" "seats chat"; }
   #ov-body .lb-rules { display: none; }
@@ -861,11 +978,50 @@ body.online #btn-pause, body.online #speed { display: none !important; }
    was just pressed does not look selected */
 @media (hover: none) {
   .cmd:hover { box-shadow: none; }
-  .cmd:hover::after { background-image: url(assets/ui/button.png?v=91305a8026e8); }
+  .cmd:hover::after { background-image: url(assets/ui/button.png?v=a48717ff8443); }
   .cmd:hover canvas { filter: none; }
-  .cmd.empty:hover::after { background-image: url(assets/ui/button_empty.png?v=91305a8026e8); }
-  .cmd.active:hover::after { background-image: url(assets/ui/button_active.png?v=91305a8026e8); }
+  .cmd.empty:hover::after { background-image: url(assets/ui/button_empty.png?v=a48717ff8443); }
+  .cmd.active:hover::after { background-image: url(assets/ui/button_active.png?v=a48717ff8443); }
   .cmd.active:hover { box-shadow: 0 0 12px rgba(125,255,90,0.6); }
   .cmd.poor:hover canvas { filter: grayscale(0.85) brightness(0.5); }
   .cmd.locked:hover canvas, .cmd.out:hover canvas, .cmd.off:hover canvas { filter: grayscale(0.85) brightness(0.55); }
+}
+
+/* ===== The build phase (Line Tower Wars, src/client/hud.js): the timer window before the shrines open, at the top of
+   the battlefield in the console's tooltip frame, as WC3 shows a map's timer. Appended by the build-phase work. ===== */
+#prep-timer { position: absolute; left: 50%; top: 10px; z-index: 3; display: none; min-width: 230px; padding: 0 10px; transform: translateX(-50%);
+  text-align: center; pointer-events: none; border-style: solid; border-color: transparent; border-width: 12px;
+  border-image: url(assets/ui/tooltip.png?v=a48717ff8443) 36 fill / 18px stretch; }
+#prep-timer.show { display: block; }
+#prep-timer b { display: block; font: 800 14px var(--title); letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-l); text-shadow: 0 1px 1px #000; }
+#prep-timer span { display: block; font: 700 13px var(--body); color: var(--text); text-shadow: 0 1px 1px #000; }
+#prep-timer em { display: inline-block; min-width: 2.6em; font: 900 20px/1.1 var(--title); font-style: normal; color: #ffd84a; text-shadow: 0 1px 1px #000, 0 0 8px rgba(0,0,0,0.8); }
+#prep-timer.soon em { color: #ff7a5a; animation: prep-soon 1s ease-in-out infinite; }
+@keyframes prep-soon { 50% { transform: scale(1.12); } }
+#board .bd-clock.prep { color: #ffd84a; }
+body.prep #announce { top: max(11%, 78px); }   /* an announcement in the build phase shows under the timer */
+/* a narrow window: the timer's middle moves left until it clears the scoreboard at the top right (248 px wide, 10 px
+   from the edge, 8 px apart: 381 px with half the timer) */
+#prep-timer { left: min(50%, calc(100% - 381px)); }
+/* where the title plaque hangs into the battlefield (src/client/hud.js puts the phase in its line too), the timer hangs
+   under it */
+@media (min-width: 1141px) and (min-height: 501px) { #prep-timer { top: 28px; } body.prep #announce { top: max(11%, 100px); } }
+@media (min-width: 1181px) and (min-height: 501px) { #prep-timer { top: 44px; } body.prep #announce { top: max(11%, 118px); } }
+/* phones: upright the folded scoreboard holds the top right, so the timer takes the top left; the chat line, when open,
+   comes first at the top */
+@media (max-width: 600px) and (min-height: 501px) {
+  #prep-timer { left: 6px; top: 6px; min-width: 0; padding: 0 6px; transform: none; border-width: 10px; border-image-width: 16px; }
+  #prep-timer b { font-size: 12px; letter-spacing: 0.08em; }
+  #prep-timer span { font-size: 12px; }
+  #prep-timer em { font-size: 17px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  /* clear of the folded scoreboard (182 px, 6 px from the edge: 283 px with half the timer) */
+  #prep-timer { left: min(50%, calc(100% - 283px)); top: 6px; min-width: 0; padding: 0 6px; border-width: 10px; border-image-width: 16px; }
+  #prep-timer b { font-size: 12px; }
+  #prep-timer span { font-size: 12px; }
+  #prep-timer em { font-size: 17px; }
+}
+@media (max-width: 600px), (max-height: 500px) {
+  #chat.open ~ #prep-timer { top: 54px; }
 }

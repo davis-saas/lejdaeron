@@ -6,7 +6,8 @@
 //
 // A FRAME (host -> one client) is a delta against what that client already has:
 //   u8 FRAME, u8 flags (FULL, BOARD, SHOP, MEVENTS, PHASE, TECH, ARCADE), uv seq, u32 tick
-//   [PHASE]   u8 phase, u8 winner (0 = none), u8 '-onextra' on, u8 its slot (0 = none)
+//   [PHASE]   u8 phase (index in PHASES: the build phase, playing, won, over), u8 winner (0 = none), u8 '-onextra' on,
+//             u8 its slot (0 = none)
 //   [BOARD]   u8 n, n x player:  u8 slot, u8 bits (alive, left, kicked), num gold, num income, num lives, num lumber,
 //                                num wisps, num kills, u8 eliminatedBy (0 = none), and the lane's stats: num creeps
 //                                killed, num leaks, num towers built, num towers destroyed
@@ -31,10 +32,10 @@
 // Joining: HELLO { v, data, name, nonce, token | rejoin } -> WELCOME { you, token, phase, proof } or ERROR { fatal,
 // message, proof }; a player with a rejoin token first sends { rejoin: true } without it and gets PROOF { proof }, then
 // sends the token. Every proof is the host's signature for that nonce (src/net/auth.js).
-import { TOWERS } from '../data/towers.js?v=91305a8026e8';
-import { LTW_UNITS, LTW_SHOPS, LTW_TECH_ORDER } from '../data/ltw.js?v=91305a8026e8';
+import { TOWERS } from '../data/towers.js?v=a48717ff8443';
+import { LTW_UNITS, LTW_SHOPS, LTW_TECH_ORDER } from '../data/ltw.js?v=a48717ff8443';
 
-export const PROTO = 3;
+export const PROTO = 4;
 export const C = { HELLO: 1, LOBBY: 2, CMD: 3, WATCH: 4, PING: 5, RESYNC: 6, LEAVE: 7 };                  // client -> host
 export const H = { WELCOME: 16, LOBBY: 17, CHAT: 18, START: 19, FRAME: 20, RESULT: 21, PONG: 22, END: 23, ERROR: 24, PROOF: 25 };
 export const F = { FULL: 1, BOARD: 2, SHOP: 4, MEVENTS: 8, PHASE: 16, TECH: 32, ARCADE: 64 };             // frame flags
@@ -55,7 +56,7 @@ export const EV = { shot: 1, impact: 2, death: 3, leak: 4, build: 5, upgrade: 6,
   removeTower: 11, removeCreep: 12, attack: 13, damaged: 14, hurt: 15, destroyed: 16, blast: 17, reincarnate: 18,
   reborn: 19, evade: 20, other: 255 };
 export const DESTROY_REASONS = ['attack', 'deathDamage', 'destroy'];
-export const PHASES = ['playing', 'won', 'over'];
+export const PHASES = ['prep', 'playing', 'won', 'over'];
 export const Q = 64;                                   // position quantum: 1/64 tile
 export const HPQ = 65535;
 export const BT = 250;                                 // build and sell timers: 1/250 s

@@ -5,12 +5,14 @@
 //   lobby.room, lobby.link, lobby.me, lobby.seats [{ slot, kind, name, difficulty, ready, connected, color, me }]
 //   lobby.setSeat(slot, { kind, difficulty }), lobby.setName(name), lobby.setReady(bool), lobby.chat(text),
 //   lobby.kick(slot), lobby.start(), lobby.leave(), lobby.on('change' | 'chat' | 'start' | 'closed' | 'error', fn)
-//   lobby.options { extra }, lobby.setOptions({ extra }) (host only: whether '-onextra' works in the match)
+//   lobby.options { extra, prep }, lobby.setOptions({ extra?, prep? }) (host only: whether '-onextra' works in the match,
+//   and the seconds of build phase before the shrines open)
 //   session.kind, .me, .world, .command(op) -> Promise<{ ok, why }>, .tick(realDt), .on(type, fn), .close()
-import { Replica } from './replica.js?v=91305a8026e8';
-import { newNonce, verify } from './auth.js?v=91305a8026e8';
-import * as P from './protocol.js?v=91305a8026e8';
-import * as CFG from './config.js?v=91305a8026e8';
+import { Replica } from './replica.js?v=a48717ff8443';
+import { PREP_TIME, PREP_MAX } from '../match.js?v=a48717ff8443';
+import { newNonce, verify } from './auth.js?v=a48717ff8443';
+import * as P from './protocol.js?v=a48717ff8443';
+import * as CFG from './config.js?v=a48717ff8443';
 
 const { C, H } = P;
 const LEAVE_LINGER = 500;   // ms the link stays open after a LEAVE, so the host gets it
@@ -205,7 +207,7 @@ export class Lobby extends Emitter {
     super();
     this.opts = opts;
     this.room = opts.room; this.link = opts.link || ''; this.isHost = !!opts.isHost;
-    this.me = null; this.seats = []; this.options = { extra: true }; this.phase = 'lobby'; this.session = null; this.closed = false;
+    this.me = null; this.seats = []; this.options = { extra: true, prep: PREP_TIME }; this.phase = 'lobby'; this.session = null; this.closed = false;
     this.timers = opts.timers || systemTimers;
     const link = this.conn = new Link(opts.transport, { name: opts.name, token: opts.token, key: opts.key || null, room: opts.room, timers: this.timers });
     link.on('welcome', (w) => {
@@ -247,7 +249,7 @@ export class Lobby extends Emitter {
       case H.LOBBY:
         if (!Array.isArray(j.seats)) return;
         this.phase = j.phase;
-        if (j.options && typeof j.options === 'object') this.options = { extra: j.options.extra !== false };
+        if (j.options && typeof j.options === 'object') this.options = { extra: j.options.extra !== false, prep: P.isInt(j.options.prep, 0, PREP_MAX) ? j.options.prep : PREP_TIME };
         this.seats = j.seats.map(s => ({ slot: s.slot, kind: s.kind, name: s.name, difficulty: s.difficulty, ready: !!s.ready,
           connected: !!s.connected, color: s.color, me: s.slot === this.me }));
         if (this.session) this.session.seats = this.seats;
@@ -274,7 +276,12 @@ export class Lobby extends Emitter {
   setReady(ready) { this.send({ op: 'ready', ready: !!ready }); }
   chat(text) { this.send({ op: 'chat', text }); }
   kick(slot) { this.send({ op: 'kick', slot }); }
-  setOptions({ extra } = {}) { this.send({ op: 'options', extra: !!extra }); }
+  setOptions({ extra, prep } = {}) {
+    const op = { op: 'options' };
+    if (extra !== undefined) op.extra = !!extra;
+    if (prep !== undefined) op.prep = prep;
+    this.send(op);
+  }
   start() { this.send({ op: 'start' }); }
   started(session) { this.emit('start', session); }
   // 'start' is sticky: a listener added after the game started (a rejoin can start it right away) still gets it.

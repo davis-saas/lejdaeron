@@ -1,11 +1,11 @@
 // Warcraft III Reforged-style console: resources, minimap, animated portrait + info, command card, tooltips, messages.
 // The chrome itself (frames, plates, buttons) is CSS over Blender-rendered images in assets/ui/ (see style.css).
-import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=91305a8026e8';
-import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=91305a8026e8';
-import { W, H, K, sx, sy } from './render.js?v=91305a8026e8';
-import { tipButton, heldClick, lastInput, clickWord, phone } from './client/touch.js?v=91305a8026e8';
-import { src } from './assets.js?v=91305a8026e8';
-import { pixelRatio } from './device.js?v=91305a8026e8';
+import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=a48717ff8443';
+import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=a48717ff8443';
+import { W, H, K, sx, sy } from './render.js?v=a48717ff8443';
+import { tipButton, heldClick, lastInput, clickWord, phone } from './client/touch.js?v=a48717ff8443';
+import { src } from './assets.js?v=a48717ff8443';
+import { pixelRatio } from './device.js?v=a48717ff8443';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

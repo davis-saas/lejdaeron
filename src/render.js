@@ -1,7 +1,7 @@
 // Draws the battlefield: Blender ground and props, depth-sorted towers and creeps, overlays.
-import { COLS, ROWS, SIN, COS, TOP, SCREEN_W, SCREEN_H, buildable, TILE } from './level.js?v=91305a8026e8';
-import { tinted } from './assets.js?v=91305a8026e8';
-import { pixelRatio, canvasScale } from './device.js?v=91305a8026e8';
+import { COLS, ROWS, SIN, COS, TOP, SCREEN_W, SCREEN_H, buildable, TILE } from './level.js?v=a48717ff8443';
+import { tinted } from './assets.js?v=a48717ff8443';
+import { pixelRatio, canvasScale } from './device.js?v=a48717ff8443';
 
 export const P = 48;                 // logical px per tile
 export const K = P / 96;             // sprites are rendered at 96 px per tile

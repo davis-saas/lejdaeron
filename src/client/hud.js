@@ -3,16 +3,18 @@
 // the Arcade (lumber and wisps), the info panel, the portrait and the minimap of every lane.
 // Built on the Classic UI (tower icons, tooltips, messages, announcements); it reads only the world model fields that
 // docs/SPEC-client.md lists, so it works the same on a live Match and on an online replica.
-import { UI, ARMOR_NAME, ATK_NAME, kindName, specials, mapNote, placeTip, keepLine } from '../ui.js?v=91305a8026e8';
-import { TOWERS, BUILD_ROOTS } from '../data/towers.js?v=91305a8026e8';
-import { LTW_UNITS, LTW_SHOPS, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_CHAT, LTW_CREEP_FIX, LTW_MESSAGES, LTW_RULES } from '../data/ltw.js?v=91305a8026e8';
-import { unitSpeed, missingTech, requiresText, techName } from '../lane.js?v=91305a8026e8';
-import { TPS } from '../match.js?v=91305a8026e8';
-import { P, sx, sy } from '../render.js?v=91305a8026e8';
-import { laneDY, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, short, signed, botNamed } from './common.js?v=91305a8026e8';
-import { tipButton, heldClick, clickWord, phone } from './touch.js?v=91305a8026e8';
-import { src } from '../assets.js?v=91305a8026e8';
-import { pixelRatio } from '../device.js?v=91305a8026e8';
+// The build phase (docs/SPEC-ltw.md): a timer window counts down to the shrines opening, the Send and Arcade buttons say
+// why they wait, and every clock the console shows is the map's (match time minus the build phase).
+import { UI, ARMOR_NAME, ATK_NAME, kindName, specials, mapNote, placeTip, keepLine } from '../ui.js?v=a48717ff8443';
+import { TOWERS, BUILD_ROOTS } from '../data/towers.js?v=a48717ff8443';
+import { LTW_UNITS, LTW_SHOPS, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_CHAT, LTW_CREEP_FIX, LTW_MESSAGES, LTW_RULES } from '../data/ltw.js?v=a48717ff8443';
+import { unitSpeed, missingTech, requiresText, techName } from '../lane.js?v=a48717ff8443';
+import { TPS, prepWhy } from '../match.js?v=a48717ff8443';
+import { P, sx, sy } from '../render.js?v=a48717ff8443';
+import { laneDY, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, short, signed, botNamed } from './common.js?v=a48717ff8443';
+import { tipButton, heldClick, clickWord, phone } from './touch.js?v=a48717ff8443';
+import { src } from '../assets.js?v=a48717ff8443';
+import { pixelRatio } from '../device.js?v=a48717ff8443';
 
 const $ = (id) => document.getElementById(id);
 export const GRID_KEYS = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V'];
@@ -40,6 +42,12 @@ function template(t, key) {
   return { pre, post, test: (s) => s.length > pre.length + post.length && s.startsWith(pre) && s.endsWith(post) };
 }
 const STOLEN_FROM_YOU = template(LTW_MESSAGES.stolenFromYou, 'owner'), YOU_STOLE = template(LTW_MESSAGES.youStole, 'victim');
+// The map's clock: match seconds since the build phase ended (the phase's own seconds are counted down instead).
+const buildPhase = (w) => (w.options && w.options.prep) || 0;
+export const mapTime = (w, t = w.time) => t - buildPhase(w);
+export const mapClock = (w, t = w.time) => clock(Math.max(0, mapTime(w, t)));
+const prepSecs = (w) => Math.max(1, Math.ceil(w.prepLeft - 1e-9));   // the build phase's seconds left, as the refusals say them
+const PREP_SOON = 5;         // the last seconds of the build phase, in red
 
 export class LtwHud extends UI {
   constructor(mode) {
@@ -51,6 +59,7 @@ export class LtwHud extends UI {
     this.steals = [];                    // life-steal lines waiting for their 'stolen' event (it says whose name it is)
     this.income = { at: null, until: -1, lines: {} };   // the map's income list, shown as one panel
     this.unitIcons = new Map();
+    this.prepTimer();
     $('income-list').classList.remove('show');
     $('income-list').onclick = () => { this.income.until = -1; this.renderIncome(); };   // put away until the next list
     this.buildTabs();
@@ -112,6 +121,7 @@ export class LtwHud extends UI {
   sendWhy(s) {
     const w = this.mode.world, p = w.players[this.me];
     if (!p.alive) return 'You have been eliminated.';
+    if (w.phase === 'prep') return prepWhy(w.prepLeft);
     if (!s.available) return 'Not available yet.';
     if (s.stock < 1) return 'Out of stock.';
     if (p.gold < s.cost) return 'Not enough gold.';
@@ -436,7 +446,9 @@ export class LtwHud extends UI {
   }
   renderBoard() {
     const w = this.mode.world, to = this.mode.view.target, ex = w.extra && w.extra.on ? w.extra.slot : null;   // to: null once I am out
-    setText(document.querySelector('#board .bd-clock'), clock(w.time));
+    const bc = document.querySelector('#board .bd-clock'), prep = w.phase === 'prep';
+    setText(bc, prep ? clock(prepSecs(w)) : mapClock(w));   // the build phase's countdown, in gold
+    bc.classList.toggle('prep', prep);
     for (const r of this.boardRows) {
       const p = w.players[r.slot];
       const tag = r.slot === this.me ? 'you' : p.kind === 'bot' && p.difficulty && !botNamed(p) ? (DIFF_NAME[p.difficulty] || p.difficulty).toLowerCase() : '';
@@ -643,6 +655,13 @@ export class LtwHud extends UI {
         break;
       }
       case 'won': this.announce(e.slot === me ? 'Victory' : `${name(e.slot)} has won`, e.slot === me ? 'You are the last one standing' : 'The game ends in 10 seconds'); break;
+      case 'play': {   // the build phase is over: the map's shop timers start, the first creeps unlock a few seconds later
+        const to = w.players[me] && w.players[me].alive ? w.next(me) : null, them = to !== null && to !== me ? to : null;
+        const first = Math.ceil(Math.min(...this.shop(true).flatMap(sh => sh.units).map(u => (u.available ? 0 : u.opensIn))) - 1e-9);
+        this.announce('Shrines open', them !== null ? `Your creeps go to ${name(them)}` : '');
+        this.message(`The build phase is over. ${first > 0 ? `The first creeps can be sent in ${first} second${first === 1 ? '' : 's'}` : 'Creeps can be sent now'}, from the <b>Shrine</b> tabs.`, '#ffd84a');
+        break;
+      }
       case 'stolen': {   // the slots behind the life-steal line just shown: its name takes that player's colour
         const role = e.lane === me ? 'owner' : e.to === me && e.gained ? 'victim' : null, i = role ? this.steals.findIndex(x => x.role === role) : -1;
         if (i < 0) break;
@@ -664,7 +683,7 @@ export class LtwHud extends UI {
       case 'arcade':
         if (e.slot !== me) break;
         if (e.item === 'lumber') this.repeat(`Bought <b>${e.lumber}</b> lumber for ${short(e.gold)} gold.`, '#d9c48c');
-        else this.message(`A wisp is training at the Arcade, ready at ${clock(e.doneAt)}.`, '#d9c48c');
+        else this.message(`A wisp is training at the Arcade, ready at ${mapClock(w, e.doneAt)}.`, '#d9c48c');
         break;
       case 'wisp': if (e.slot === me) this.message(`A wisp has joined your tech area. Income <b class="neg">${signed(e.income)}</b>.`, '#a6d6ff'); break;
       case 'extraOn': this.message(`${who(e.slot)} turned on <b>-onextra</b>: their income grows by a tenth at every income tick.`, '#ffd84a'); break;
@@ -678,7 +697,7 @@ export class LtwHud extends UI {
   creepFixWarning(text, at) {
     const p = this.mode.world.players[this.me], period = LTW_CREEP_FIX.periods[String(this.me)];
     if (!p || !p.alive || !period) return esc(text);
-    const k = Math.round(at * TPS), T = Math.round(period * TPS), left = Math.round(((Math.floor(k / T) + 1) * T - k) / TPS);
+    const k = Math.round(mapTime(this.mode.world, at) * TPS), T = Math.round(period * TPS), left = Math.round(((Math.floor(k / T) + 1) * T - k) / TPS);
     return `<b>${esc(text)}</b> <span class="note">· Creep Fix clears your lane in ${left < 60 ? left + ' seconds' : clock(left)}</span>`;
   }
   // "<name> has stolen 1 life from you." / "You have stolen 1 life from <name>": the name, where the map's template puts
@@ -775,18 +794,43 @@ export class LtwHud extends UI {
     }
     return this.barShort ? Math.floor(gold / 1000) + 'k' : full;
   }
+  // The build phase's timer window, as WC3 shows a map's timer: what to do, and the seconds before the shrines open.
+  prepTimer() {
+    let el = $('prep-timer');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'prep-timer'; el.className = 'ltw-only'; el.setAttribute('role', 'timer');
+      el.innerHTML = '<b>Build your maze</b><span>The shrines open in <em></em></span>';
+      $('view-wrap').appendChild(el);
+    }
+    this.prepEl = el; this.prepKey = '';
+    el.classList.remove('show'); document.body.classList.remove('prep');
+  }
+  renderPrep() {
+    const w = this.mode.world, prep = w.phase === 'prep', n = prep ? prepSecs(w) : 0;
+    const key = prep ? String(n) : '';
+    if (key === this.prepKey) return;
+    this.prepKey = key;
+    const el = this.prepEl;
+    el.classList.toggle('show', prep);
+    document.body.classList.toggle('prep', prep);
+    el.classList.toggle('soon', prep && n <= PREP_SOON);
+    if (prep) { setText(el.querySelector('em'), clock(n)); el.setAttribute('aria-label', `Build your maze. The shrines open in ${n} second${n === 1 ? '' : 's'}.`); }
+  }
   refresh(force = false) {
     const w = this.mode.world, view = this.act.view(), p = w.players[this.me], s = this.mode.session;
+    this.renderPrep();
     setText($('r-income'), p.alive ? short(p.income) : '–');
     setText($('r-income-t'), p.alive ? Math.ceil(w.incomeTimer) + 's' : '');
     setText($('r-lives'), p.alive ? p.lives : 'out');
     setText($('r-lumber'), p.lumber);
     setText($('r-wisps'), p.wisps);
     setText($('r-gold'), this.barGold(Math.floor(p.gold)));
-    const to = w.next(this.me);
-    const sub = w.phase !== 'playing' ? (w.winner !== null ? `${w.players[w.winner].name} has won` : 'Game over')
+    const to = w.next(this.me), prep = w.phase === 'prep';   // the build phase's line has no room for the target too
+    const sub = prep ? '' : w.phase !== 'playing' ? (w.winner !== null ? `${w.players[w.winner].name} has won` : 'Game over')
       : !p.alive ? 'Watching' : to !== null && to !== this.me ? `Sending to ${w.players[to].name}` : '';
-    const ttl = `<b class="gold-text">${s.kind === 'local' ? 'vs Computer' : 'vs Players'}</b><small>${clock(w.time)}${sub ? ' · ' + esc(sub) : ''}${s.paused ? ' · paused' : ''}</small>`;
+    const time = prep ? `Build phase ${clock(prepSecs(w))}` : mapClock(w);
+    const ttl = `<b class="gold-text">${s.kind === 'local' ? 'vs Computer' : 'vs Players'}</b><small>${time}${sub ? ' · ' + esc(sub) : ''}${s.paused ? ' · paused' : ''}</small>`;
     const tb = $('tb-title');
     if (tb.dataset.v !== ttl) { tb.innerHTML = ttl; tb.dataset.v = ttl; }
     this.cmdT -= 1;

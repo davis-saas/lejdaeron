@@ -11,14 +11,15 @@
 //   objects; missiles are flown locally from shot events with the engine's own flight rules and end on impact.
 // Towers, gold, lives, income, tech and shop and Arcade stock are applied as soon as they arrive (they decide what the
 // player may do). world.tech(slot) and world.arcade(slot) run the engine's own Match code on the mirrored state, so their
-// reasons read exactly as the host's.
-import { Lane, tileIndex } from '../lane.js?v=91305a8026e8';
-import { TOWERS } from '../data/towers.js?v=91305a8026e8';
-import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_ARCADE } from '../data/ltw.js?v=91305a8026e8';
-import { TILE } from '../field.js?v=91305a8026e8';
-import { Match, TPS } from '../match.js?v=91305a8026e8';
-import * as P from './protocol.js?v=91305a8026e8';
-import { NET_TICKS, OTHER_TICKS } from './config.js?v=91305a8026e8';
+// reasons read exactly as the host's. The build phase: the phase comes in the frames and its length in START's options;
+// world.prepLeft and the shop and Arcade countdowns run on the host's clock, playTime and incomeTimer on world.time.
+import { Lane, tileIndex } from '../lane.js?v=a48717ff8443';
+import { TOWERS } from '../data/towers.js?v=a48717ff8443';
+import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_ARCADE } from '../data/ltw.js?v=a48717ff8443';
+import { TILE } from '../field.js?v=a48717ff8443';
+import { Match, TPS, PREP_TIME, PREP_MAX } from '../match.js?v=a48717ff8443';
+import * as P from './protocol.js?v=a48717ff8443';
+import { NET_TICKS, OTHER_TICKS } from './config.js?v=a48717ff8443';
 
 const { F, LB, CM, CF, EV } = P;
 const FAR = 1e9;                          // "until further notice" for slowUntil and stunUntil
@@ -414,9 +415,12 @@ export class Replica {
 class World {
   constructor(start) {
     this.time = 0; this.tick = 0; this.me = start.you;
-    this.phase = 'playing'; this.winner = null;
+    const o = start.options && typeof start.options === 'object' ? start.options : {};
+    const prep = typeof o.prep === 'number' && o.prep >= 0 && o.prep <= PREP_MAX ? o.prep : PREP_TIME;
+    this.options = { extra: typeof o.extra === 'boolean' ? o.extra : LTW_RULES.extra, prep };
+    this.prepTicks = Math.round(prep * TPS);
+    this.phase = this.prepTicks > 0 ? 'prep' : 'playing'; this.winner = null;   // until the first frame says
     this.ring = start.ring.slice();
-    this.options = { extra: start.options && typeof start.options.extra === 'boolean' ? start.options.extra : LTW_RULES.extra };
     this.extra = { on: false, slot: null };
     this.players = {}; this.lanes = {}; this.events = []; this.pending = []; this.stock = {}; this.lumberStock = null;
     for (const q of start.players) {
@@ -428,7 +432,14 @@ class World {
     for (const s of this.ring) this.lanes[s] = replicaLane(s, this.players[s]);
   }
   get ticks() { return Math.floor(this.tick); }
-  get incomeTimer() { const T = Math.round(LTW_RULES.incomeInterval * TPS), k = Math.max(0, Math.round(this.time * TPS)); return (T - k % T) / TPS; }
+  // As the Match's: the map's clock (on world.time, negative in the build phase), and what the phase has left on the
+  // host's clock, as the shop's countdowns (the phase ends when the host's frame says so).
+  get playTime() { return this.time - this.prepTicks / TPS; }
+  get prepLeft() { return this.phase === 'prep' ? Math.max(0, this.prepTicks - this.tick) / TPS : 0; }
+  get incomeTimer() {
+    const T = Math.round(LTW_RULES.incomeInterval * TPS), k = Math.round(this.time * TPS) - this.prepTicks;
+    return (k < 0 ? T - k : T - k % T) / TPS;
+  }
   // As Match.tech, whyNotTech, arcade and whyNotArcade: the engine's own code on the mirrored players and stock.
   player(slot) { return Match.prototype.player.call(this, slot); }
   tech(slot) { return Match.prototype.tech.call(this, slot); }
@@ -437,7 +448,7 @@ class World {
   whyNotArcade(slot, item) { return Match.prototype.whyNotArcade.call(this, slot, item); }
   // The Arcade's lumber stock: streamed for your own slot; other slots show it as it opens by the clock.
   arcadeStock(slot) {
-    const spec = LTW_ARCADE.lumber.stock, startTick = Math.round(spec.start * TPS), regen = Math.round(spec.replenish * TPS);
+    const spec = LTW_ARCADE.lumber.stock, startTick = this.prepTicks + Math.round(spec.start * TPS), regen = Math.round(spec.replenish * TPS);
     const own = slot === this.me && this.lumberStock;
     const st = own || { count: this.ticks >= startTick ? spec.max : 0, open: this.ticks >= startTick, next: null };
     return { count: st.count, next: st.next, open: st.open, startTick, regen };
@@ -456,7 +467,7 @@ class World {
   shop(slot) {
     const tick = this.tick;
     return LTW_SHOPS.map(s => ({ id: s.id, name: s.name, units: s.units.map(id => {
-      const u = LTW_UNITS[id], start = Math.round(u.stock.start * TPS);
+      const u = LTW_UNITS[id], start = this.prepTicks + Math.round(u.stock.start * TPS);
       const st = this.stock[id] && slot === this.me ? this.stock[id] : { count: tick >= start ? u.stock.max : 0, open: tick >= start, next: null };
       return { id, name: u.name, cost: u.cost, lumber: u.lumber, income: u.income[String(slot)], copies: u.copies,
         stock: st.count, max: u.stock.max, available: st.open, opensIn: st.open ? 0 : Math.max(0, (start - tick) / TPS),
