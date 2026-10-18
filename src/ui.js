@@ -1,8 +1,11 @@
 // Warcraft III Reforged-style console: resources, minimap, animated portrait + info, command card, tooltips, messages.
 // The chrome itself (frames, plates, buttons) is CSS over Blender-rendered images in assets/ui/ (see style.css).
-import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=c7bd234229c1';
-import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=c7bd234229c1';
-import { W, H, K, sx, sy } from './render.js?v=c7bd234229c1';
+import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=91305a8026e8';
+import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=91305a8026e8';
+import { W, H, K, sx, sy } from './render.js?v=91305a8026e8';
+import { tipButton, heldClick, lastInput, clickWord, phone } from './client/touch.js?v=91305a8026e8';
+import { src } from './assets.js?v=91305a8026e8';
+import { pixelRatio } from './device.js?v=91305a8026e8';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -39,7 +42,7 @@ export class UI {
     const x = c.getContext('2d');
     if (ic) {
       c.width = ic.w; c.height = ic.h;
-      x.drawImage(ic.img, ic.sx, ic.sy, ic.w, ic.h, 0, 0, ic.w, ic.h);
+      x.drawImage(ic.img, ...src(ic), 0, 0, ic.w, ic.h);
     } else {
       const m = this.man.towers[def.id];
       c.width = 108; c.height = 108;
@@ -48,7 +51,7 @@ export class UI {
       g.addColorStop(0, acc); g.addColorStop(1, '#050403');
       x.fillStyle = g; x.fillRect(0, 0, 108, 108);
       const s = Math.min(100 / m.w, 102 / m.h);
-      x.drawImage(m.img, m.sx, m.sy, m.w, m.h, 54 - (m.w * s) / 2, 106 - m.h * s, m.w * s, m.h * s);
+      x.drawImage(m.img, ...src(m), 54 - (m.w * s) / 2, 106 - m.h * s, m.w * s, m.h * s);
     }
     this.icons.set(def.id, c);
     return c;
@@ -61,10 +64,11 @@ export class UI {
     const x = c.getContext('2d');
     if (ic) {
       c.width = ic.w; c.height = ic.h;
-      x.drawImage(ic.img, ic.sx, ic.sy, ic.w, ic.h, 0, 0, ic.w, ic.h);
+      x.drawImage(ic.img, ...src(ic), 0, 0, ic.w, ic.h);
       this.icons.set(key, c);
       return c;
     }
+    if (kind === 'keep') return this.keepGlyph(c, x, key);
     c.width = 108; c.height = 108;
     const bg = x.createRadialGradient(54, 48, 4, 54, 54, 76);
     bg.addColorStop(0, { next: '#7a1a12', sell: '#7a5a14', cancel: '#5a1010' }[kind] || '#333'); bg.addColorStop(1, '#050403');
@@ -89,24 +93,47 @@ export class UI {
     this.icons.set(key, c);
     return c;
   }
+  // Keep building: three stone blocks in a row, the next one ghosted, under a gold arrow.
+  keepGlyph(c, x, key) {
+    c.width = 108; c.height = 108;
+    const bg = x.createRadialGradient(54, 46, 4, 54, 54, 78);
+    bg.addColorStop(0, '#2c5a1e'); bg.addColorStop(1, '#050403');
+    x.fillStyle = bg; x.fillRect(0, 0, 108, 108);
+    for (const [bx, a] of [[18, 1], [44, 1], [70, 0.4]]) {
+      x.globalAlpha = a;
+      const g = x.createLinearGradient(0, 58, 0, 84);
+      g.addColorStop(0, '#b8ab94'); g.addColorStop(1, '#5a5048');
+      x.fillStyle = g; x.fillRect(bx, 58, 20, 26);
+      x.strokeStyle = '#1a1410'; x.lineWidth = 2.5; x.strokeRect(bx, 58, 20, 26);
+    }
+    x.globalAlpha = 1;
+    x.strokeStyle = '#f0c860'; x.lineWidth = 6; x.lineCap = 'round'; x.lineJoin = 'round';
+    x.beginPath(); x.moveTo(24, 42); x.quadraticCurveTo(54, 18, 80, 38); x.stroke();
+    x.fillStyle = '#f0c860'; x.beginPath(); x.moveTo(90, 46); x.lineTo(70, 44); x.lineTo(84, 28); x.closePath(); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,0.8)'; x.lineWidth = 4; x.strokeRect(0, 0, 108, 108);
+    this.icons.set(key, c);
+    return c;
+  }
 
   // ---------------------------------------------------------------- command card
+  // Each button shows its tooltip on hover, or after a long press of a finger (src/client/touch.js).
   buildCommandGrid() {
     const root = $('commands');
     root.innerHTML = '';
     for (let i = 0; i < 12; i++) {
       const b = document.createElement('button');
       b.className = 'cmd empty';
-      b.onmouseenter = () => this.showTip(i, b);
-      b.onmouseleave = () => this.hideTip();
-      b.onclick = () => { const c = this.cmds[i]; if (c && c.run) { c.run(); this.hideTip(); this.refresh(true); } };
+      tipButton(b, () => this.showTip(i, b), () => this.hideTip());
+      b.onclick = () => { const c = this.cmds[i]; if (heldClick(b)) return; if (c && c.run) { c.run(); this.hideTip(); this.refresh(true); } };
       root.appendChild(b);
     }
   }
   commandsFor(view) {
     const g = this.g, list = new Array(12).fill(null);
     const sel = view.selected;
-    if (view.placing) {
+    if (view.placing) {   // Keep building: what Shift does, for a pointer without a keyboard
+      list[8] = { sig: 'keep:' + !!view.keep, glyph: 'keep', on: !!view.keep, title: view.keep ? 'Keep building (on)' : 'Keep building',
+        lines: [keepLine(view.keep)], run: () => this.act.keep() };
       list[11] = { glyph: 'cancel', key: 'Esc', title: 'Cancel', lines: ['Stop placing towers.'], run: () => this.act.cancel() };
       return list;
     }
@@ -134,11 +161,11 @@ export class UI {
     const buttons = $('commands').children;
     this.cmds.forEach((c, i) => {
       const b = buttons[i];
-      const sig = c ? `${c.def ? c.def.id : c.glyph}|${c.key}|${c.cost !== undefined && this.g.gold < c.cost}` : '';
+      const sig = c ? `${c.sig || (c.def ? c.def.id : c.glyph)}|${c.key}|${c.cost !== undefined && this.g.gold < c.cost}` : '';
       if (b.dataset.sig === sig) return;
       b.dataset.sig = sig;
       b.innerHTML = '';
-      b.className = 'cmd' + (c ? '' : ' empty') + (c && c.cost !== undefined && this.g.gold < c.cost ? ' poor' : '') + (c && view.placing && c.def === view.placing ? ' active' : '');
+      b.className = 'cmd' + (c ? '' : ' empty') + (c && c.cost !== undefined && this.g.gold < c.cost ? ' poor' : '') + (c && ((view.placing && c.def === view.placing) || c.on) ? ' active' : '');
       if (!c) return;
       b.appendChild(c.def ? this.icon(c.def) : this.glyph(c.glyph));
       if (c.key) b.insertAdjacentHTML('beforeend', `<span class="hk">${c.key === 'Esc' ? '' : c.key}</span>`);
@@ -179,12 +206,32 @@ export class UI {
     if (note) html += `<div class="t-note">${esc(note)}</div>`;
     t.innerHTML = html;
     t.classList.add('show');
-    const rect = el.getBoundingClientRect();
-    const tw = t.offsetWidth, th = t.offsetHeight;
-    t.style.left = Math.max(8, Math.min(window.innerWidth - tw - 8, rect.right - tw)) + 'px';
-    t.style.top = Math.max(8, rect.top - th - 10) + 'px';
+    placeTip(t, el.getBoundingClientRect());
   }
   hideTip() { $('tooltip').classList.remove('show'); }
+  // A long press on the battlefield: what the unit under the finger is, over the finger (client px x, y).
+  objectTip(o, x, y) {
+    const t = $('tooltip');
+    t.innerHTML = this.objectTipHtml(o);
+    t.classList.add('show');
+    placeTip(t, { left: x - 1, right: x + 1, top: y - 36, bottom: y + 36 });
+  }
+  objectTipHtml(o) {
+    if (o.def.upgrades) {
+      return `<div class="t-title">${esc(o.def.name)}</div>` + this.towerLines(o.def).map(l => `<div class="t-line">${l}</div>`).join('')
+        + `<div class="t-line"><span>Kills</span> ${o.kills ?? 0}${o.building > 0 ? ' &nbsp; <span>under construction</span>' : ''}</div>`;
+    }
+    const d = o.def;
+    return `<div class="t-title">${esc(d.name)}</div><div class="t-line"><span>Hit points</span> ${Math.ceil(Math.max(0, o.hp))} / ${o.maxHp}</div>`
+      + `<div class="t-line"><span>Armor</span> ${d.armor} ${ARMOR_NAME[d.armorType] || d.armorType} &nbsp; <span>Speed</span> ${d.speed}</div>`;
+  }
+  // A line over the battlefield that says what a finger does next (placing a tower); '' hides it.
+  hint(text) {
+    const h = $('hint');
+    if (h.textContent !== text) h.textContent = text;
+    h.classList.toggle('show', !!text);
+    $('msgs').classList.toggle('hinted', !!text);   // the map messages step up over it
+  }
 
   // ---------------------------------------------------------------- info panel + portrait
   renderInfo(view) {
@@ -229,18 +276,34 @@ export class UI {
           <div><span>Bounty</span><b>${d.bounty} each</b></div>
         </div>${creepTags(d)}` : '<h2>Victory</h2>';
     }
-    if (key !== this.lastInfo) { $('info').innerHTML = html; this.lastInfo = key; }
+    if (key !== this.lastInfo) { $('info').innerHTML = html; this.lastInfo = key; this.fitInfo(); }
     this.drawPortrait(view);
+  }
+  // The panel keeps the console's size: what would not fit (a tower's hit points, armour and tags at 1280 x 800, most
+  // things on a phone) gets the compact layout, then the most compact one, which scrolls as a last resort, so nothing
+  // is cut off unseen. On a phone, where a tap opens the panel bigger, the last resort is the lines that fit whole
+  // instead (the title always), with no scrollbar.
+  fitInfo() {
+    const el = $('info'), fits = () => el.scrollHeight <= el.clientHeight + 1;
+    el.classList.remove('fit1', 'fit2', 'fit3');
+    if (fits()) return;
+    el.classList.add('fit1');
+    if (fits()) return;
+    el.classList.replace('fit1', 'fit2');
+    if (fits() || !phone() || document.body.classList.contains('info-open')) return;
+    el.classList.add('fit3');
+    const lines = [...el.children].filter(e => e.tagName !== 'H2').flatMap(e => (e.classList.contains('stats') ? [e, ...e.children] : [e]));
+    for (let i = lines.length - 1; i >= 0 && !fits(); i--) lines[i].classList.add('cut');
   }
   drawPortrait(view) {
     const x = this.portrait, sel = view.selected, S = x.canvas.width;
     x.clearRect(0, 0, S, S);
     if (sel && sel.def && sel.def.upgrades) {
       const ic = this.iconRect(sel.def.id);
-      if (ic) { x.drawImage(ic.img, ic.sx, ic.sy, ic.w, ic.h, 0, 0, S, S); return; }
+      if (ic) { x.drawImage(ic.img, ...src(ic), 0, 0, S, S); return; }
       const m = this.man.towers[sel.def.id];
       const s = Math.min((S - 10) / m.w, (S - 10) / m.h);
-      x.drawImage(m.img, m.sx, m.sy, m.w, m.h, S / 2 - (m.w * s) / 2, S - 4 - m.h * s, m.w * s, m.h * s);
+      x.drawImage(m.img, ...src(m), S / 2 - (m.w * s) / 2, S - 4 - m.h * s, m.w * s, m.h * s);
       return;
     }
     const d = sel && sel.hp !== undefined ? sel.def : (this.g.phase === 'countdown' ? this.g.nextCreep() : this.g.currentCreep());
@@ -250,22 +313,22 @@ export class UI {
       // slow idle loop, cross-faded between frames so the breathing reads smooth
       const t = performance.now() / 1000 * 4.5;
       const f0 = Math.floor(t) % p.frames, f1 = (f0 + 1) % p.frames, k = t - Math.floor(t);
-      x.drawImage(p.img, p.sx + f0 * p.fw, p.sy, p.fw, p.fh, 0, 0, S, S);
+      x.drawImage(p.img, ...src(p, f0 * p.fw, 0, p.fw, p.fh), 0, 0, S, S);
       x.globalAlpha = k;
-      x.drawImage(p.img, p.sx + f1 * p.fw, p.sy, p.fw, p.fh, 0, 0, S, S);
+      x.drawImage(p.img, ...src(p, f1 * p.fw, 0, p.fw, p.fh), 0, 0, S, S);
       x.globalAlpha = 1;
       return;
     }
     const m = this.r.creepMeta({ def: d });
     const col = Math.floor(performance.now() / 110) % m.frames;
     const s = Math.min((S - 16) / m.fw, (S - 16) / m.fh) * 1.1;
-    x.drawImage(m.img, m.sx + col * m.fw, m.sy + m.fh, m.fw, m.fh, S / 2 - m.ax * s, S - 6 - m.fh * s + 6, m.fw * s, m.fh * s);
+    x.drawImage(m.img, ...src(m, col * m.fw, m.fh, m.fw, m.fh), S / 2 - m.ax * s, S - 6 - m.fh * s + 6, m.fw * s, m.fh * s);
   }
 
   // ---------------------------------------------------------------- minimap
   drawMinimap() {
     const c = this.mm, rect = c.getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = pixelRatio();
     if (c.width !== Math.round(rect.width * dpr)) { c.width = Math.round(rect.width * dpr); c.height = Math.round(rect.height * dpr); }
     if (!c.width || !c.height) return;   // zero-size viewport (hidden pane): nothing to draw into
     const x = c.getContext('2d');
@@ -277,7 +340,18 @@ export class UI {
     for (const t of this.g.towers) { x.fillStyle = '#5aa0ff'; x.fillRect(sx(t.x) - 9, sy(t.y) - 7, 18, 14); }
     for (const cr of this.g.creeps) { x.fillStyle = '#ff3b2b'; x.beginPath(); x.arc(sx(cr.x), sy(cr.y), 9, 0, Math.PI * 2); x.fill(); }
     x.setTransform(1, 0, 0, 1, 0, 0);
-    x.strokeStyle = 'rgba(255,255,255,0.6)'; x.lineWidth = 1; x.strokeRect(ox + 0.5, oy + 0.5, W * s - 1, H * s - 1);
+    // the camera's view, while it shows less than the whole map
+    const [vx0, vy0, vx1, vy1] = this.act.cam().rect();
+    if (vx0 > 1 || vy0 > 1 || vx1 < W - 1 || vy1 < H - 1) {
+      const fx0 = Math.max(0, vx0), fy0 = Math.max(0, vy0), fx1 = Math.min(W, vx1), fy1 = Math.min(H, vy1);
+      x.strokeStyle = 'rgba(255,255,255,0.9)'; x.lineWidth = dpr;
+      x.strokeRect(Math.round(ox + fx0 * s) + 0.5, Math.round(oy + fy0 * s) + 0.5, Math.round((fx1 - fx0) * s) - 1, Math.round((fy1 - fy0) * s) - 1);
+    } else { x.strokeStyle = 'rgba(255,255,255,0.6)'; x.lineWidth = 1; x.strokeRect(ox + 0.5, oy + 0.5, W * s - 1, H * s - 1); }
+  }
+  // minimap css px -> logical px (the map is fitted into the minimap, centred)
+  minimapToWorld(mx, my) {
+    const r = this.mm.getBoundingClientRect(), s = Math.min(r.width / W, r.height / H) || 1;
+    return { X: (mx - (r.width - W * s) / 2) / s, Y: (my - (r.height - H * s) / 2) / s };
   }
 
   // ---------------------------------------------------------------- messages
@@ -327,9 +401,11 @@ export class UI {
     if (tb.dataset.v !== ttl) { tb.innerHTML = ttl; tb.dataset.v = ttl; }
     const wt = $('wave-timer');
     let wtxt = '';
-    if (g.phase === 'countdown' && g.nextCreep()) wtxt = `Level ${g.level + 1} in ${Math.ceil(g.countdown)}s<small>${esc(g.nextCreep().name)} · press N to call it now</small>`;
+    const tap = lastInput() === 'touch';   // a finger calls the level by tapping this box (a click on it stays a click on the map)
+    if (g.phase === 'countdown' && g.nextCreep()) wtxt = `Level ${g.level + 1} in ${Math.ceil(g.countdown)}s<small>${esc(g.nextCreep().name)} · ${tap ? 'tap here' : 'press N'} to call it now</small>`;
     else if (g.phase === 'spawning' || g.phase === 'fighting') wtxt = `Level ${g.level} · ${g.creeps.length + g.toSpawn} left<small>${esc(g.currentCreep().name)}</small>`;
     if (wt.dataset.v !== wtxt) { wt.innerHTML = wtxt; wt.dataset.v = wtxt; }
+    wt.classList.toggle('tap', tap && g.phase === 'countdown');
     this.renderCommands(view);
     this.renderInfo(view);
     this.mmTimer -= 1;
@@ -338,6 +414,22 @@ export class UI {
 }
 
 function setText(id, v) { const e = $(id); const s = String(v); if (e.textContent !== s) e.textContent = s; }
+// The Keep building button's tooltip (Classic's and Line Tower Wars'), in the words of the pointer the player uses.
+export function keepLine(on) {
+  const w = clickWord();
+  return on ? `Each ${w.toLowerCase()} places another tower until you cancel. ${w} to turn it off.`
+    : `Place one tower after another until you cancel${lastInput() === 'touch' ? '' : ' (as holding <b>Shift</b> does)'}.`;
+}
+// A tooltip next to a rect (client px): above it, else to its left (the console on the side of a landscape phone),
+// else below, always inside the window.
+export function placeTip(t, rect) {
+  const tw = t.offsetWidth, th = t.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+  let left = rect.right - tw, top = rect.top - th - 10;
+  if (top < 8 && rect.left - tw - 10 >= 8) { left = rect.left - tw - 10; top = (rect.top + rect.bottom) / 2 - th / 2; }
+  else if (top < 8) top = rect.bottom + 10;
+  t.style.left = Math.max(8, Math.min(vw - tw - 8, left)) + 'px';
+  t.style.top = Math.max(8, Math.min(vh - th - 8, top)) + 'px';
+}
 export function kindName(k) {
   return { archer: 'Archery', rifle: 'Rifle', guard: 'Guard', ballista: 'Ballista', cannon: 'Cannon', blade: 'Blades', ogre: 'Ogre', wisp: 'Elemental', fire: 'Fire',
     frost: 'Frost', water: 'Water', arcane: 'Lightning', light: 'Light', shroom: 'Nature', poison: 'Shadow', artillery: 'Artillery', moon: 'Moon', flame: 'Fire' }[k] || k;

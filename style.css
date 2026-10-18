@@ -17,14 +17,22 @@
   --pw: 118px;            /* portrait window size */
   --btn: 44px;            /* command button size */
   --gap: 4px;
+  --tb: calc((4 * var(--btn) - var(--gap)) / 5);   /* a Tech tab button: its 5 x 3 grid in the 4 x 3 card's width */
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: #000; color: var(--text); font: 15px/1.35 var(--body); overflow: hidden; }
+html, body { margin: 0; height: 100%; background: #000; color: var(--text); font: 15px/1.35 var(--body); overflow: hidden; overscroll-behavior: none; }
 button { font: inherit; color: inherit; }
-#app { display: grid; grid-template-rows: var(--top-h) 1fr var(--con-h); height: 100vh; width: 100vw; position: relative; }
+/* dvh: the height a phone's browser leaves the page (its toolbars come and go); the same as vh on a computer */
+/* one column as wide as the window: nothing in it (a full top bar) can make the battlefield and the console wider */
+#app { display: grid; grid-template-rows: var(--top-h) 1fr var(--con-h); grid-template-columns: minmax(0, 1fr); height: 100vh; height: 100dvh; width: 100vw; position: relative; }
+/* fingers (src/client/touch.js): nothing in the game zooms, scrolls or rubber-bands the page; the dialogs, the info panel
+   and the lobby chat scroll on their own */
+#app { touch-action: none; -webkit-tap-highlight-color: transparent; }
+#ov-body, #info, .lb-log { touch-action: pan-y; }
+input, select { touch-action: manipulation; }
 /* preload the hover/active chrome so the first hover does not flicker */
 #app::after { content: ''; position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;
-  background: url(assets/ui/button_hover.png?v=c7bd234229c1), url(assets/ui/button_active.png?v=c7bd234229c1), url(assets/ui/button_empty.png?v=c7bd234229c1), url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); }
+  background: url(assets/ui/button_hover.png?v=91305a8026e8), url(assets/ui/button_active.png?v=91305a8026e8), url(assets/ui/button_empty.png?v=91305a8026e8), url(assets/ui/btn_wide_hover.png?v=91305a8026e8); }
 
 .gold-text { background: linear-gradient(#fff3c4 0%, #f6d27a 38%, #c8922e 62%, #f4cf72 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
@@ -33,40 +41,42 @@ button { font: inherit; color: inherit; }
 #topbar::before {
   content: ''; position: absolute; left: 0; right: 0; top: 0; height: 56px; z-index: -1; pointer-events: none;
   border-style: solid; border-color: transparent; border-width: 0 75px;
-  border-image: url(assets/ui/topbar.png?v=c7bd234229c1) 0 96 fill / 0 75px stretch;
+  border-image: url(assets/ui/topbar.png?v=91305a8026e8) 0 96 fill / 0 75px stretch;
   filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75));
 }
-.tb-left { display: flex; gap: 4px; align-items: center; }
+.tb-left { display: flex; flex: none; gap: 4px; align-items: center; }
 .tb-btn, .tb-speed button {
   height: 26px; padding: 0 12px; cursor: pointer; font: 700 12px/16px var(--title); letter-spacing: 0.08em; color: var(--gold-l);
   text-shadow: 0 1px 1px #000, 0 0 4px #000; background: none;
   border-style: solid; border-color: transparent; border-width: 7px 10px;
-  border-image: url(assets/ui/btn_wide.png?v=c7bd234229c1) 22 34 fill / 7px 10px stretch;
+  border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 7px 10px stretch;
 }
-.tb-btn:hover, .tb-speed button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); color: #fff; }
+.tb-btn:hover, .tb-speed button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; }
 .tb-btn:active, .tb-speed button:active { transform: translateY(1px); }
 .tb-speed { display: flex; gap: 1px; margin-left: 6px; }
 .tb-speed button { padding: 0 3px; min-width: 38px; }
-.tb-speed button.on { border-image-source: url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); color: #fff; text-shadow: 0 0 6px rgba(255,210,100,0.9), 0 1px 1px #000; }
+.tb-speed button.on { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; text-shadow: 0 0 6px rgba(255,210,100,0.9), 0 1px 1px #000; }
 
 .tb-plaque { position: absolute; left: 50%; top: 0; width: 280px; height: 78px; transform: translateX(-50%); pointer-events: none;
-  background: url(assets/ui/topbar_center.png?v=c7bd234229c1) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7)); }
+  background: url(assets/ui/topbar_center.png?v=91305a8026e8) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7)); }
 .tb-title { position: absolute; left: 56px; right: 56px; top: 9px; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .tb-title b { font: 800 15px/1.05 var(--title); letter-spacing: 0.12em; text-transform: uppercase; filter: drop-shadow(0 1px 1px #000); }
 .tb-title small { display: block; max-width: 100%; margin-top: 2px; font: 600 11px/1.1 var(--body); color: var(--muted); letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 1px #000; }
 
-.tb-res { display: flex; gap: 16px; align-items: center; }
+.tb-res { display: flex; gap: 16px; align-items: center; min-width: 0; }
+/* the Chat button's icon, for the upright phone's top bar */
+#btn-chat svg { display: none; width: 18px; height: 18px; margin: auto; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linejoin: round; filter: drop-shadow(0 1px 1px #000); }
 .res { display: flex; align-items: center; gap: 5px; font: 800 15px var(--body); text-shadow: 0 1px 2px #000; }
 .res b { color: #fff; min-width: 26px; font-weight: 800; }
 #r-gold { color: #ffe08a; }
 .res-sub { color: var(--muted); font-size: 12px; font-weight: 600; }
 .ico { width: 24px; height: 24px; display: inline-block; flex: 0 0 auto; background: center / contain no-repeat; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.8)); }
-.ico-gold { background-image: url(assets/ui/res_gold.png?v=c7bd234229c1); }
-.ico-income { background-image: url(assets/ui/res_income.png?v=c7bd234229c1); }
-.ico-lives { background-image: url(assets/ui/res_lives.png?v=c7bd234229c1); }
-.ico-level { background-image: url(assets/ui/res_level.png?v=c7bd234229c1); }
-.ico-lumber { background-image: url(assets/ui/res_lumber.png?v=c7bd234229c1); }
-.ico-wisp { background-image: url(assets/ui/res_wisp.png?v=c7bd234229c1); }
+.ico-gold { background-image: url(assets/ui/res_gold.png?v=91305a8026e8); }
+.ico-income { background-image: url(assets/ui/res_income.png?v=91305a8026e8); }
+.ico-lives { background-image: url(assets/ui/res_lives.png?v=91305a8026e8); }
+.ico-level { background-image: url(assets/ui/res_level.png?v=91305a8026e8); }
+.ico-lumber { background-image: url(assets/ui/res_lumber.png?v=91305a8026e8); }
+.ico-wisp { background-image: url(assets/ui/res_wisp.png?v=91305a8026e8); }
 
 /* ---------------- battlefield ---------------- */
 #stage { position: relative; background: radial-gradient(ellipse at center, #10140c, #000 75%); overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -89,33 +99,40 @@ button { font: inherit; color: inherit; }
 #msgs { position: absolute; left: 16px; bottom: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; max-width: min(620px, 55%); pointer-events: none; font: 700 14px var(--body); }
 #msgs div { text-shadow: 0 1px 2px #000, 0 0 6px #000; transition: opacity 1s; }
 #wave-timer { position: absolute; right: 12px; top: 12px; padding: 0 6px; min-width: 150px; font: 700 14px var(--title); color: var(--gold-l); text-shadow: 0 1px 2px #000; pointer-events: none;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=c7bd234229c1) 36 fill / 18px stretch; }
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 18px stretch; }
 #wave-timer:empty { display: none; }
+#wave-timer.tap { pointer-events: auto; cursor: pointer; }   /* a finger calls the level by tapping it */
+/* what a finger does next (placing a tower), over the bottom of the view */
+#hint { position: absolute; left: 50%; bottom: 10px; z-index: 3; display: none; max-width: calc(100% - 120px); padding: 0 6px; transform: translateX(-50%);
+  font: 700 13px/1.3 var(--body); color: var(--gold-l); text-align: center; text-shadow: 0 1px 2px #000; pointer-events: none;
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 16px stretch; }
+#hint.show { display: block; }
+#msgs.hinted { bottom: 54px; }
 #wave-timer small { display: block; font: 600 12px var(--body); color: var(--muted); letter-spacing: 0; }
 
 /* ---------------- console ---------------- */
 #console {
   position: relative; z-index: 5; display: grid; align-items: stretch;
   grid-template-columns: minmax(210px, 290px) auto minmax(0, 1fr) auto; gap: 10px; padding: 30px 30px 8px 30px;
-  background: #15130f url(assets/ui/console_bg.png?v=c7bd234229c1) repeat-x 0 0 / auto 100%;
+  background: #15130f url(assets/ui/console_bg.png?v=91305a8026e8) repeat-x 0 0 / auto 100%;
   box-shadow: 0 -6px 14px rgba(0,0,0,0.75);
 }
 #console::before, #console::after {
   content: ''; position: absolute; top: -4px; width: 88px; height: 88px; z-index: 3; pointer-events: none;
-  background: url(assets/ui/corner.png?v=c7bd234229c1) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
+  background: url(assets/ui/corner.png?v=91305a8026e8) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
 }
 #console::before { left: -4px; }
 #console::after { right: -4px; transform: scaleX(-1); }
 .panel {
   position: relative; min-width: 0; min-height: 0;
   border-style: solid; border-color: transparent; border-width: 18px;
-  border-image: url(assets/ui/frame_gold.png?v=c7bd234229c1) 64 / 32px round;
+  border-image: url(assets/ui/frame_gold.png?v=91305a8026e8) 64 / 32px round;
   background: radial-gradient(ellipse at 50% 0%, rgba(60,52,40,0.55), rgba(0,0,0,0) 70%), linear-gradient(#0f0d0b, #070605);
   background-clip: padding-box; background-origin: padding-box;
   box-shadow: inset 0 0 18px rgba(0,0,0,0.9);
   filter: drop-shadow(0 3px 4px rgba(0,0,0,0.7));
 }
-#mm-panel { display: flex; align-items: center; justify-content: center; border-width: 22px; border-image: url(assets/ui/frame_minimap.png?v=c7bd234229c1) 72 / 36px stretch; background: #000; background-clip: padding-box; }
+#mm-panel { display: flex; align-items: center; justify-content: center; border-width: 22px; border-image: url(assets/ui/frame_minimap.png?v=91305a8026e8) 72 / 36px stretch; background: #000; background-clip: padding-box; }
 #minimap { width: 100%; height: 100%; display: block; }
 /* zoom in / out, small round buttons on the minimap frame's left edge (as WC3 keeps its minimap buttons beside it) */
 #mm-zoom { position: absolute; z-index: 2; left: -19px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 5px; }
@@ -124,12 +141,14 @@ button { font: inherit; color: inherit; }
 #mm-zoom button:hover:not(:disabled) { color: #fff; box-shadow: 0 0 0 1px var(--gold), 0 0 8px rgba(255,200,80,0.45); }
 #mm-zoom button:active:not(:disabled) { transform: translateY(1px); }
 #mm-zoom button:disabled { opacity: 0.4; cursor: default; }
+#mm-zoom svg, #view-tools svg { display: block; margin: auto; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+#mm-zoom svg { width: 12px; height: 12px; }
 
 #portrait-frame { position: relative; align-self: center; width: var(--pw); height: var(--pw); margin: 0 calc(var(--pw) * 0.17 + 4px);
   background: radial-gradient(circle at 50% 38%, #26303e, #07090c 78%); }
 #portrait-frame::after { content: ''; position: absolute; pointer-events: none;
   left: calc(var(--pw) * -36 / 216); top: calc(var(--pw) * -108 / 216); width: calc(var(--pw) * 288 / 216); height: calc(var(--pw) * 360 / 216);
-  background: url(assets/ui/portrait_frame.png?v=c7bd234229c1) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75)); }
+  background: url(assets/ui/portrait_frame.png?v=91305a8026e8) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75)); }
 #portrait { width: 100%; height: 100%; display: block; }
 
 #info-panel { display: flex; padding: 2px 8px; }
@@ -171,8 +190,8 @@ button { font: inherit; color: inherit; }
 #commands { display: grid; grid-template-columns: repeat(4, var(--btn)); grid-template-rows: repeat(3, var(--btn)); gap: var(--gap); }
 .cmd { position: relative; width: var(--btn); height: var(--btn); padding: 0; cursor: pointer; border: 0; background: #0b0a09; overflow: visible; }
 .cmd canvas { position: absolute; left: 2px; top: 2px; width: calc(100% - 4px); height: calc(100% - 4px); display: block; transition: filter 0.15s; }
-.cmd::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: url(assets/ui/button.png?v=c7bd234229c1) 0 0 / 100% 100% no-repeat; }
-.cmd:hover::after { background-image: url(assets/ui/button_hover.png?v=c7bd234229c1); }
+.cmd::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: url(assets/ui/button.png?v=91305a8026e8) 0 0 / 100% 100% no-repeat; }
+.cmd:hover::after { background-image: url(assets/ui/button_hover.png?v=91305a8026e8); }
 .cmd:hover canvas { filter: brightness(1.18) saturate(1.08); }
 .cmd:hover { box-shadow: 0 0 10px rgba(255,205,90,0.55); }
 .cmd:active canvas { transform: translateY(1px); filter: brightness(0.9); }
@@ -181,13 +200,13 @@ button { font: inherit; color: inherit; }
 .cmd.poor canvas { filter: grayscale(0.85) brightness(0.5); }
 .cmd.poor .cost { color: #ff7a6a; }
 .cmd.empty { cursor: default; background: transparent; box-shadow: none; }
-.cmd.empty::after { background-image: url(assets/ui/button_empty.png?v=c7bd234229c1); }
-.cmd.active::after { background-image: url(assets/ui/button_active.png?v=c7bd234229c1); }
+.cmd.empty::after { background-image: url(assets/ui/button_empty.png?v=91305a8026e8); }
+.cmd.active::after { background-image: url(assets/ui/button_active.png?v=91305a8026e8); }
 .cmd.active { box-shadow: 0 0 12px rgba(125,255,90,0.6); }
 
 /* ---------------- tooltip ---------------- */
 #tooltip { position: fixed; z-index: 10; max-width: 330px; padding: 2px 4px; pointer-events: none; display: none; font-size: 14px;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=c7bd234229c1) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 18px stretch;
   filter: drop-shadow(0 6px 12px rgba(0,0,0,0.75)); }
 #tooltip.show { display: block; }
 #tooltip .t-title { font: 800 15px var(--body); color: #fff; letter-spacing: 0.01em; }
@@ -207,14 +226,15 @@ button { font: inherit; color: inherit; }
   background: radial-gradient(ellipse at center, rgba(10,8,6,0.5), rgba(0,0,0,0.92)); }
 #overlay.show { display: flex; }
 .ov-box { position: relative; display: flex; flex-direction: column; align-items: stretch; width: min(580px, 94vw); max-height: calc(100vh - var(--crest-room) - 14px);
+  max-height: calc(100dvh - var(--crest-room) - 14px);   /* a phone's browser bars: the dialog's buttons stay above them */
   padding: 46px 30px 18px; text-align: center;
-  border-style: solid; border-color: transparent; border-width: 34px; border-image: url(assets/ui/dialog.png?v=c7bd234229c1) 120 fill / 60px round;
+  border-style: solid; border-color: transparent; border-width: 34px; border-image: url(assets/ui/dialog.png?v=91305a8026e8) 120 fill / 60px round;
   filter: drop-shadow(0 20px 40px rgba(0,0,0,0.9)); }
 .ov-box > h1, .ov-box > .ov-sub, #ov-foot { flex: none; }
 #ov-foot { display: flex; flex-direction: column; align-items: center; }
 #ov-foot > .ov-actions { margin-top: 8px; }
 .ov-crest { position: absolute; left: 50%; top: -158px; width: 236px; height: 184px; transform: translateX(-50%); pointer-events: none;
-  background: url(assets/ui/crest.png?v=c7bd234229c1) center / contain no-repeat; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8)); }
+  background: url(assets/ui/crest.png?v=91305a8026e8) center / contain no-repeat; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8)); }
 .ov-box h1 { margin: 0; font: 900 46px/1.1 var(--title); letter-spacing: 0.08em;
   background: linear-gradient(#fff6cf 0%, #f8d77e 40%, #c58c26 62%, #f6d47a 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 3px 0 #000) drop-shadow(0 0 14px rgba(232,192,90,0.25)); }
@@ -233,8 +253,8 @@ button { font: inherit; color: inherit; }
 #ov-progress div { height: 100%; width: 0%; background: linear-gradient(#fff0b8, #e0a83a 50%, #8a5a18); transition: width 0.2s; }
 .wc-btn { min-width: 210px; height: 46px; padding: 0 22px; cursor: pointer; font: 800 17px/1 var(--title); letter-spacing: 0.12em; color: var(--gold-l);
   text-shadow: 0 1px 1px #000, 0 0 6px #000; background: none;
-  border-style: solid; border-color: transparent; border-width: 11px 17px; border-image: url(assets/ui/btn_wide.png?v=c7bd234229c1) 22 34 fill / 11px 17px stretch; }
-.wc-btn:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
+  border-style: solid; border-color: transparent; border-width: 11px 17px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 11px 17px stretch; }
+.wc-btn:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
 .wc-btn:active:not(:disabled) { transform: translateY(1px); }
 .wc-btn:disabled { opacity: 0.6; cursor: default; }
 
@@ -245,7 +265,7 @@ body.ltw .classic-only, body.ltw #commands, body.ltw #wave-timer { display: none
 /* ---------------- Line Tower Wars: scoreboard (multiboard) and the income list under it ---------------- */
 #side { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; pointer-events: none; }
 #board { position: relative; min-width: 214px; padding: 0 3px 1px; font: 700 13px/1.25 var(--body); color: var(--text); pointer-events: auto;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=c7bd234229c1) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 18px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); user-select: none; }
 .bd-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 3px 3px; margin-bottom: 2px;
   border-bottom: 1px solid; border-image: linear-gradient(90deg, rgba(232,192,90,0.7), rgba(232,192,90,0.08)) 1; }
@@ -275,8 +295,9 @@ body.ltw .classic-only, body.ltw #commands, body.ltw #wave-timer { display: none
 .bd-row .xt { display: none; padding: 0 3px; font: 800 9px/12px var(--body); letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
   color: #ffd84a; border: 1px solid rgba(255,216,74,0.5); background: rgba(80,60,10,0.5); }
 .bd-row .xt.on { display: inline-block; }
-#income-list { display: none; min-width: 150px; padding: 0 4px 1px; font: 700 12.5px/1.3 var(--body); color: var(--text);
-  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=c7bd234229c1) 36 fill / 16px stretch;
+/* a click or a tap puts the income list away until the next one (#side lets everything else through to the map) */
+#income-list { display: none; min-width: 150px; padding: 0 4px 1px; font: 700 12.5px/1.3 var(--body); color: var(--text); pointer-events: auto; cursor: pointer;
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 16px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); animation: fade-in 0.25s; }
 #income-list.show { display: block; }
 .il-title { font: 800 11px var(--title); letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-l); text-shadow: 0 1px 1px #000; margin-bottom: 2px; }
@@ -292,13 +313,14 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 #cmd-tabs { display: flex; flex-direction: column; gap: 2px; width: 74px; }
 .cmd-tab { position: relative; flex: 1; min-height: 0; padding: 0 2px; cursor: pointer; font: 800 11px/1 var(--body); letter-spacing: 0.02em; color: var(--muted); white-space: nowrap;
   text-shadow: 0 1px 1px #000; background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=c7bd234229c1) 22 34 fill / 5px 9px stretch; }
-.cmd-tab:hover { color: #fff; border-image-source: url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); }
-.cmd-tab.on { color: var(--gold-l); border-image-source: url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); text-shadow: 0 0 6px rgba(255,210,100,0.85), 0 1px 1px #000; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 5px 9px stretch; }
+.cmd-tab:hover { color: #fff; border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); }
+.cmd-tab.on { color: var(--gold-l); border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); text-shadow: 0 0 6px rgba(255,210,100,0.85), 0 1px 1px #000; }
 .cmd-tab .tab-n { margin-left: 4px; color: #a6d6ff; font-size: 10px; }
 .cmd-tab .tab-n:empty { display: none; }
-/* the card keeps one size; the Tech tab packs its 5 x 3 grid (one column per element) into it */
-#ltw-commands { --tb: calc((4 * var(--btn) - var(--gap)) / 5); display: grid; grid-template-columns: repeat(4, var(--btn)); grid-template-rows: repeat(3, var(--btn)); gap: var(--gap);
+/* the card keeps one size; the Tech tab packs its 5 x 3 grid (one column per element) into it (--tb, set on :root so
+   the phone layouts can give it room of its own) */
+#ltw-commands { display: grid; grid-template-columns: repeat(4, var(--btn)); grid-template-rows: repeat(3, var(--btn)); gap: var(--gap);
   width: calc(4 * var(--btn) + 3 * var(--gap)); height: calc(3 * var(--btn) + 2 * var(--gap)); align-content: center; }
 #ltw-commands.tech { grid-template-columns: repeat(5, var(--tb)); grid-template-rows: repeat(3, var(--tb)); }
 #ltw-commands.tech .cmd { width: var(--tb); height: var(--tb); }
@@ -354,7 +376,7 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 
 /* ---------------- Line Tower Wars: the chat line (Enter or the Chat button) ---------------- */
 #chat { position: absolute; left: 16px; bottom: 10px; z-index: 4; display: none; align-items: center; gap: 6px; width: min(460px, calc(100% - 32px)); padding: 0 4px;
-  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=c7bd234229c1) 36 fill / 16px stretch;
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 16px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); }
 #chat.open { display: flex; }
 #chat label { font: 800 13px var(--body); color: var(--gold-l); white-space: nowrap; text-shadow: 0 1px 1px #000; }
@@ -362,8 +384,8 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
   border: 1px solid rgba(232,192,90,0.35); outline: none; }
 #chat input:focus { border-color: rgba(255,216,74,0.7); }
 #chat button { height: 24px; padding: 0 10px; cursor: pointer; font: 700 11px/1 var(--title); letter-spacing: 0.06em; color: var(--gold-l); background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=c7bd234229c1) 22 34 fill / 5px 9px stretch; }
-#chat button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); color: #fff; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 5px 9px stretch; }
+#chat button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; }
 
 /* ---------------- menu, setup and end screens ---------------- */
 .ov-box.wide { width: min(720px, 96vw); }
@@ -375,12 +397,24 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 @supports not selector(::-webkit-scrollbar) { #ov-body { scrollbar-color: #b08a3c rgba(0,0,0,0.35); } }
 .ov-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 2px 0 14px; }
 .wc-btn.small { min-width: 132px; height: 34px; padding: 0 14px; font-size: 13px; border-width: 8px 13px; border-image-width: 8px 13px; }
+/* the pause menus' settings (the frame rate), and the mode menu's line about playing full screen (src/client/app.js) */
+.ov-settings { display: flex; justify-content: center; margin: 0 0 12px; }
+.ov-settings .wc-btn.small { letter-spacing: 0.06em; }
+/* one row: the words (they wrap), a button, the ✕ */
+.ov-app { display: flex; align-items: center; justify-content: center; gap: 10px; max-width: 470px; margin: -6px auto 12px;
+  color: var(--muted); font-size: 13.5px; line-height: 1.3; text-align: center; }
+.ov-app > span { min-width: 0; }
+.ov-app b { color: var(--gold-l); }
+.ov-app .wc-btn.small { flex: none; min-width: 0; }
+.ov-share { width: 17px; height: 17px; vertical-align: -3px; fill: none; stroke: var(--gold-l); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ov-app-x { flex: none; width: 30px; height: 30px; padding: 0; cursor: pointer; border: 0; background: none; color: var(--muted); font: 800 13px var(--body); }
+.ov-app-x:hover { color: var(--gold-l); }
 .modes { display: flex; flex-direction: column; gap: 8px; max-width: 470px; margin: 4px auto 16px; }
 .mode { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 14px 8px; cursor: pointer; background: none; color: var(--gold-l); text-align: center;
-  border-style: solid; border-color: transparent; border-width: 12px 18px; border-image: url(assets/ui/btn_wide.png?v=c7bd234229c1) 22 34 fill / 12px 18px stretch; }
+  border-style: solid; border-color: transparent; border-width: 12px 18px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 12px 18px stretch; }
 .mode b { font: 800 19px/1.1 var(--title); letter-spacing: 0.1em; text-transform: uppercase; text-shadow: 0 1px 1px #000, 0 0 6px #000; }
 .mode span { font: 600 13.5px/1.25 var(--body); color: var(--muted); text-shadow: 0 1px 1px #000; }
-.mode:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); }
+.mode:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); }
 .mode:hover:not(:disabled) b { color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
 .mode:active:not(:disabled) { transform: translateY(1px); }
 .mode:disabled { opacity: 0.5; cursor: default; }
@@ -471,8 +505,8 @@ body.online #btn-pause, body.online #speed { display: none !important; }
 .lb-room { font-size: 13px; color: var(--muted); }
 .lb-room b { font: 800 15px var(--title); letter-spacing: 0.14em; color: #fff; }
 .lb-btn { flex: none; height: 26px; padding: 0 12px; cursor: pointer; font: 700 11.5px/1 var(--title); letter-spacing: 0.06em; color: var(--gold-l); background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=c7bd234229c1) 22 34 fill / 5px 9px stretch; text-shadow: 0 1px 1px #000; }
-.lb-btn:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=c7bd234229c1); color: #fff; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=91305a8026e8) 22 34 fill / 5px 9px stretch; text-shadow: 0 1px 1px #000; }
+.lb-btn:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=91305a8026e8); color: #fff; }
 .lb-net { min-height: 18px; font-size: 13px; color: #e6dcc6; }
 .lb-opt { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted); }
 .lb-opt b { color: #ffd84a; }
@@ -494,7 +528,7 @@ body.online #btn-pause, body.online #speed { display: none !important; }
 .tb-net { display: inline-flex; align-items: center; margin-left: 8px; font: 700 12px var(--body); color: #e6dcc6; white-space: nowrap; text-shadow: 0 1px 1px #000; }
 .tb-net span { color: var(--muted); margin-left: 4px; }
 #net-banner { position: absolute; left: 50%; top: 58px; z-index: 5; display: none; flex-direction: column; align-items: center; gap: 1px; padding: 2px 16px; transform: translateX(-50%);
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=c7bd234229c1) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 18px stretch;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8)); pointer-events: none; animation: banner 1.2s ease-in-out infinite alternate; }
 #net-banner.show { display: flex; }
 #net-banner b { font: 800 15px var(--title); letter-spacing: 0.08em; color: #ffd84a; text-shadow: 0 1px 1px #000; }
@@ -568,34 +602,270 @@ body.online #btn-pause, body.online #speed { display: none !important; }
   .lobby { grid-template-areas: "seats side" "seats chat"; }
   #ov-body .lb-rules { display: none; }
 }
-@media (max-width: 600px) {
-  :root { --pw: 72px; --btn: 40px; --gap: 3px; }
-  #app { grid-template-rows: var(--top-h) 1fr auto; }
-  #topbar { padding: 0 8px 2px; }
-  #topbar::before { border-width: 0; border-image-width: 0; }
-  .tb-btn { padding: 0 4px; font-size: 10px; letter-spacing: 0.04em; }
-  .tb-speed { display: none; }
+/* ---------------- phones (and other narrow windows), upright: a compact top bar and a console under the battlefield,
+   the command card beside the info panel, Line Tower Wars' tabs in one row above them; the minimap and the portrait
+   go (the minimap opens over the view from its button), the safe areas around a notch and the home bar are kept clear
+   (a small phone on its side, under 501 px tall, takes the landscape layout below instead) */
+@media (max-width: 600px) and (min-height: 501px) {
+  :root { --top-h: 40px; --pw: 72px; --btn: 44px; --gap: 3px; --tb: 40px; }
+  #app { grid-template-rows: calc(var(--top-h) + env(safe-area-inset-top)) minmax(0, 1fr) auto; }
+  #topbar { height: auto; padding: env(safe-area-inset-top) max(6px, env(safe-area-inset-right)) 2px max(6px, env(safe-area-inset-left)); gap: 6px; }
+  #topbar::before { top: env(safe-area-inset-top); border-width: 0; border-image-width: 0; }
+  /* the bar fits a 360 px phone with every resource (where five digits of gold would not fit, src/client/hud.js shortens
+     them as it does income, and where even that does not fit it makes the bar .tight): finger-high buttons, Chat as an
+     icon */
+  .tb-left { gap: 3px; }
+  .tb-btn, .tb-speed button { height: 34px; padding: 0 5px; font-size: 11px; letter-spacing: 0.04em; }
+  #btn-chat { min-width: 40px; padding: 0 1px; }
+  #btn-chat span { display: none; }
+  #btn-chat svg { display: block; }
   .tb-res { gap: 6px; }
-  .res { font-size: 12px; gap: 2px; }
+  .res { font-size: 12.5px; gap: 2px; }
   .res b { min-width: 0; }
   .ico { width: 16px; height: 16px; }
-  #console { grid-template-columns: auto minmax(0, 1fr); row-gap: 8px; padding: 24px 8px 8px; }
-  #console::before, #console::after { width: 48px; height: 48px; }
-  #portrait-frame { margin: 0 16px; }
-  #info-panel { max-height: 124px; }
-  #cmd-panel { grid-column: 1 / -1; justify-self: center; }
+  .tb-res.tight { gap: 3px; }
+  .tb-res.tight .ico { width: 14px; height: 14px; }
+  #console { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "tabs tabs" "info cmd"; gap: 4px 6px; align-items: stretch;
+    padding: 22px max(6px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); }
+  #console::before, #console::after { width: 44px; height: 44px; }
+  #mm-panel, #portrait-frame { display: none; }
+  body:not(.ltw) #console { grid-template-areas: "info cmd"; }
+  #info-panel { grid-area: info; }
+  #cmd-panel { grid-area: cmd; justify-self: end; }
   .panel { border-width: 12px; border-image-width: 22px; }
-  #info .stats { grid-template-columns: 1fr; }
-  #info .tags { display: none; }
+  #info-panel { padding: 0 2px; }
+  /* the console is as tall as the card (and the tabs) whatever the info panel shows: the panel fits its content to that
+     (UI.fitInfo), so the battlefield above never moves; opened, it takes the room its content needs */
+  #info { contain: size; }
+  body.info-open #info { contain: none; }
+  #info h2, #info.fit1 h2, #info.fit2 h2 { font-size: 15px; line-height: 1.12; white-space: normal; }   /* a long name takes two lines */
+  #info .tier { font-size: 10px; margin-bottom: 3px; }
+  #info .stats, #info.fit1 .stats { grid-template-columns: 1fr; font-size: 12px; gap: 0; }
+  #info .tags, #info .lore { display: none; }
+  /* Line Tower Wars: the tabs across the console, the card in its own frame */
+  body.ltw #cmd-panel { display: contents; }
+  body.ltw #cmd-tabs { grid-area: tabs; flex-direction: row; width: auto; height: 36px; gap: 2px; }
+  .cmd-tab { font-size: 10.5px; padding: 0 1px; border-width: 5px 6px; border-image-width: 5px 6px; }
+  body.ltw #ltw-commands { grid-area: cmd; justify-self: end; align-self: center; box-sizing: content-box; padding: 2px;
+    border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/frame_gold.png?v=91305a8026e8) 64 / 20px round;
+    background: linear-gradient(#0f0d0b, #070605) padding-box; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.7)); }
+  #ltw-commands.tech { width: calc(5 * var(--tb) + 4 * var(--gap)); }
   #wave-timer { font-size: 12px; min-width: 0; right: 6px; top: 6px; }
+  #tooltip { max-width: calc(100vw - 16px); font-size: 13px; }
+  #msgs { left: 10px; bottom: 8px; max-width: 72%; font-size: 12px; }
+  #msgs div:nth-last-child(n+5) { display: none; }
+  #hint { font-size: 12px; max-width: calc(100% - 70px); bottom: 6px; }
+  #side { right: 6px; top: 6px; }
+  #board { min-width: 170px; font-size: 12px; }
+  #chat { top: 6px; bottom: auto; left: 6px !important; right: 6px; width: auto; }
+  #chat input { font-size: 16px; }   /* 16 px or more: a phone does not zoom in to type */
+  .tb-net { margin-left: 2px; font-size: 11px; }
+  .tb-net .dot { margin-right: 4px; }
+  .tb-net span { display: none; }   /* the ping alone, where the players connected would push the resources off */
+  /* vs Computer setup: a computer's difficulties on a row of their own under its colour */
+  .setup .seat[data-i] { grid-template-columns: 14px minmax(0, 1fr) 34px; grid-template-areas: "sw nm rm" "df df df"; row-gap: 5px; padding: 5px 8px; }
+  .setup .seat[data-i] .sw { grid-area: sw; } .setup .seat[data-i] b { grid-area: nm; } .setup .seat[data-i] .rm { grid-area: rm; justify-self: end; }
+  .setup .seat[data-i] .diffs { grid-area: df; display: grid; grid-template-columns: repeat(4, 1fr); }
+  .seat-tools { flex-wrap: wrap; justify-content: center; }
   #overlay { --crest-room: 88px; }
   .ov-crest { width: 170px; height: 132px; top: -112px; }
   .ov-box { padding: 30px 8px 12px; border-width: 24px; border-image-width: 44px; }
   .a-title { font-size: 22px; }
   .a-sub { font-size: 13px; }
   .a-rule { height: 10px; }
+  #announce { top: 64px; }   /* under the level timer and the folded scoreboard */
+  /* vs Players lobby: a player's name gets the line under the colour (where the tag and the kick button stay), and the
+     colour column narrows so a seat's choice reads in full */
+  .lb-seats .seat { grid-template-columns: 14px 70px minmax(0, 1fr) auto; column-gap: 8px; }
+  .lb-seats .seat > b { font-size: 13px; }
+  .lb-seat.human { grid-template-columns: 14px 70px minmax(0, 1fr) auto auto; grid-template-areas: "sw col you tag rm" "sw nm nm nm rm"; row-gap: 1px; padding: 3px 8px; }
+  .lb-seat.human > .sw { grid-area: sw; }
+  .lb-seat.human > b { grid-area: col; }
+  .lb-seat.human .lb-who { display: contents; }
+  .lb-seat.human .nm { grid-area: nm; min-width: 0; }
+  .lb-seat.human .lb-who em { grid-area: you; }
+  .lb-seat.human .lb-tag { grid-area: tag; margin-left: 0; }
+  .lb-seat.human > :last-child { grid-area: rm; }
 }
 @media (max-height: 700px) and (min-width: 901px) {
   :root { --con-h: 180px; --pw: 100px; --btn: 38px; }
   #console { padding-top: 26px; }
+}
+
+/* ---------------- touch and small screens ---------------- */
+/* the map buttons over the battlefield (zoom, the reset or the lane jumps, the minimap), where the minimap's own + and -
+   are gone or too small for a finger; the same query as compact() in src/client/touch.js. They make a block at the foot
+   of the view in two columns (the minimap's under the jumps; a phone on its side has two rows, below), and the scoreboard
+   and the income list (#side) end above them, the list beside the board rather than under it: what does not fit scrolls */
+#view-tools { position: absolute; right: 8px; bottom: 8px; z-index: 4; display: none; grid-template-columns: repeat(2, 40px); gap: 6px; }
+#btn-speed, #rotate-hint { display: none; }
+@media (max-width: 900px), (max-height: 500px), (pointer: coarse) {
+  #view-tools { display: grid; }
+  #vt-map { grid-column: 2; }
+  #side { bottom: 154px; flex-direction: row-reverse; flex-wrap: wrap; align-items: flex-start; align-content: flex-start; }
+  #board, #income-list { max-height: 100%; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; scrollbar-width: thin; scrollbar-color: #6a5228 transparent; }
+  #view-tools button { width: 40px; height: 40px; padding: 0; cursor: pointer; border-radius: 50%; font: 900 22px/38px var(--title); color: var(--gold-l); text-shadow: 0 1px 1px #000;
+    background: radial-gradient(circle at 50% 35%, #3e3422, #120e08 75%); border: 1px solid #000; box-shadow: 0 0 0 1.5px #a07a2c, 0 2px 4px rgba(0,0,0,0.85); opacity: 0.92; }
+  #view-tools button:active:not(:disabled) { transform: translateY(1px); color: #fff; }
+  #view-tools button:disabled { opacity: 0.4; }
+  #view-tools button[aria-pressed="true"] { color: #fff; box-shadow: 0 0 0 1.5px var(--gold), 0 0 10px rgba(255,200,80,0.55); }
+  #view-tools svg { width: 20px; height: 20px; }
+}
+/* the minimap's button only where the console has no minimap: it opens over the view */
+@media (min-width: 901px) and (min-height: 501px) { #vt-map { display: none; } }
+@media (max-width: 900px), (max-height: 500px) {
+  body.mm-open #mm-panel { display: flex; position: fixed; z-index: 7; left: calc(8px + env(safe-area-inset-left)); top: calc(var(--top-h) + env(safe-area-inset-top) + 8px);
+    width: min(210px, 46vw); height: 150px; border-width: 18px; border-image-width: 30px; }
+  body.mm-open:not(.ltw) #mm-panel { top: calc(var(--top-h) + env(safe-area-inset-top) + 72px); }   /* under Classic's level timer */
+  #mm-zoom { display: none; }
+}
+/* fingers: no text selection or callouts in the game (inputs keep theirs), and controls a finger can hit */
+@media (hover: none) and (pointer: coarse) {
+  #app { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  input, .lb-log { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+  #mm-zoom { display: none; }
+  .diffs button { padding: 8px 11px; }
+  .seat .rm { width: 34px; height: 34px; }
+  .lb-select { height: 34px; }
+  .lb-btn, .lb-toggle { min-height: 32px; }
+  .on-input, .on-field input { height: 38px; font-size: 16px; }
+  .lb-linkrow .on-input { height: 32px; font-size: 16px; }
+  .bd-title { padding: 6px 3px 8px; margin-top: -5px; }   /* the fold toggle */
+  .bd-row { min-height: 24px; }
+}
+.touch-keys { display: none; }
+/* a touch screen's menus show what fingers do, not the keys and the mouse */
+@media (hover: none) and (pointer: coarse) { .ov-keys .touch-keys { display: list-item; } .ov-keys .mouse-keys { display: none; } }
+/* tablets: the desktop console, with buttons for a finger */
+@media (pointer: coarse) and (min-width: 601px) and (min-height: 501px) {
+  :root { --btn: 48px; --con-h: 222px; }
+  #cmd-tabs { width: 84px; }
+  .cmd-tab { font-size: 12px; }
+  .tb-btn, .tb-speed button { height: 30px; }
+}
+/* one speed button that steps 1x, 2x, 3x where the three would not fit; Menu pauses as Pause does */
+@media (max-width: 600px), (max-height: 500px) {
+  #speed, #btn-pause { display: none; }
+  #btn-speed { display: inline-block; min-width: 40px; }
+  body.online #btn-speed { display: none !important; }
+  /* the info panel opens over the view from a tap (the console keeps its size) */
+  #info-panel { cursor: pointer; }
+  #info-panel::before { content: ''; position: absolute; z-index: 2; right: -6px; top: -6px; border: 5px solid transparent; border-bottom: 6px solid var(--gold-l); border-top: 0; opacity: 0.8; }
+  body.info-open #info-panel { position: absolute; z-index: 8; grid-area: auto; left: max(6px, env(safe-area-inset-left)); right: max(6px, env(safe-area-inset-right)); bottom: calc(100% + 6px); max-height: min(60vh, 330px); }
+  body.info-open #info-panel::before { border-bottom: 0; border-top: 6px solid var(--gold-l); }
+  body.info-open #info .tags, body.info-open #info .lore { display: flex; }
+  body.info-open #info .stats { grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  /* too small for the most compact layout: the lines that fit whole, no scrollbar (a tap shows the rest) */
+  #info.fit3 { overflow: hidden; }
+  #info .cut { display: none !important; }
+  #chat.open ~ #side { top: 54px; }   /* the scoreboard steps down under the chat line */
+  #income-list .idle { display: none; }   /* the empty slots of the map's income list */
+}
+/* where the unfolded scoreboard leaves no room beside it, its Income column stands in for the income list */
+@media (max-width: 600px), (max-height: 500px) and (max-width: 640px) {
+  #board:not(.folded) + #income-list { display: none; }
+}
+/* turn the phone: a hint across the foot of an upright phone's battlefield (what sits there steps up over it), clear
+   of the level timer and the scoreboard; its ✕ puts it away for good, the rest of it lets taps through to the map */
+@media (orientation: portrait) and (max-width: 600px) and (pointer: coarse) {
+  body:not(.rotate-ok) #rotate-hint { position: absolute; left: 4px; right: 4px; bottom: 4px; z-index: 6; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 0 0 8px;
+    pointer-events: none; font: 700 13px/1.25 var(--body); color: var(--gold-l); text-shadow: 0 1px 1px #000;
+    border-style: solid; border-color: transparent; border-width: 8px; border-image: url(assets/ui/tooltip.png?v=91305a8026e8) 36 fill / 16px stretch; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.8)); }
+  #rotate-hint span::before { content: ''; display: inline-block; width: 11px; height: 17px; margin-right: 8px; vertical-align: -3px; border: 2px solid var(--gold-l); border-radius: 3px; transform: rotate(-90deg); }
+  #rotate-hint button { flex: none; width: 40px; height: 40px; padding: 0; cursor: pointer; pointer-events: auto; font: 800 15px var(--body); color: var(--gold-l); background: none; border: 0; }
+  body:not(.rotate-ok) #view-tools, body:not(.rotate-ok) #msgs { bottom: 64px; }
+  body:not(.rotate-ok) #msgs.hinted { bottom: 110px; }
+  body:not(.rotate-ok) #hint { bottom: 62px; }
+  body:not(.rotate-ok) #side { bottom: 210px; }
+}
+
+/* ---------------- phones on their side (the recommended way): the battlefield on the left, the console as a column on
+   the right with the info panel over the Line Tower Wars tabs and the command card; the top bar stays a thin strip */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root { --top-h: 34px; --btn: 44px; --gap: 3px; --tb: 40px; }
+  #app { grid-template-rows: var(--top-h) minmax(0, 1fr); grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "top top" "stage console"; }
+  #topbar { grid-area: top; height: var(--top-h); padding: 0 max(46px, env(safe-area-inset-right)) 1px max(46px, env(safe-area-inset-left)); gap: 6px; }
+  #topbar::before { height: 44px; border-width: 0 48px; border-image-width: 0 48px; }
+  .tb-plaque { display: none; }
+  .tb-btn, .tb-speed button { height: 30px; padding: 0 7px; font-size: 11px; }
+  .tb-res { gap: 10px; }
+  .res { font-size: 13px; gap: 3px; }
+  .res-sub { display: none; }
+  .ico { width: 18px; height: 18px; }
+  #stage { grid-area: stage; margin-left: env(safe-area-inset-left); }
+  #console { grid-area: console; display: flex; flex-direction: column; gap: 6px; min-height: 0; width: calc(4 * var(--btn) + 3 * var(--gap) + 44px + env(safe-area-inset-right));
+    padding: 12px max(8px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) 10px; background-size: auto 360px; background-repeat: repeat;
+    box-shadow: -6px 0 14px rgba(0,0,0,0.75), inset 3px 0 0 #a07a2c, inset 4px 0 0 #2a1d0a; }
+  #console::before { width: 40px; height: 40px; left: -6px; top: -6px; }
+  #console::after { display: none; }
+  body.ltw #console { width: calc(5 * var(--tb) + 4 * var(--gap) + 44px + env(safe-area-inset-right)); }
+  #mm-panel, #portrait-frame { display: none; }
+  .panel { border-width: 12px; border-image-width: 22px; }
+  #info-panel { flex: 1 1 auto; min-height: 44px; padding: 0 2px; }
+  #info h2, #info.fit1 h2, #info.fit2 h2 { font-size: 15px; }
+  #info .tier { font-size: 10px; margin-bottom: 2px; }
+  #info .stats, #info.fit1 .stats { grid-template-columns: 1fr; font-size: 12px; gap: 0; }
+  #info .tags, #info .lore { display: none; }
+  #cmd-panel { flex: none; align-self: center; margin-top: auto; border-width: 10px; border-image-width: 20px; }
+  body.ltw #cmd-panel { flex-direction: column; gap: 4px; }
+  #cmd-tabs { display: grid; grid-template-columns: repeat(3, 1fr); width: auto; gap: 2px; }
+  .cmd-tab { height: 30px; font-size: 10.5px; padding: 0 1px; border-width: 5px 6px; border-image-width: 5px 6px; }
+  #ltw-commands { margin: 0 auto; }
+  #ltw-commands.tech { width: calc(5 * var(--tb) + 4 * var(--gap)); }
+  body.info-open #info-panel { left: auto; right: calc(100% + 6px); top: 6px; bottom: auto; width: min(380px, 62vw); max-height: calc(100% - 12px); }
+  #wave-timer { font-size: 12px; min-width: 0; right: 6px; top: 6px; border-width: 10px; }
+  #msgs { left: 10px; bottom: 8px; max-width: 60%; font-size: 12px; }
+  #msgs div:nth-last-child(n+5) { display: none; }
+  #side { right: 6px; top: 6px; bottom: 108px; }
+  #board { min-width: 180px; font-size: 12px; }
+  #view-tools { grid-template-columns: none; grid-template-rows: repeat(2, 40px); grid-auto-flow: column; }   /* low, clear of the scoreboard */
+  #vt-map { grid-row: 2; grid-column: auto; }
+  #chat { top: 6px; bottom: auto; left: 6px !important; width: min(460px, calc(100% - 60px)); }
+  #chat input { font-size: 16px; }
+  #announce { top: 64px; }   /* under the level timer and the folded scoreboard */
+  .a-title { font-size: 24px; }
+  .a-sub { font-size: 13px; }
+  .a-rule { height: 10px; }
+  /* dialogs: a small crest, a tight frame, the modes side by side; the body scrolls when it must */
+  #overlay { --crest-room: 30px; padding: calc(var(--crest-room) + 2px) env(safe-area-inset-right) 4px env(safe-area-inset-left); }
+  .ov-crest { width: 80px; height: 62px; top: -46px; }
+  .ov-box, .ov-box.lobby-box { width: min(780px, 96vw); max-height: calc(100vh - var(--crest-room) - 8px); max-height: calc(100dvh - var(--crest-room) - 8px);
+    padding: 12px 14px 4px; border-width: 22px; border-image-width: 40px; }
+  .ov-box.wide { width: min(780px, 96vw); }
+  .ov-box h1, .ov-box.lobby-box h1 { font-size: 24px; }
+  .ov-sub, .ov-box.lobby-box .ov-sub { font-size: 11px; margin: 0 0 6px; }
+  .ov-sub::after { margin-top: 4px; height: 10px; }
+  #ov-body p { margin: 4px 0 6px; font-size: 14px; }
+  .ov-keys { font-size: 13px; margin-bottom: 8px; }
+  #ov-foot { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px 10px; margin: 4px 0 2px; }   /* the dialog's buttons in one row */
+  #ov-foot .wc-btn:not(.small) { height: 36px; min-width: 180px; font-size: 15px; }
+  #ov-foot > .ov-actions { margin: 0; flex-wrap: nowrap; }
+  #ov-foot > .lb-foot { flex: 1 1 100%; margin: 0; }
+  .modes { flex-direction: row; max-width: none; gap: 8px; margin: 2px 0 8px; }
+  .mode { flex: 1 1 0; justify-content: flex-start; padding: 4px 8px 6px; }
+  .mode b { font-size: 15px; }
+  .mode span { font-size: 12.5px; }
+  .end-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+  .lobby { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-areas: "seats side" "seats chat"; }
+  #ov-body .lb-rules { display: none; }
+  .lb-log { height: 56px; }
+  .on-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .on-field { flex-direction: row; align-items: center; gap: 10px; max-width: 440px; margin-bottom: 6px; }
+  .on-field span { flex: none; }
+  .on-card { gap: 5px; padding: 6px 10px 8px; }
+  .on-card h3 { font-size: 15px; }
+  #ov-body .on-card p { font-size: 12.5px; line-height: 1.25; }
+  .ov-box .on-status { min-height: 0; margin: 4px 0 0; }
+}
+/* a finger leaves a touch screen's :hover on the button it tapped last: no hover glow there, so a command button that
+   was just pressed does not look selected */
+@media (hover: none) {
+  .cmd:hover { box-shadow: none; }
+  .cmd:hover::after { background-image: url(assets/ui/button.png?v=91305a8026e8); }
+  .cmd:hover canvas { filter: none; }
+  .cmd.empty:hover::after { background-image: url(assets/ui/button_empty.png?v=91305a8026e8); }
+  .cmd.active:hover::after { background-image: url(assets/ui/button_active.png?v=91305a8026e8); }
+  .cmd.active:hover { box-shadow: 0 0 12px rgba(125,255,90,0.6); }
+  .cmd.poor:hover canvas { filter: grayscale(0.85) brightness(0.5); }
+  .cmd.locked:hover canvas, .cmd.out:hover canvas, .cmd.off:hover canvas { filter: grayscale(0.85) brightness(0.55); }
 }

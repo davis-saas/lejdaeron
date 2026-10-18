@@ -7,10 +7,10 @@
 //   lobby.kick(slot), lobby.start(), lobby.leave(), lobby.on('change' | 'chat' | 'start' | 'closed' | 'error', fn)
 //   lobby.options { extra }, lobby.setOptions({ extra }) (host only: whether '-onextra' works in the match)
 //   session.kind, .me, .world, .command(op) -> Promise<{ ok, why }>, .tick(realDt), .on(type, fn), .close()
-import { Replica } from './replica.js?v=c7bd234229c1';
-import { newNonce, verify } from './auth.js?v=c7bd234229c1';
-import * as P from './protocol.js?v=c7bd234229c1';
-import * as CFG from './config.js?v=c7bd234229c1';
+import { Replica } from './replica.js?v=91305a8026e8';
+import { newNonce, verify } from './auth.js?v=91305a8026e8';
+import * as P from './protocol.js?v=91305a8026e8';
+import * as CFG from './config.js?v=91305a8026e8';
 
 const { C, H } = P;
 const LEAVE_LINGER = 500;   // ms the link stays open after a LEAVE, so the host gets it

@@ -4,17 +4,20 @@
 // unchanged. Per frame: the lane ground (cached at the current zoom, one canvas shared by every lane) for each lane in
 // view, then each lane's depth-sorted props, towers, creeps and tech area, then missiles, particles and bars, then the
 // name plates.
-import { Renderer, P, K, TK, sx, sy, hexA, drawFlame } from '../render.js?v=c7bd234229c1';
-import { SIN, TOP, TILE } from '../level.js?v=c7bd234229c1';
-import { SPAWN_U, EXIT_U, LANE_ROWS } from '../lane.js?v=c7bd234229c1';
-import { mulberry32 } from '../rng.js?v=c7bd234229c1';
-import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, BAND, laneDY, PLAYER_HEX, PLAYER_TEXT, techArea, botNamed } from './common.js?v=c7bd234229c1';
+import { Renderer, P, K, TK, sx, sy, hexA, drawFlame } from '../render.js?v=91305a8026e8';
+import { SIN, TOP, TILE } from '../level.js?v=91305a8026e8';
+import { SPAWN_U, EXIT_U, LANE_ROWS } from '../lane.js?v=91305a8026e8';
+import { mulberry32 } from '../rng.js?v=91305a8026e8';
+import { tinted } from '../assets.js?v=91305a8026e8';
+import { pixelRatio, canvasScale } from '../device.js?v=91305a8026e8';
+import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, BAND, laneDY, PLAYER_HEX, PLAYER_TEXT, techArea, botNamed } from './common.js?v=91305a8026e8';
 
 const GX0 = sx(LANE_X0), GX1 = sx(LANE_X1), GY0 = sy(LANE_Y0), GY1 = sy(LANE_Y1);   // one band, logical px
 const REACH = 3.2 * P;              // how far tall sprites reach above their tile (logical px), for culling
 const DARK = '#070906';             // the world beyond the lane art (the map's black boundary, a touch of forest green)
 const FRINGE = LANE_ROWS + 0.25;    // the forest floor past the south kerb, which tiles onto the next lane's north edge
 const FADE = 0.6 * P;               // how far the lane art fades into the dark at its west and east ends
+const SHADOWS_FROM = 30;            // css px per tile: the light set leaves out the contact shadows when the view is farther
 const byKey = (a, b) => a.key - b.key;
 // The ring an aura's bonus puts at the feet of every creep that has it this tick (WC3's aura target art), one colour per
 // kind of bonus: haste (Endurance and Unholy Aura), healing (Unholy), healing in percent (Regeneration), damage (Command).
@@ -66,14 +69,14 @@ export class LaneRenderer extends Renderer {
     if (!b) {
       if (out) b = darkened(this.banner(slot, false));
       else {
-        const M = this.man.props, m = M.lane_banner, cl = M.lane_banner_cloth;
-        const c = document.createElement('canvas'); c.width = m.w; c.height = m.h;
+        const M = this.man.props, m = M.lane_banner, cl = M.lane_banner_cloth, q = m.ss, w = m.w * q, h = m.h * q;
+        const c = document.createElement('canvas'); c.width = Math.ceil(w); c.height = Math.ceil(h);
         const x = c.getContext('2d');
-        x.drawImage(cl.img, cl.sx, cl.sy, cl.w, cl.h, 0, 0, m.w, m.h);
-        x.globalCompositeOperation = 'multiply'; x.fillStyle = PLAYER_HEX[slot] || '#ffffff'; x.fillRect(0, 0, m.w, m.h);
-        x.globalCompositeOperation = 'destination-in'; x.drawImage(cl.img, cl.sx, cl.sy, cl.w, cl.h, 0, 0, m.w, m.h);
-        x.globalCompositeOperation = 'destination-over'; x.drawImage(m.img, m.sx, m.sy, m.w, m.h, 0, 0, m.w, m.h);
-        b = { img: c, sx: 0, sy: 0, w: m.w, h: m.h, ax: m.ax, ay: m.ay };
+        x.drawImage(cl.img, cl.sx, cl.sy, cl.w * cl.ss, cl.h * cl.ss, 0, 0, w, h);
+        x.globalCompositeOperation = 'multiply'; x.fillStyle = PLAYER_HEX[slot] || '#ffffff'; x.fillRect(0, 0, w, h);
+        x.globalCompositeOperation = 'destination-in'; x.drawImage(cl.img, cl.sx, cl.sy, cl.w * cl.ss, cl.h * cl.ss, 0, 0, w, h);
+        x.globalCompositeOperation = 'destination-over'; x.drawImage(m.img, m.sx, m.sy, w, h, 0, 0, w, h);
+        b = { img: c, sx: 0, sy: 0, w: m.w, h: m.h, ax: m.ax, ay: m.ay, ss: q };
       }
       this.banners.set(key, b);
     }
@@ -81,7 +84,7 @@ export class LaneRenderer extends Renderer {
   }
 
   resize(cssW, cssH) {
-    this.dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.dpr = pixelRatio();
     this.vw = Math.max(0, Math.floor(cssW)); this.vh = Math.max(0, Math.floor(cssH));
     this.canvas.style.width = this.vw + 'px';
     this.canvas.style.height = this.vh + 'px';
@@ -91,9 +94,10 @@ export class LaneRenderer extends Renderer {
   }
 
   // ---------------------------------------------------------------- the cached ground
-  // Device px per logical px of the cache: the view's, capped at the art's own 96 px per tile.
+  // Device px per logical px of the cache: the view's, capped at the art's own (96 px per tile, the light art's 48) and
+  // the device's canvas budget.
   groundCache(s, zooming) {
-    const cs = Math.min(2, s);
+    const cs = canvasScale(GX1 - GX0, GY1 - GY0, Math.min(this.res, s));
     if (this.cache && (Math.abs(this.cache.cs - cs) < 1e-6 || zooming)) return this.cache;
     const c = document.createElement('canvas');
     c.width = Math.ceil((GX1 - GX0) * cs); c.height = Math.ceil((GY1 - GY0) * cs);
@@ -124,8 +128,8 @@ export class LaneRenderer extends Renderer {
   // A stand-in lane from Classic ground cut-outs: forest floor borders, a grass field with a faint tile grid, stone
   // kerbs, and stone platforms with rune circles in the spawn and exit zones.
   paintFallback(x, cs) {
-    const img = this.man.ground.img;
-    const forest = mirrorPattern(x, img, 420, 12, 1300, 180), grass = mirrorPattern(x, img, 480, 380, 960, 190);
+    const ground = this.man.ground;
+    const forest = mirrorPattern(x, ground, 420, 12, 1300, 180), grass = mirrorPattern(x, ground, 480, 380, 960, 190);
     x.fillStyle = forest; x.fillRect(GX0, GY0, GX1 - GX0, GY1 - GY0);
     const fx0 = sx(SPAWN_U), fx1 = sx(EXIT_U), fy0 = sy(0), fy1 = sy(LANE_ROWS);
     x.fillStyle = grass; x.fillRect(fx0, fy0, fx1 - fx0, fy1 - fy0);
@@ -228,8 +232,8 @@ export class LaneRenderer extends Renderer {
     let slowed = (c.slowUntil > lane.time && c.slowPct > 0) || c.auraSlow > 0;
     if (!slowed) for (const p of c.poisons) if (p.slow) { slowed = true; break; }
     const hit = fx.hitFlash.get(c.id);
-    const img = hit !== undefined && fx.t - hit < 0.06 ? m.hitImg : slowed ? m.slowImg : m.img;
-    this.frame(ctx, m, img, col, row, X, Y, flip, hidden ? 0.28 : 1, k);
+    const look = hit !== undefined && fx.t - hit < 0.06 ? tinted(m, 'hit') : slowed ? tinted(m, 'slow') : m;
+    this.frame(ctx, look, look.img, col, row, X, Y, flip, hidden ? 0.28 : 1, k);
     if (c.stunUntil > lane.time) {
       const top = Y - m.ay * k - 4;
       ctx.fillStyle = '#ffe36b';
@@ -261,7 +265,7 @@ export class LaneRenderer extends Renderer {
     const tx = Math.round(W / 2 - cam.x * s), ty = Math.round(H / 2 - cam.y * s);
     const [i0, i1] = this.visibleRange(cam, order.length);
     const rect = cam.rect();
-    const cache = this.groundCache(s, cam.zooming);
+    const cache = this.groundCache(s, cam.zooming || cam.live);
     const k = s / cache.cs;
     // 1. ground of every lane in view, and the world around them
     for (let i = i0; i <= i1; i++) {
@@ -279,9 +283,10 @@ export class LaneRenderer extends Renderer {
     ctx.setTransform(s, 0, 0, s, tx, ty);
     this.edges(ctx, order.length, rect);
     // 2. each lane's ground marks and depth-sorted sprites, north to south
+    const shadows = !this.man.light || cam.zoom * P >= SHADOWS_FROM;
     for (let i = i0; i <= i1; i++) {
       ctx.setTransform(s, 0, 0, s, tx, ty + laneDY(i) * s);
-      this.drawLane(ctx, world, order[i], i, rect, view, fxs[order[i]], t);
+      this.drawLane(ctx, world, order[i], i, rect, view, fxs[order[i]], t, shadows);
     }
     // 3. missiles, particles, health and progress bars, floating text
     for (let i = i0; i <= i1; i++) {
@@ -355,7 +360,8 @@ export class LaneRenderer extends Renderer {
     return n + 1;
   }
 
-  drawLane(ctx, world, slot, i, rect, view, fx, t) {
+  // shadows: the contact shadows under towers and creeps (the light set leaves them out in a far view)
+  drawLane(ctx, world, slot, i, rect, view, fx, t, shadows = true) {
     const lane = world.lanes[slot];
     const dy = laneDY(i);
     // visible lane-local window (tiles), padded for sprite overhang
@@ -373,8 +379,10 @@ export class LaneRenderer extends Renderer {
     if (sel && sel.def.range) this.ring(ctx, sx(sel.x), sy(sel.y), sel.def.range / TILE * P, 'rgba(255,255,255,0.55)', 1.5, [6, 5], 'rgba(255,255,255,0.05)');
     if (hov && hov !== sel) this.ring(ctx, sx(hov.x), sy(hov.y), hov.def.range / TILE * P, 'rgba(255,255,255,0.25)', 1, [4, 6]);
 
-    for (const tw of lane.towers) if (vis(tw)) this.blob(ctx, sx(tw.x) + 1, sy(tw.y) + 1, P * 0.42, 0.14);
-    for (const c of lane.creeps) if (vis(c)) this.blob(ctx, sx(c.x) + 1, sy(c.y) + 1, P * (c.def.flying ? 0.16 : 0.2), c.def.flying ? 0.12 : 0.16);
+    if (shadows) {
+      for (const tw of lane.towers) if (vis(tw)) this.blob(ctx, sx(tw.x) + 1, sy(tw.y) + 1, P * 0.42, 0.14);
+      for (const c of lane.creeps) if (vis(c)) this.blob(ctx, sx(c.x) + 1, sy(c.y) + 1, P * (c.def.flying ? 0.16 : 0.2), c.def.flying ? 0.12 : 0.16);
+    }
     this.auraRings(ctx, lane, vis, t);
     if (sel) {
       if (sel.def.upgrades || sel.def.tech) this.selection(ctx, sx(sel.x), sy(sel.y), P * 0.5, sel.owner === view.me ? '#5aff4a' : '#ffd84a');
@@ -622,29 +630,32 @@ export class LaneRenderer extends Renderer {
   }
 }
 
-// A canvas pattern from a rectangle of the Classic ground, mirrored both ways so its repeats have no seams, mapped
-// from the ground's 96 px per tile to logical px.
-function mirrorPattern(ctx, img, x, y, w, h) {
+// A canvas pattern from a rectangle (in the full art's pixels) of the Classic ground, mirrored both ways so its repeats
+// have no seams, mapped from the ground's 96 px per tile to logical px.
+function mirrorPattern(ctx, ground, x, y, w, h) {
+  const q = ground.ss;
+  x *= q; y *= q; w = Math.round(w * q); h = Math.round(h * q);
   const c = document.createElement('canvas'); c.width = w * 2; c.height = h * 2;
   const g = c.getContext('2d');
   for (const [fx, fy] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) {
     g.setTransform(fx, 0, 0, fy, fx < 0 ? w * 2 : 0, fy < 0 ? h * 2 : 0);
-    g.drawImage(img, x, y, w, h, 0, 0, w, h);
+    g.drawImage(ground.img, x, y, w, h, 0, 0, w, h);
   }
   const p = ctx.createPattern(c, 'repeat');
-  if (p.setTransform) p.setTransform(new DOMMatrix().scaleSelf(K, K));
+  if (p.setTransform) p.setTransform(new DOMMatrix().scaleSelf(K / q, K / q));
   return p;
 }
 
 // A grey, darkened copy of one prop sprite for eliminated lanes (matches the darkened ground), as a sprite entry.
 function darkened(m) {
-  const c = document.createElement('canvas'); c.width = m.w; c.height = m.h;
+  const q = m.ss, w = m.w * q, h = m.h * q;
+  const c = document.createElement('canvas'); c.width = Math.ceil(w); c.height = Math.ceil(h);
   const x = c.getContext('2d');
-  x.drawImage(m.img, m.sx, m.sy, m.w, m.h, 0, 0, m.w, m.h);
-  x.globalCompositeOperation = 'saturation'; x.fillStyle = '#808080'; x.fillRect(0, 0, m.w, m.h);
-  x.globalCompositeOperation = 'source-over'; x.fillStyle = 'rgba(6,8,12,0.5)'; x.fillRect(0, 0, m.w, m.h);
-  x.globalCompositeOperation = 'destination-in'; x.drawImage(m.img, m.sx, m.sy, m.w, m.h, 0, 0, m.w, m.h);
-  return { img: c, sx: 0, sy: 0, w: m.w, h: m.h, ax: m.ax, ay: m.ay };
+  x.drawImage(m.img, m.sx, m.sy, w, h, 0, 0, w, h);
+  x.globalCompositeOperation = 'saturation'; x.fillStyle = '#808080'; x.fillRect(0, 0, w, h);
+  x.globalCompositeOperation = 'source-over'; x.fillStyle = 'rgba(6,8,12,0.5)'; x.fillRect(0, 0, w, h);
+  x.globalCompositeOperation = 'destination-in'; x.drawImage(m.img, m.sx, m.sy, w, h, 0, 0, w, h);
+  return { img: c, sx: 0, sy: 0, w: m.w, h: m.h, ax: m.ax, ay: m.ay, ss: q };
 }
 
 function makeBlob() {

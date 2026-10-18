@@ -3,13 +3,16 @@
 // the Arcade (lumber and wisps), the info panel, the portrait and the minimap of every lane.
 // Built on the Classic UI (tower icons, tooltips, messages, announcements); it reads only the world model fields that
 // docs/SPEC-client.md lists, so it works the same on a live Match and on an online replica.
-import { UI, ARMOR_NAME, ATK_NAME, kindName, specials, mapNote } from '../ui.js?v=c7bd234229c1';
-import { TOWERS, BUILD_ROOTS } from '../data/towers.js?v=c7bd234229c1';
-import { LTW_UNITS, LTW_SHOPS, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_CHAT, LTW_CREEP_FIX, LTW_MESSAGES, LTW_RULES } from '../data/ltw.js?v=c7bd234229c1';
-import { unitSpeed, missingTech, requiresText, techName } from '../lane.js?v=c7bd234229c1';
-import { TPS } from '../match.js?v=c7bd234229c1';
-import { P, sx, sy } from '../render.js?v=c7bd234229c1';
-import { laneDY, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, short, signed, botNamed } from './common.js?v=c7bd234229c1';
+import { UI, ARMOR_NAME, ATK_NAME, kindName, specials, mapNote, placeTip, keepLine } from '../ui.js?v=91305a8026e8';
+import { TOWERS, BUILD_ROOTS } from '../data/towers.js?v=91305a8026e8';
+import { LTW_UNITS, LTW_SHOPS, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_CHAT, LTW_CREEP_FIX, LTW_MESSAGES, LTW_RULES } from '../data/ltw.js?v=91305a8026e8';
+import { unitSpeed, missingTech, requiresText, techName } from '../lane.js?v=91305a8026e8';
+import { TPS } from '../match.js?v=91305a8026e8';
+import { P, sx, sy } from '../render.js?v=91305a8026e8';
+import { laneDY, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, short, signed, botNamed } from './common.js?v=91305a8026e8';
+import { tipButton, heldClick, clickWord, phone } from './touch.js?v=91305a8026e8';
+import { src } from '../assets.js?v=91305a8026e8';
+import { pixelRatio } from '../device.js?v=91305a8026e8';
 
 const $ = (id) => document.getElementById(id);
 export const GRID_KEYS = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V'];
@@ -49,6 +52,7 @@ export class LtwHud extends UI {
     this.income = { at: null, until: -1, lines: {} };   // the map's income list, shown as one panel
     this.unitIcons = new Map();
     $('income-list').classList.remove('show');
+    $('income-list').onclick = () => { this.income.until = -1; this.renderIncome(); };   // put away until the next list
     this.buildTabs();
     this.buildBoard();
   }
@@ -60,10 +64,9 @@ export class LtwHud extends UI {
     for (let i = 0; i < TECH_KEYS.length; i++) {
       const b = document.createElement('button');
       b.className = 'cmd empty';
-      b.onmouseenter = () => this.showTip(i, b);
-      b.onmouseleave = () => this.hideTip();
+      tipButton(b, () => this.showTip(i, b), () => this.hideTip());
       // the card may be a few frames old (gold just came in, a unit unlocked): what the click presses is what is true now
-      b.onclick = () => { this.renderCommands(this.act.view()); if (this.press(this.cmds[i]) && this.tip === i) this.showTip(i, b); };
+      b.onclick = () => { if (heldClick(b)) return; this.renderCommands(this.act.view()); if (this.press(this.cmds[i]) && this.tip === i) this.showTip(i, b); };
       root.appendChild(b);
     }
   }
@@ -121,8 +124,7 @@ export class LtwHud extends UI {
     const w = this.mode.world, p = w.players[this.me], lane = w.lanes[this.me], list = new Array(12).fill(null);
     if (view.placing) {   // Keep building: what Shift does, for a pointer without a keyboard
       list[KEEP_AT] = { sig: 'keep:' + !!view.keep, glyph: 'keep', on: !!view.keep, title: view.keep ? 'Keep building (on)' : 'Keep building',
-        lines: [view.keep ? 'Each click places another tower until you cancel. Click to turn it off.' : 'Place one tower after another until you cancel (as holding <b>Shift</b> does).'],
-        run: () => this.act.keep() };
+        lines: [keepLine(view.keep)], run: () => this.act.keep() };
       list[CANCEL_AT] = { sig: 'cancel', glyph: 'cancel', key: 'Esc', title: 'Cancel', lines: ['Stop placing towers.'], run: () => this.act.cancel() };
       return list;
     }
@@ -132,7 +134,7 @@ export class LtwHud extends UI {
     if (this.confirm) {   // the second click of Destroy
       const name = this.confirm.name;
       list[DESTROY_AT] = { sig: 'confirm', glyph: 'destroy', key: GRID_KEYS[DESTROY_AT], armed: true, title: `Destroy the ${name}?`,
-        lines: ['Click again to destroy it, with no refund.'], run: () => { this.confirm = null; this.act.destroy(sel); } };
+        lines: [`${clickWord()} again to destroy it, with no refund.`], run: () => { this.confirm = null; this.act.destroy(sel); } };
       list[CANCEL_AT] = { sig: 'cancel', glyph: 'cancel', key: 'Esc', title: 'Cancel', lines: [`Keep the ${esc(name)}.`], run: () => { this.confirm = null; } };
       return list;
     }
@@ -265,18 +267,18 @@ export class LtwHud extends UI {
     const x = c.getContext('2d');
     if (ic) {
       c.width = ic.w; c.height = ic.h;
-      x.drawImage(ic.img, ic.sx, ic.sy, ic.w, ic.h, 0, 0, ic.w, ic.h);
+      x.drawImage(ic.img, ...src(ic), 0, 0, ic.w, ic.h);
     } else {
       c.width = 108; c.height = 108;
       const g = x.createRadialGradient(54, 40, 4, 54, 54, 80);
       g.addColorStop(0, u.flying ? '#3a5a7a' : u.boss ? '#6a2a1a' : '#4a3a24'); g.addColorStop(1, '#050403');
       x.fillStyle = g; x.fillRect(0, 0, 108, 108);
       const p = this.man.portraits && (this.man.portraits[u.id] || this.man.portraits[u.look]);
-      if (p && p.img) x.drawImage(p.img, p.sx + p.fw * 0.08, p.sy + p.fh * 0.04, p.fw * 0.84, p.fh * 0.84, 0, 0, 108, 108);
+      if (p && p.img) x.drawImage(p.img, ...src(p, p.fw * 0.08, p.fh * 0.04, p.fw * 0.84, p.fh * 0.84), 0, 0, 108, 108);
       else {
         const m = this.r.creepMeta({ def: u });
         const s = Math.min(96 / m.fw, 96 / m.fh) * 1.25;
-        x.drawImage(m.img, m.sx, m.sy + m.fh, m.fw, m.fh, 54 - m.ax * s, 100 - m.ay * s, m.fw * s, m.fh * s);
+        x.drawImage(m.img, ...src(m, 0, m.fh, m.fw, m.fh), 54 - m.ax * s, 100 - m.ay * s, m.fw * s, m.fh * s);
       }
       x.strokeStyle = 'rgba(0,0,0,0.8)'; x.lineWidth = 4; x.strokeRect(0, 0, 108, 108);
     }
@@ -288,29 +290,28 @@ export class LtwHud extends UI {
     const key = 'tech:' + id;
     if (this.icons.has(key)) return this.icons.get(key);
     const ic = this.iconRect('tech_' + id), c = document.createElement('canvas'), x = c.getContext('2d');
-    if (ic) { c.width = ic.w; c.height = ic.h; x.drawImage(ic.img, ic.sx, ic.sy, ic.w, ic.h, 0, 0, ic.w, ic.h); }
+    if (ic) { c.width = ic.w; c.height = ic.h; x.drawImage(ic.img, ...src(ic), 0, 0, ic.w, ic.h); }
     else {
       c.width = 108; c.height = 108;
       x.fillStyle = '#0b0a09'; x.fillRect(0, 0, 108, 108);
       const m = this.man.props['tech_' + id];
-      if (m && m.img) { const s = Math.min(100 / m.w, 100 / m.h); x.drawImage(m.img, m.sx, m.sy, m.w, m.h, 54 - (m.w * s) / 2, 104 - m.h * s, m.w * s, m.h * s); }
+      if (m && m.img) { const s = Math.min(100 / m.w, 100 / m.h); x.drawImage(m.img, ...src(m), 54 - (m.w * s) / 2, 104 - m.h * s, m.w * s, m.h * s); }
     }
     this.icons.set(key, c);
     return c;
   }
-  // Glyphs the Line Tower Wars card adds: lumber and a wisp (the resource icons on a framed plate), Destroy and Keep
-  // building.
+  // Glyphs the Line Tower Wars card adds: lumber and a wisp (the resource icons on a framed plate) and Destroy.
   glyph(kind) {
-    if (kind !== 'lumber' && kind !== 'wisp' && kind !== 'destroy' && kind !== 'keep') return super.glyph(kind);
+    if (kind !== 'lumber' && kind !== 'wisp' && kind !== 'destroy') return super.glyph(kind);
     const key = 'g:' + kind;
     if (this.icons.has(key)) return this.icons.get(key);
     const c = document.createElement('canvas'); c.width = c.height = 108;
     const x = c.getContext('2d');
     const bg = x.createRadialGradient(54, 46, 4, 54, 54, 78);
-    bg.addColorStop(0, { lumber: '#5a4424', wisp: '#24486a', destroy: '#7a1c10', keep: '#2c5a1e' }[kind]); bg.addColorStop(1, '#050403');
+    bg.addColorStop(0, { lumber: '#5a4424', wisp: '#24486a', destroy: '#7a1c10' }[kind]); bg.addColorStop(1, '#050403');
     x.fillStyle = bg; x.fillRect(0, 0, 108, 108);
     const ui = this.man.ui && this.man.ui['res_' + kind];
-    if (ui && ui.img) x.drawImage(ui.img, ui.sx || 0, ui.sy || 0, ui.w, ui.h, 14, 14, 80, 80);
+    if (ui && ui.img) x.drawImage(ui.img, ...src(ui), 14, 14, 80, 80);
     else if (kind === 'destroy') {   // a burst over a broken stone
       x.fillStyle = '#5a5048'; x.beginPath(); x.moveTo(30, 86); x.lineTo(38, 54); x.lineTo(52, 64); x.lineTo(60, 44); x.lineTo(78, 86); x.closePath(); x.fill();
       x.strokeStyle = '#1a1410'; x.lineWidth = 3; x.stroke();
@@ -319,18 +320,6 @@ export class LtwHud extends UI {
       x.fillStyle = g; x.beginPath();
       for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8, r = k % 2 ? 14 : 34; x.lineTo(56 + Math.cos(a) * r, 46 + Math.sin(a) * r * 0.85); }
       x.closePath(); x.fill();
-    } else if (kind === 'keep') {   // three stone blocks in a row, the next one ghosted, under a gold arrow
-      for (const [bx, a] of [[18, 1], [44, 1], [70, 0.4]]) {
-        x.globalAlpha = a;
-        const g = x.createLinearGradient(0, 58, 0, 84);
-        g.addColorStop(0, '#b8ab94'); g.addColorStop(1, '#5a5048');
-        x.fillStyle = g; x.fillRect(bx, 58, 20, 26);
-        x.strokeStyle = '#1a1410'; x.lineWidth = 2.5; x.strokeRect(bx, 58, 20, 26);
-      }
-      x.globalAlpha = 1;
-      x.strokeStyle = '#f0c860'; x.lineWidth = 6; x.lineCap = 'round'; x.lineJoin = 'round';
-      x.beginPath(); x.moveTo(24, 42); x.quadraticCurveTo(54, 18, 80, 38); x.stroke();
-      x.fillStyle = '#f0c860'; x.beginPath(); x.moveTo(90, 46); x.lineTo(70, 44); x.lineTo(84, 28); x.closePath(); x.fill();
     }
     x.strokeStyle = 'rgba(0,0,0,0.8)'; x.lineWidth = 4; x.strokeRect(0, 0, 108, 108);
     this.icons.set(key, c);
@@ -359,12 +348,26 @@ export class LtwHud extends UI {
     }
     t.innerHTML = html;
     t.classList.add('show');
-    const rect = el.getBoundingClientRect();
-    const tw = t.offsetWidth, th = t.offsetHeight;
-    t.style.left = Math.max(8, Math.min(window.innerWidth - tw - 8, rect.right - tw)) + 'px';
-    t.style.top = Math.max(8, rect.top - th - 10) + 'px';
+    placeTip(t, el.getBoundingClientRect());
   }
   hideTip() { this.tip = -1; $('tooltip').classList.remove('show'); }
+  // A long press on a lane: a tower (with its owner and hit points), a creep (its sender) or a tech building.
+  objectTipHtml(o) {
+    const w = this.mode.world, owner = w.players[o.owner];
+    const by = owner && o.owner !== this.me ? `<div class="t-line"><span>${o.def.upgrades || o.def.tech ? 'Owner' : 'Sent by'}</span> <b style="color:${PLAYER_TEXT[o.owner]}">${esc(owner.name)}</b></div>` : '';
+    if (o.def.tech) {
+      const t = LTW_TECH[o.techId];
+      return `<div class="t-title">${esc(o.def.name)}</div>${by}` + (t ? `<div class="t-line"><span>Unlocks</span> ${t.unlocks.map(id => esc(TOWERS[id] ? TOWERS[id].name : id)).join(', ')}</div>` : '');
+    }
+    if (o.def.upgrades) {
+      return `<div class="t-title">${esc(o.def.name)}</div>${by}` + (o.maxHp ? `<div class="t-line"><span>Hit points</span> ${Math.max(0, Math.ceil(o.hp))} / ${o.maxHp}</div>` : '')
+        + this.towerLines(o.def).map(l => `<div class="t-line">${l}</div>`).join('') + `<div class="t-line"><span>Kills</span> ${o.kills ?? 0}</div>`;
+    }
+    const d = o.def, tags = unitTags(d);
+    return `<div class="t-title">${esc(d.name)}</div>${by}<div class="t-line"><span>Hit points</span> ${Math.ceil(Math.max(0, o.hp))} / ${o.maxHp}</div>`
+      + `<div class="t-line"><span>Armor</span> ${d.armor} ${ARMOR_NAME[d.armorType] || d.armorType} &nbsp; <span>Speed</span> ${unitSpeed(d.speed)}</div>`
+      + (tags.length ? `<div class="t-line">${tags.map(t => `<span>${t.text}</span>`).join(' · ')}</div>` : '');
+  }
   unitTip(c) {
     const u = c.unit, s = c.s, w = this.mode.world, p = w.players[this.me], to = w.next(this.me);
     const target = to !== null && to !== this.me ? w.players[to] : null;
@@ -425,7 +428,8 @@ export class LtwHud extends UI {
     root.innerHTML = html;
     for (const row of root.querySelectorAll('.bd-row')) row.onclick = () => this.mode.jumpTo(+row.dataset.slot);
     // as WC3's multiboard, the title folds the board away (and unfolds it again)
-    root.classList.remove('folded');
+    // folded at first where it would cover much of a phone's view
+    root.classList.toggle('folded', phone());
     root.querySelector('.bd-title').onclick = () => { root.classList.toggle('folded'); this.mode.padForBoard(); };
     this.boardRows = [...root.querySelectorAll('.bd-row')].map(row => ({ row, slot: +row.dataset.slot, em: row.querySelector('em'),
       lv: row.querySelector('.lv'), inc: row.querySelector('.in'), xt: row.querySelector('.xt') }));
@@ -528,16 +532,6 @@ export class LtwHud extends UI {
     }
     if (key !== this.lastInfo) { $('info').innerHTML = html; this.lastInfo = key; this.fitInfo(); }
   }
-  // The panel keeps the console's size: what would not fit (a tower's hit points, armour and tags at 1280 x 800) gets
-  // the compact layout, then the most compact one, which scrolls as a last resort, so nothing is cut off unseen.
-  fitInfo() {
-    const el = $('info'), fits = () => el.scrollHeight <= el.clientHeight + 1;
-    el.classList.remove('fit1', 'fit2');
-    if (fits()) return;
-    el.classList.add('fit1');
-    if (fits()) return;
-    el.classList.replace('fit1', 'fit2');
-  }
   drawPortrait(view) {
     const x = this.portrait, S = x.canvas.width;
     let sel = view.sel && view.sel.o;
@@ -551,9 +545,9 @@ export class LtwHud extends UI {
     }
     if (sel && sel.def.upgrades) {
       const ic = this.iconRect(sel.def.id);
-      if (ic) { x.drawImage(ic.img, ic.sx, ic.sy, ic.w, ic.h, 0, 0, S, S); return; }
+      if (ic) { x.drawImage(ic.img, ...src(ic), 0, 0, S, S); return; }
       const m = this.man.towers[sel.def.id], s = Math.min((S - 10) / m.w, (S - 10) / m.h);
-      x.drawImage(m.img, m.sx, m.sy, m.w, m.h, S / 2 - (m.w * s) / 2, S - 4 - m.h * s, m.w * s, m.h * s);
+      x.drawImage(m.img, ...src(m), S / 2 - (m.w * s) / 2, S - 4 - m.h * s, m.w * s, m.h * s);
       return;
     }
     if (sel) {
@@ -561,13 +555,13 @@ export class LtwHud extends UI {
       if (p && p.img) {
         const t = performance.now() / 1000 * 4.5;
         const f0 = Math.floor(t) % p.frames, f1 = (f0 + 1) % p.frames, k = t - Math.floor(t);
-        x.drawImage(p.img, p.sx + f0 * p.fw, p.sy, p.fw, p.fh, 0, 0, S, S);
-        x.globalAlpha = k; x.drawImage(p.img, p.sx + f1 * p.fw, p.sy, p.fw, p.fh, 0, 0, S, S); x.globalAlpha = 1;
+        x.drawImage(p.img, ...src(p, f0 * p.fw, 0, p.fw, p.fh), 0, 0, S, S);
+        x.globalAlpha = k; x.drawImage(p.img, ...src(p, f1 * p.fw, 0, p.fw, p.fh), 0, 0, S, S); x.globalAlpha = 1;
         return;
       }
       const m = this.r.creepMeta(sel), col = Math.floor(performance.now() / 110) % m.frames;
       const s = Math.min((S - 16) / m.fw, (S - 16) / m.fh) * 1.1;
-      x.drawImage(m.img, m.sx + col * m.fw, m.sy + m.fh, m.fw, m.fh, S / 2 - m.ax * s, S - m.fh * s, m.fw * s, m.fh * s);
+      x.drawImage(m.img, ...src(m, col * m.fw, m.fh, m.fw, m.fh), S / 2 - m.ax * s, S - m.fh * s, m.fw * s, m.fh * s);
       return;
     }
     // an empty lane: its owner's colour
@@ -581,7 +575,7 @@ export class LtwHud extends UI {
   // camera's view as a white frame, your lane in gold.
   drawMinimap() {
     const c = this.mm, rect = c.getBoundingClientRect();
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = pixelRatio();
     if (c.width !== Math.round(rect.width * dpr) || c.height !== Math.round(rect.height * dpr)) { c.width = Math.round(rect.width * dpr); c.height = Math.round(rect.height * dpr); }
     if (!c.width || !c.height) return;
     const w = this.mode.world, order = this.mode.order, n = order.length, x = c.getContext('2d');
@@ -766,14 +760,29 @@ export class LtwHud extends UI {
   }
 
   // ---------------------------------------------------------------- per frame
+  // The top bar's gold: the whole number, or where the bar has no room for it (an upright phone with five digits or
+  // more) shortened as income is, rounded down (12k); where even that does not fit, the bar closes up. Measured again
+  // only when a number in the bar changes length (or the window its width).
+  barGold(gold) {
+    const full = String(gold), el = $('r-gold'), bar = el.closest('.tb-res'), over = () => bar.scrollWidth > bar.clientWidth + 1;
+    const key = [full.length, innerWidth, $('net-status').textContent.length, ...[...bar.querySelectorAll('b')].filter(b => b !== el).map(b => b.textContent.length)].join();
+    if (key !== this.barKey) {
+      this.barKey = key;
+      setText(el, full); bar.classList.remove('tight');
+      this.barShort = gold >= 10000 && over();
+      if (this.barShort) setText(el, Math.floor(gold / 1000) + 'k');
+      bar.classList.toggle('tight', over());
+    }
+    return this.barShort ? Math.floor(gold / 1000) + 'k' : full;
+  }
   refresh(force = false) {
     const w = this.mode.world, view = this.act.view(), p = w.players[this.me], s = this.mode.session;
-    setText($('r-gold'), Math.floor(p.gold));
     setText($('r-income'), p.alive ? short(p.income) : '–');
     setText($('r-income-t'), p.alive ? Math.ceil(w.incomeTimer) + 's' : '');
     setText($('r-lives'), p.alive ? p.lives : 'out');
     setText($('r-lumber'), p.lumber);
     setText($('r-wisps'), p.wisps);
+    setText($('r-gold'), this.barGold(Math.floor(p.gold)));
     const to = w.next(this.me);
     const sub = w.phase !== 'playing' ? (w.winner !== null ? `${w.players[w.winner].name} has won` : 'Game over')
       : !p.alive ? 'Watching' : to !== null && to !== this.me ? `Sending to ${w.players[to].name}` : '';

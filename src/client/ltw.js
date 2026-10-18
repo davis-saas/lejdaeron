@@ -4,23 +4,27 @@
 // fields in docs/SPEC-client.md. Online there is no pause, speed or restart; the host streams the lane in the middle of
 // the view at full rate (the 'watch' command follows the camera), the top bar shows the ping and who is connected, and a
 // banner shows while the host doesn't answer. The lobby and the screens after a lost connection are src/client/online.js.
-import { createLocalSession } from '../session_local.js?v=c7bd234229c1';
-import { FX } from '../fx.js?v=c7bd234229c1';
-import { P, sx, sy } from '../render.js?v=c7bd234229c1';
-import { SIN, TOP } from '../level.js?v=c7bd234229c1';
-import { LTW_UNITS, LTW_RULES, LTW_TECH } from '../data/ltw.js?v=c7bd234229c1';
-import { Camera, ZOOMS } from './camera.js?v=c7bd234229c1';
-import { LaneRenderer } from './lanes.js?v=c7bd234229c1';
-import { LtwHud, TECH_TAB } from './hud.js?v=c7bd234229c1';
-import { screen, hideScreen, screenShown, slotsFor } from './screens.js?v=c7bd234229c1';
-import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, laneDY, laneOrder, techArea, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, ordinal, short, botNamed } from './common.js?v=c7bd234229c1';
+// A finger plays it too (src/client/touch.js): taps, long presses for what hovering shows, one finger to pan, two to
+// pinch, and buttons over the view for the zoom and the jumps that F1 and F2 make.
+import { createLocalSession } from '../session_local.js?v=91305a8026e8';
+import { FX } from '../fx.js?v=91305a8026e8';
+import { P, sx, sy } from '../render.js?v=91305a8026e8';
+import { SIN, TOP } from '../level.js?v=91305a8026e8';
+import { LTW_UNITS, LTW_RULES, LTW_TECH } from '../data/ltw.js?v=91305a8026e8';
+import { Camera } from './camera.js?v=91305a8026e8';
+import { Gestures, isTouch, lastInput, clickWord } from './touch.js?v=91305a8026e8';
+import { LaneRenderer } from './lanes.js?v=91305a8026e8';
+import { LtwHud, TECH_TAB } from './hud.js?v=91305a8026e8';
+import { screen, hideScreen, screenShown, slotsFor, settingsLine, bindSettings } from './screens.js?v=91305a8026e8';
+import { LIGHT, pixelRatio } from '../device.js?v=91305a8026e8';
+import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, laneDY, laneOrder, techArea, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, ordinal, short, botNamed } from './common.js?v=91305a8026e8';
 
 const $ = (id) => document.getElementById(id);
 const PAN = 1100;          // css px per second for the arrow keys and the screen edges
 const EDGE = 6;            // px from the window edge that pans the view
 const DRAG = 4;            // px a right or middle press moves before it counts as a drag
 const OUT_DELAY = 2500;    // ms between your elimination and the defeat screen
-const MAX_FX_PARTS = 700;  // particles per lane
+const MAX_FX_PARTS = LIGHT ? 250 : 700;  // particles per lane (the light set: phones)
 const CROSSING = 3;        // seconds a selected creep that leaked is looked for in the next lane (it waits 1 s between)
 const INSETS = { top: 20, bottom: 14 };   // css px of the view that the top bar and the console ornaments cover
 const MSG_LEFT = 16;       // css px: the map messages' left edge, moved past the spawn waygate while it is in view
@@ -28,14 +32,17 @@ const REPEAT_EVERY = 100;  // ms between the presses a held command-card key rep
 const LOST_WAIT = 1000;    // ms a tower of mine found gone waits for its 'destroyed' event (which names the attacker)
 const REPLY_WAIT = 1500;   // ms the answer to a chat command waits for the chat line itself to show (online)
 
+// The menu's help: a touch screen shows its own lines and the ones for everyone, not the keys (style.css)
 const keysHelp = (online) => `<ul class="ov-keys">
-  <li><b>Q</b> <b>W</b> <b>E</b> build Archer, Sharp or Elemental towers in your lane. <b>Shift</b> (or the Keep building button) keeps building. Always leave the creeps a path.</li>
-  <li>Select a tower for its upgrades. <b>X</b> sells it.</li>
-  <li><b>Tab</b> switches between Build, the three shrines, Tech and the Arcade. The grid keys <b>Q W E R</b> / <b>A S D F</b> / <b>Z X C V</b> send creeps to the next player.</li>
+  <li class="touch-keys">On a touch screen: tap a button or a unit. To build, tap a spot in your lane, then tap it again; always leave the creeps a path. Drag to move the view, pinch to zoom, hold a button or a unit for its details. The buttons at the edge of the view zoom and show your lane and the lane your creeps go to.</li>
+  <li class="mouse-keys"><b>Q</b> <b>W</b> <b>E</b> build Archer, Sharp or Elemental towers in your lane. <b>Shift</b> (or the Keep building button) keeps building. Always leave the creeps a path.</li>
+  <li class="mouse-keys">Select a tower for its upgrades. <b>X</b> sells it.</li>
+  <li class="mouse-keys"><b>Tab</b> switches between Build, the three shrines, Tech and the Arcade. The grid keys <b>Q W E R</b> / <b>A S D F</b> / <b>Z X C V</b> send creeps to the next player.</li>
   <li><b>Tech</b> turns a wisp into an element building, which unlocks tower upgrades. The <b>Arcade</b> sells lumber and trains more wisps.</li>
-  <li>Pan with the arrow keys, the screen edges or a right or middle drag, zoom with the wheel or the <b>+</b> <b>−</b> by the minimap. <b>Home</b> or <b>F1</b> shows your lane, <b>F2</b> the lane your creeps go to.</li>
-  <li><b>Enter</b> opens the chat line. <b>-help</b> lists the chat commands: <b>-income</b>, <b>-destroy</b>, <b>-onextra</b>, <b>-offextra</b> and <b>-kick</b> <i>colour</i>.</li>
-  <li>${online ? '<b>F10</b> opens this menu. An online game has no pause.' : '<b>P</b> pauses, <b>1</b> <b>2</b> <b>3</b> set the speed, <b>F10</b> opens this menu.'}</li>
+  <li class="mouse-keys">Pan with the arrow keys, the screen edges or a right or middle drag, zoom with the wheel or the <b>+</b> <b>−</b> by the minimap. <b>Home</b> or <b>F1</b> shows your lane, <b>F2</b> the lane your creeps go to.</li>
+  <li class="mouse-keys"><b>Enter</b> opens the chat line. <b>-help</b> lists the chat commands: <b>-income</b>, <b>-destroy</b>, <b>-onextra</b>, <b>-offextra</b> and <b>-kick</b> <i>colour</i>.</li>
+  <li class="touch-keys">The <b>Chat</b> button opens the chat line. <b>-help</b> lists the chat commands: <b>-income</b>, <b>-destroy</b>, <b>-onextra</b>, <b>-offextra</b> and <b>-kick</b> <i>colour</i>.</li>
+  <li class="mouse-keys">${online ? '<b>F10</b> opens this menu. An online game has no pause.' : '<b>P</b> pauses, <b>1</b> <b>2</b> <b>3</b> set the speed, <b>F10</b> opens this menu.'}</li>
 </ul>`;
 
 export class LtwMode {
@@ -43,11 +50,13 @@ export class LtwMode {
     this.canvas = canvas; this.assets = assets; this.onQuit = onQuit;
     this.renderer = null; this.session = null; this.active = false;
     this.keys = new Set(); this.mouse = null; this.ptr = null; this.edgeOk = false; this.drag = null; this.mmDrag = false;
-    this.wheelAcc = 0; this.wheelT = 0; this.listeners = []; this.focus = null;
+    this.touch = null;   // logical px under the last finger, where there is no mouse (placing: the tower's spot)
+    this.armed = null;   // { X, Y, slot, c, r }: the spot a finger picked for the tower (a second tap there builds it)
+    this.listeners = []; this.focus = null;
     this.actions = {
       view: () => this.view,
       place: (def) => this.place(def),
-      cancel: () => { this.view.placing = null; this.canvas.classList.remove('placing'); },
+      cancel: () => { this.view.placing = null; this.armed = null; this.canvas.classList.remove('placing'); this.hud.hint(''); },
       keep: () => { this.view.keep = !this.view.keep; },   // keep building: Shift for a pointer without a keyboard
       upgrade: (t, id) => this.cmd({ type: 'upgrade', tower: t.id, id }),
       sell: (t) => this.cmd({ type: 'sell', tower: t.id }),
@@ -94,7 +103,7 @@ export class LtwMode {
     this.cam = new Camera();
     document.body.classList.add('ltw');
     $('msgs').innerHTML = '';
-    this.fit();
+    this.fit(true);
     // room above the first lane for the tree tops on its north border (the renderer fills it with a forest fringe)
     this.cam.setBounds(sx(LANE_X0) - P, sy(LANE_Y0) - P * 1.7, sx(LANE_X1) + P, laneDY(this.order.length - 1) + sy(LANE_Y1) + P * 0.5);
     this.cam.setLevel(1);
@@ -120,10 +129,11 @@ export class LtwMode {
     hideScreen();
     this.setSpeed(1);
     $('btn-pause').textContent = 'Pause';
+    $('btn-speed').onclick = () => this.setSpeed((this.session.speed || 1) % 3 + 1);
     this.roles();
     const to = this.view.target;
     this.hud.announce('Line Tower Wars', to !== null ? `Build a maze. Your creeps go to ${w.players[to].name}.` : 'Build a maze.');
-    this.hud.message('Press <b>F10</b> for the menu and the keys.', '#b9ad94');
+    this.hud.message(lastInput() === 'touch' ? 'The <b>Menu</b> button has the controls.' : 'Press <b>F10</b> for the menu and the keys.', '#b9ad94');
     this.hud.refresh(true);
   }
   stop() {
@@ -132,19 +142,25 @@ export class LtwMode {
     this.closeChat();
     this.unbind();
     if (this.session) this.session.close();
-    if (this.hud) this.hud.hideTip();
+    if (this.hud) { this.hud.hideTip(); this.hud.hint(''); }
+    this.touch = null; this.armed = null;
     $('msgs').innerHTML = ''; $('msgs').style.left = ''; $('income-list').classList.remove('show');
     $('announce').classList.remove('show'); $('error').classList.remove('show'); $('net-banner').classList.remove('show');
     document.body.classList.remove('ltw', 'online');
     this.canvas.classList.remove('placing');
     this.keys.clear(); this.drag = null; this.mmDrag = false;
   }
-  fit() {
-    const st = $('stage').getBoundingClientRect();
-    this.renderer.resize(st.width, st.height);
-    this.cam.setView(this.renderer.vw, this.renderer.vh);
+  // The view fills the stage (src/main.js calls this whenever the stage changes size; force: the canvas was Classic's).
+  // A new size clears the canvas, so it is drawn again at once rather than a frame later.
+  fit(force = false) {
+    const st = $('stage').getBoundingClientRect(), r = this.renderer;
+    const resized = force || Math.floor(st.width) !== r.vw || Math.floor(st.height) !== r.vh || pixelRatio() !== r.dpr;
+    if (resized) r.resize(st.width, st.height);
+    this.cam.setView(r.vw, r.vh);
+    if (resized && this.active) this.draw();
     if (this.hud) { this.hud.lastInfo = ''; this.padForBoard(); }   // the info panel fits its content to the new size
   }
+  draw() { this.renderer.draw(this.world, this.order, this.cam, this.view, this.fxs, this.world.time + this.overT); }
 
   // ---------------------------------------------------------------- commands
   cmd(op) {
@@ -158,7 +174,8 @@ export class LtwMode {
     const p = this.world.players[this.me];
     if (!p.alive) return this.hud.error('You have been eliminated.');
     if (p.gold < def.cost) return this.hud.error('Not enough gold.');
-    this.view.placing = def; this.view.sel = null; this.canvas.classList.add('placing');
+    this.view.placing = def; this.view.sel = null; this.armed = null; this.canvas.classList.add('placing');
+    if (lastInput() === 'touch') this.hud.hint('Tap a spot in your lane, then tap it again to build.');
     this.hover();
   }
   build(keep) {
@@ -172,6 +189,9 @@ export class LtwMode {
         this.actions.cancel();
         const t = this.world.lanes[this.me].towers.find(t => t.id === r.tower);
         if (t) this.view.sel = { slot: this.me, o: t };
+      } else if (!this.mouse && this.touch) {   // a finger keeps building: the next tap picks the next spot
+        this.touch = null; this.armed = null; this.hover();
+        this.hud.hint('Tap the next spot.');
       }
       this.hud.refresh(true);
     });
@@ -251,16 +271,17 @@ export class LtwMode {
     this.inMenu = true;   // online there is no pause: Esc and F10 still close the menu
     screen({
       title: local ? 'Paused' : 'Menu', sub: `${local ? 'vs Computer' : `vs Players · Room ${on ? on.room : ''}`} · ${clock(this.world.time)}`,
-      body: `${keysHelp(!local)}${on ? `<p class="ov-note" id="ov-quit-note">${on.isHost ? 'Your browser runs this match: if you leave, it ends for everyone.' : `If you leave, your lane is out of the game. A dropped connection keeps your seat for ${LTW_RULES.reconnectGrace} seconds: open the invite link again to get back in.`}</p>` : ''}
+      body: `${settingsLine()}${keysHelp(!local)}${on ? `<p class="ov-note" id="ov-quit-note">${on.isHost ? 'Your browser runs this match: if you leave, it ends for everyone.' : `If you leave, your lane is out of the game. A dropped connection keeps your seat for ${LTW_RULES.reconnectGrace} seconds: open the invite link again to get back in.`}</p>` : ''}
         <div class="ov-actions">${local ? '<button class="wc-btn small" id="ov-restart">Restart</button>' : ''}<button class="wc-btn small" id="ov-quit">${quit}</button></div>`,
       primary: { label: 'Resume', run: () => this.resume() },
     });
     if (local) $('ov-restart').onclick = () => this.restart();
+    bindSettings();
     // online, leaving asks again (it can't be undone)
     $('ov-quit').onclick = () => {
       if (!on || this.leaving) return this.quit();
       this.leaving = true;
-      $('ov-quit').textContent = 'Click again to ' + quit[0].toLowerCase() + quit.slice(1);
+      $('ov-quit').textContent = `${clickWord()} again to ${quit[0].toLowerCase() + quit.slice(1)}`;
       $('ov-quit').classList.add('armed');
     };
   }
@@ -273,6 +294,7 @@ export class LtwMode {
   setSpeed(n) {
     if (this.session.kind === 'local') this.session.speed = n;
     for (const b of document.querySelectorAll('#speed button')) b.classList.toggle('on', +b.dataset.speed === n);
+    $('btn-speed').textContent = n + 'x';
   }
   restart() { const setup = this.setup; this.stop(); this.start(setup); }
   quit() { this.stop(); this.onQuit(); }
@@ -282,7 +304,7 @@ export class LtwMode {
   // How far the camera may pan past the lanes' east end: the scoreboard's width (as it is now, folded or not), so
   // nothing has to stay under it.
   padForBoard() {
-    const side = $('side'), view = this.canvas.getBoundingClientRect(), r = side.getBoundingClientRect();
+    const view = this.canvas.getBoundingClientRect(), r = $('board').getBoundingClientRect();
     this.cam.setPadRight(r.width ? view.right - r.left + 8 : 0);
   }
   jumpTo(slot, first = false) {
@@ -311,25 +333,65 @@ export class LtwMode {
   unbind() { for (const [t, type, fn, opts] of this.listeners) t.removeEventListener(type, fn, opts); this.listeners = []; }
   bind() {
     const c = this.canvas;
-    this.on(c, 'mousemove', (ev) => { this.mouse = this.local(ev); this.hover(); });
+    this.on(c, 'mousemove', (ev) => { this.mouse = this.local(ev); this.touch = null; this.hover(); });
     this.on(c, 'mouseleave', () => { this.mouse = null; this.hover(); });
     this.on(c, 'mousedown', (ev) => this.down(ev));
     this.on(c, 'contextmenu', (ev) => ev.preventDefault());
     this.on(c, 'wheel', (ev) => this.wheel(ev), { passive: false });
     this.on(window, 'mousemove', (ev) => this.move(ev));
+    // the screen edges pan for a mouse: never for a finger, nor for the mouse events a browser makes up after a tap
+    this.on(window, 'pointermove', (ev) => { if (!isTouch(ev)) { this.ptr = { x: ev.clientX, y: ev.clientY }; this.edgeOk = true; } });
+    this.on(window, 'pointerdown', (ev) => { if (isTouch(ev)) { this.ptr = null; this.edgeOk = false; } }, true);
     this.on(window, 'mouseup', (ev) => this.up(ev));
     this.on(window, 'keydown', (ev) => this.keydown(ev));
     this.on(window, 'keyup', (ev) => { this.keys.delete(ev.key); if (ev.key === 'Shift') this.view.shift = false; });
     this.on(window, 'blur', () => { this.keys.clear(); this.edgeOk = false; this.view.shift = false; });
     this.on(document.documentElement, 'mouseleave', () => { this.edgeOk = false; });
     this.on(document.documentElement, 'mouseenter', () => { this.edgeOk = true; });
-    this.on($('minimap'), 'mousedown', (ev) => { if (ev.button === 0) { this.mmDrag = true; this.minimapJump(ev); ev.preventDefault(); } });
+    // the minimap: a press jumps the view there, a drag moves it along (a finger stays with the element it touched)
+    const mm = $('minimap');
+    this.on(mm, 'mousedown', (ev) => { if (ev.button === 0) { this.mmDrag = true; this.minimapJump(ev); ev.preventDefault(); } });
+    this.on(mm, 'pointerdown', (ev) => { if (isTouch(ev)) { this.mmDrag = true; this.minimapJump(ev); } });
+    this.on(mm, 'pointermove', (ev) => { if (isTouch(ev) && this.mmDrag) this.minimapJump(ev); });
+    for (const type of ['pointerup', 'pointercancel']) this.on(mm, type, (ev) => { if (isTouch(ev)) this.mmDrag = false; });
+    this.on(mm, 'touchstart', (ev) => { if (ev.cancelable) ev.preventDefault(); }, { passive: false });   // no mouse events made up after it
     this.on($('btn-chat'), 'click', () => (this.chatting ? this.sendChat() : this.openChat()));
-    this.on($('zoom-in'), 'click', () => this.zoom(1));
-    this.on($('zoom-out'), 'click', () => this.zoom(-1));
+    for (const id of ['zoom-in', 'vt-in']) this.on($(id), 'click', () => this.zoom(1));
+    for (const id of ['zoom-out', 'vt-out']) this.on($(id), 'click', () => this.zoom(-1));
+    this.on($('vt-home'), 'click', () => this.jumpTo(this.me));
+    this.on($('vt-target'), 'click', () => { this.roles(); if (this.view.target !== null) this.jumpTo(this.view.target); });
     this.on($('chat-send'), 'click', () => this.sendChat());
+    new Gestures(c, {
+      active: () => this.active && !screenShown(),
+      down: (p) => { if (this.view.placing) this.touchAt(p); },
+      tap: (p) => this.tap(p),
+      hold: (p) => {
+        if (!this.view.placing) return this.holdTip(p);
+        this.touchAt(p);
+        this.hud.hint('Move your finger to aim, lift it to build.');
+        return 'aim';
+      },
+      holdMove: (p) => this.holdTip(p),
+      holdEnd: () => { this.touch = null; this.hover(); this.hud.hideTip(); },
+      aim: (p) => this.touchAt(p),
+      aimEnd: (p, inside) => {
+        if (!inside || !this.view.placing) return this.disarm();
+        this.touchAt(p);
+        this.build(false);
+      },
+      cancel: () => this.disarm(),
+      pan: (dx, dy) => { this.cam.pan(-dx, -dy); this.focus = null; this.hover(); },
+      pinch: (k, m, dx, dy) => {
+        const q = this.localXY(m.x, m.y);
+        this.cam.live = true;
+        this.cam.zoomBy(k, q.x, q.y); this.cam.pan(-dx, -dy); this.focus = null;
+        this.zoomButtons(); this.hover();
+      },
+      end: () => { this.cam.live = false; },
+    }, (t, type, fn, opts) => this.on(t, type, fn, opts));
   }
-  local(ev) { const r = this.canvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+  local(ev) { return this.localXY(ev.clientX, ev.clientY); }
+  localXY(x, y) { const r = this.canvas.getBoundingClientRect(); return { x: x - r.left, y: y - r.top }; }
   minimapJump(ev) {
     const r = $('minimap').getBoundingClientRect();
     const { X, Y } = this.hud.minimapToWorld(ev.clientX - r.left, ev.clientY - r.top);
@@ -337,7 +399,6 @@ export class LtwMode {
     this.hover();
   }
   move(ev) {
-    this.ptr = { x: ev.clientX, y: ev.clientY }; this.edgeOk = true;
     if (this.mmDrag) { if (ev.buttons & 1) this.minimapJump(ev); else this.mmDrag = false; }
     const d = this.drag;
     if (d) {
@@ -355,14 +416,43 @@ export class LtwMode {
       return;
     }
     if (ev.button !== 0) return;
-    this.mouse = this.local(ev); this.hover();
+    this.mouse = this.local(ev); this.touch = null; this.hover();
     if (this.view.placing) return this.build(ev.shiftKey);
+    this.select();
+  }
+  // a click (or a tap) on what is under the pointer
+  select() {
     const hit = this.hit;
     this.view.sel = hit && hit.creep ? { slot: hit.creepSlot, o: hit.creep } : hit && hit.tower ? { slot: hit.towerSlot, o: hit.tower }
       : hit && hit.tech && hit.tech.id ? { slot: hit.techSlot, o: techObject(hit.techSlot, hit.tech) } : null;
     // a wisp of mine: the Tech card, where wisps become buildings
     if (hit && hit.tech && !hit.tech.id && hit.techSlot === this.me && this.hud.tab !== TECH_TAB) this.hud.setTab(TECH_TAB);
     this.hud.refresh(true);
+  }
+  // ---------------------------------------------------------------- touch
+  // The finger's point (client px) is what the mouse would be pointing at.
+  touchAt(p) { const q = this.localXY(p.x, p.y); this.mouse = null; this.touch = this.cam.toWorld(q.x, q.y); this.hover(); }
+  // A tap: a click, but placing a tower the first tap shows it on that spot and a second tap there builds it.
+  tap(p) {
+    const v = this.view;
+    this.touchAt(p);
+    if (!v.placing) { this.select(); this.touch = null; this.hover(); return; }
+    const h = v.hover, a = this.armed;
+    if (h && a && a.slot === h.slot && a.c === h.c && a.r === h.r) { this.armed = null; return this.build(false); }
+    this.armed = h ? { X: this.touch.X, Y: this.touch.Y, slot: h.slot, c: h.c, r: h.r } : null;
+    this.hud.hint(!h ? '' : h.why || 'Tap again to build here.');
+  }
+  // a drag or a second finger: the tower goes back to the spot picked last
+  disarm() {
+    if (!this.view.placing) return;
+    this.touch = this.armed ? { X: this.armed.X, Y: this.armed.Y } : null;
+    this.hover();
+  }
+  // a long press away from placing: the range of a tower under the finger, and what it is
+  holdTip(p) {
+    this.touchAt(p);
+    const h = this.hit, o = h && (h.creep || h.tower || (h.tech && h.tech.id ? techObject(h.techSlot, h.tech) : null));
+    if (o) this.hud.objectTip(o, p.x, p.y); else this.hud.hideTip();
   }
   up(ev) {
     if (ev.button === 0) this.mmDrag = false;
@@ -381,12 +471,8 @@ export class LtwMode {
   wheel(ev) {
     ev.preventDefault();
     if (screenShown()) return;
-    const now = performance.now();
-    this.wheelAcc += ev.deltaMode === 1 ? ev.deltaY * 40 : ev.deltaY;
-    if (Math.abs(this.wheelAcc) < 40 || now - this.wheelT < 140) return;
-    const m = this.local(ev);
-    this.zoom(-Math.sign(this.wheelAcc), m.x, m.y);
-    this.wheelAcc = 0; this.wheelT = now;
+    const dir = this.cam.wheelDir(ev), m = this.local(ev);
+    if (dir) this.zoom(dir, m.x, m.y);
   }
   // One zoom level in (dir > 0) or out: the wheel at the cursor, the buttons by the minimap at the middle of the view.
   zoom(dir, mx, my) {
@@ -395,8 +481,8 @@ export class LtwMode {
     this.zoomButtons();
   }
   zoomButtons() {
-    $('zoom-in').disabled = this.cam.level >= ZOOMS.length - 1;
-    $('zoom-out').disabled = this.cam.level <= 0;
+    for (const id of ['zoom-in', 'vt-in']) $(id).disabled = this.cam.close;
+    for (const id of ['zoom-out', 'vt-out']) $(id).disabled = this.cam.far;
   }
   keydown(ev) {
     if (!this.active) return;
@@ -441,9 +527,9 @@ export class LtwMode {
   }
   // What is under the mouse: the lane tile (for placing), a tower to show the range of, the pick for clicks.
   hover() {
-    const v = this.view;
-    if (!this.mouse || !this.session) { v.hover = null; v.hoverTower = null; this.hit = null; return; }
-    const { X, Y } = this.cam.toWorld(this.mouse.x, this.mouse.y);
+    const v = this.view, pt = this.mouse ? this.cam.toWorld(this.mouse.x, this.mouse.y) : this.touch;
+    if (!pt || !this.session) { v.hover = null; v.hoverTower = null; this.hit = null; return; }
+    const { X, Y } = pt;
     const hit = this.renderer.pickAt(this.world, this.order, X, Y);
     this.hit = hit;
     v.hoverTower = hit && hit.tower ? hit.tower : null; v.hoverSlot = hit ? hit.towerSlot : null;
@@ -532,7 +618,7 @@ export class LtwMode {
     this.resolveSelection();
     if (this.view.placing || this.view.hoverTower) this.hover();
     this.layoutMessages();
-    this.renderer.draw(w, this.order, cam, this.view, this.fxs, w.time + this.overT);
+    this.draw();
     this.hud.refresh();
 
     // your elimination, then the end of the match
@@ -661,7 +747,7 @@ export class LtwMode {
     if ($('ov-end')) $('ov-end').onclick = (ev) => {
       const b = ev.currentTarget;
       if (b.classList.contains('armed')) return this.quit();
-      b.classList.add('armed'); b.textContent = 'Click again to end the game';
+      b.classList.add('armed'); b.textContent = `${clickWord()} again to end the game`;
     };
   }
 }

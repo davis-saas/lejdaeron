@@ -9,9 +9,9 @@
 // attack-move and stop to hit towers (and, where their weapon allows, other players' creeps); creeps carry their auras,
 // regeneration, reincarnation, evasion, hardened skin and the Phoenix's death damage; move speed follows the WC3
 // gameplay constants (150 to 400).
-import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=c7bd234229c1';
-import { LTW_RULES, LTW_UNITS, LTW_TOWER_STATS, LTW_TECH, LTW_MESSAGES } from './data/ltw.js?v=c7bd234229c1';
-import { Field, BUILD_TIME, TILE, isAirTarget, typeFactor, armorFactor } from './field.js?v=c7bd234229c1';
+import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=91305a8026e8';
+import { LTW_RULES, LTW_UNITS, LTW_TOWER_STATS, LTW_TECH, LTW_MESSAGES } from './data/ltw.js?v=91305a8026e8';
+import { Field, BUILD_TIME, TILE, isAirTarget, typeFactor, armorFactor } from './field.js?v=91305a8026e8';
 
 export const LANE_COLS = LTW_RULES.laneLength;   // u: 44 tiles
 export const LANE_ROWS = LTW_RULES.laneWidth;    // v: 8 tiles

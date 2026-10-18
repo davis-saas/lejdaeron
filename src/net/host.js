@@ -17,12 +17,12 @@
 // lane as soon as they happen, the board (with tech and Arcade training), their own shop and Arcade stock and the match
 // events. Crowded lanes stream at a lower rate. A frame is a delta against what that player already has, so a player who
 // misses one asks for a full one.
-import { Match, STEP, TPS } from '../match.js?v=c7bd234229c1';
-import { Bot } from '../bot.js?v=c7bd234229c1';
-import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=c7bd234229c1';
-import * as P from './protocol.js?v=c7bd234229c1';
-import * as CFG from './config.js?v=c7bd234229c1';
-import { NONCE_RE } from './auth.js?v=c7bd234229c1';
+import { Match, STEP, TPS } from '../match.js?v=91305a8026e8';
+import { Bot } from '../bot.js?v=91305a8026e8';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=91305a8026e8';
+import * as P from './protocol.js?v=91305a8026e8';
+import * as CFG from './config.js?v=91305a8026e8';
+import { NONCE_RE } from './auth.js?v=91305a8026e8';
 
 const { C, H, F, LB, CM, CF, EV } = P;
 export const LOCAL = 'local';

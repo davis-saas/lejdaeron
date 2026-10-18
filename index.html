@@ -2,13 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0806">
 <title>Lejdaeron</title>
-<link rel="icon" href="data:,">
+<!-- the installable app (src/client/app.js): Android's manifest, and an iPhone's Home Screen app without Safari's bars -->
+<link rel="manifest" href="app.webmanifest">
+<link rel="icon" href="assets/app/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/app/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Lejdaeron">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Alegreya+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=c7bd234229c1">
+<link rel="stylesheet" href="style.css?v=91305a8026e8">
 </head>
 <body>
 <div id="app">
@@ -21,7 +29,8 @@
         <button data-speed="2" title="Fast (2)">2x</button>
         <button data-speed="3" title="Fastest (3)">3x</button>
       </div>
-      <button class="tb-btn ltw-only" id="btn-chat" title="Chat (Enter)">Chat</button>
+      <button class="tb-btn" id="btn-speed" title="Game speed (1 2 3)">1x</button>
+      <button class="tb-btn ltw-only" id="btn-chat" title="Chat (Enter)" aria-label="Chat"><span>Chat</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11h-9l-5 4v-4H4z"/></svg></button>
       <span class="tb-net online-only" id="net-status"></span>
     </div>
     <div class="tb-plaque"><div class="tb-title" id="tb-title"></div></div>
@@ -43,13 +52,24 @@
       <div id="msgs"></div>
       <div id="chat" class="ltw-only"><label for="chat-in">To all:</label><input id="chat-in" type="text" maxlength="255" autocomplete="off" spellcheck="false" enterkeyhint="send"><button id="chat-send" type="button">Send</button></div>
       <div id="wave-timer"></div>
+      <div id="hint" role="status"></div>
       <div id="net-banner" class="online-only" role="status"></div>
       <div id="side" class="ltw-only"><div id="board"></div><div id="income-list"></div></div>
     </div>
+    <!-- the compact layouts' map buttons (on a computer the minimap frame has + and -) -->
+    <div id="view-tools">
+      <button id="vt-in" title="Zoom in" aria-label="Zoom in">+</button>
+      <button id="vt-out" title="Zoom out" aria-label="Zoom out">−</button>
+      <button id="vt-fit" class="classic-only" title="Reset the view" aria-label="Reset the view"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+      <button id="vt-home" class="ltw-only" title="Your lane (F1)" aria-label="Your lane"><svg viewBox="0 0 24 24"><path d="M4 12l8-7 8 7M7 10v9h10v-9"/></svg></button>
+      <button id="vt-target" class="ltw-only" title="The lane your creeps go to (F2)" aria-label="The lane your creeps go to"><svg viewBox="0 0 24 24"><path d="M4 12h14M12 6l6 6-6 6"/></svg></button>
+      <button id="vt-map" title="Minimap" aria-label="Minimap" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14"/></svg></button>
+    </div>
+    <div id="rotate-hint" role="status"><span>Turn your phone for the best view</span><button aria-label="Dismiss">✕</button></div>
   </main>
 
   <footer id="console">
-    <div class="panel" id="mm-panel"><canvas id="minimap"></canvas><div id="mm-zoom" class="ltw-only"><button id="zoom-in" title="Zoom in (mouse wheel)" aria-label="Zoom in">+</button><button id="zoom-out" title="Zoom out (mouse wheel)" aria-label="Zoom out">−</button></div></div>
+    <div class="panel" id="mm-panel"><canvas id="minimap"></canvas><div id="mm-zoom"><button id="zoom-in" title="Zoom in (mouse wheel)" aria-label="Zoom in">+</button><button id="zoom-out" title="Zoom out (mouse wheel)" aria-label="Zoom out">−</button><button id="zoom-reset" class="classic-only" title="Reset the view" aria-label="Reset the view"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button></div></div>
     <div id="portrait-frame"><canvas id="portrait" width="128" height="128"></canvas></div>
     <div class="panel" id="info-panel"><div id="info"></div></div>
     <div class="panel" id="cmd-panel"><div id="cmd-tabs" class="ltw-only"></div><div id="commands"></div><div id="ltw-commands" class="ltw-only"></div></div>
@@ -66,9 +86,10 @@
         <p class="ov-credit" style="font-size:12px;opacity:.75;margin:0 0 10px">Rules, towers and creeps are taken from the custom map <b>Line Tower Wars 45</b> by Loss05, Nob, Trymio and t3tr1s. Fan-made, not affiliated with Blizzard Entertainment. All art is original.</p>
         <p>Twenty-eight levels of creeps march from the demon portal to your castle. Build towers beside the road, upgrade them, and hold the gate.</p>
         <ul class="ov-keys">
-          <li><b>A</b> / <b>S</b> / <b>E</b> build Archer, Sharp or Elemental tower. Hold <b>Shift</b> to keep building.</li>
-          <li>Click a tower to see its upgrades. <b>X</b> sells it for 75% of what you spent.</li>
-          <li><b>N</b> sends the next level early. <b>P</b> pauses. <b>1</b> <b>2</b> <b>3</b> set the speed.</li>
+          <li class="touch-keys">On a touch screen, tap a tower button, then tap a spot twice to build there. Tap a tower for its upgrades; selling it returns 75% of what you spent. Drag to move the map, pinch to zoom, hold a button or a unit for its details.</li>
+          <li class="mouse-keys"><b>A</b> / <b>S</b> / <b>E</b> build Archer, Sharp or Elemental tower. Hold <b>Shift</b> to keep building.</li>
+          <li class="mouse-keys">Click a tower to see its upgrades. <b>X</b> sells it for 75% of what you spent.</li>
+          <li class="mouse-keys"><b>N</b> sends the next level early. <b>P</b> pauses. <b>1</b> <b>2</b> <b>3</b> set the speed.</li>
         </ul>
         <div id="ov-progress"><div></div></div>
       </div>
@@ -76,6 +97,6 @@
     </div>
   </div>
 </div>
-<script type="module" src="src/main.js?v=c7bd234229c1"></script>
+<script type="module" src="src/main.js?v=91305a8026e8"></script>
 </body>
 </html>

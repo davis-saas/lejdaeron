@@ -25,6 +25,8 @@ Play: https://davis-saas.github.io/lejdaeron/
 
 Chat commands, as in the map: `-help`, `-income`, `-destroy` (your selected tower or tech building, no refund), `-onextra` / `-offextra`, and `-kick <colour>` (Red only).
 
+On a phone or tablet everything works by touch: tap to select and build, drag to move the map, pinch to zoom, hold a button or a unit for its details. For full screen on an iPhone or iPad, tap Share, then Add to Home Screen; Android Chrome offers Install. After the first visit Classic Defense and vs Computer also play offline.
+
 ## Credits
 
 Rules, towers, creeps and numbers come from the custom map Line Tower Wars 45 by Loss05, Nob, Trymio and t3tr1s. This is a fan project, not affiliated with or endorsed by Blizzard Entertainment. All art is original, modelled and rendered in Blender. Online play uses Trystero (MIT licence, `src/net/vendor/`).

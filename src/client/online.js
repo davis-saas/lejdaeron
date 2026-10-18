@@ -5,9 +5,10 @@
 // LtwMode.attach(session, { online }) with the online differences (src/client/ltw.js). The netcode (src/net/session.js)
 // is loaded the first time vs Players is used, so Classic Defense and vs Computer never load it.
 // Every name and chat line comes from other players: it is escaped before it goes into the page.
-import { screen, hideScreen } from './screens.js?v=c7bd234229c1';
-import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME, esc } from './common.js?v=c7bd234229c1';
-import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=c7bd234229c1';
+import { screen, hideScreen } from './screens.js?v=91305a8026e8';
+import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME, esc } from './common.js?v=91305a8026e8';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=91305a8026e8';
+import { clickWord } from './touch.js?v=91305a8026e8';
 
 const $ = (id) => document.getElementById(id);
 const NAME_KEY = 'lejdaeron.name';
@@ -17,7 +18,7 @@ const GRACE = LTW_RULES.reconnectGrace;
 const REJOIN_WAIT = 15;      // seconds a rejoin after a lost connection looks for the host (it answers at once if it is there)
 const TRY_OTHER_NETWORK = 'Some school, office and mobile networks block direct connections between browsers. If it keeps failing, try another network (a phone hotspot works).';
 let net = null;
-const loadNet = async () => (net ||= await import('../net/session.js?v=c7bd234229c1'));
+const loadNet = async () => (net ||= await import('../net/session.js?v=91305a8026e8'));
 
 export class Online {
   // ltw: the LtwMode; menu(): back to the mode menu; enterGame(): main's mode switch before the game screen takes over;
@@ -305,6 +306,7 @@ export class Online {
       }
       row.innerHTML = this.seatHtml(s);
       row.classList.toggle('me', !!s.me);
+      row.classList.toggle('human', s.kind === 'human');   // a phone gives a player's name a line of its own (style.css)
       const sel = row.querySelector('select');
       if (sel) sel.onchange = () => { const [kind, difficulty] = sel.value.split(':'); l.setSeat(s.slot, { kind, difficulty }); };
       const kick = row.querySelector('.rm');
@@ -337,7 +339,7 @@ export class Online {
     if (s.kind === 'human') {
       const tag = s.slot === 1 ? '<span class="lb-tag host">Host</span>' : !s.connected ? '<span class="lb-tag warn">Reconnecting…</span>'
         : s.ready ? '<span class="lb-tag good">Ready</span>' : '<span class="lb-tag">Not ready</span>';
-      const kick = l.isHost && s.slot !== 1 ? `<button class="rm${this.kickArmed === s.slot ? ' armed' : ''}" title="${this.kickArmed === s.slot ? 'Click again to kick' : 'Kick this player'}" aria-label="Kick ${esc(s.name)}">${this.kickArmed === s.slot ? '?' : '✕'}</button>` : '<span></span>';
+      const kick = l.isHost && s.slot !== 1 ? `<button class="rm${this.kickArmed === s.slot ? ' armed' : ''}" title="${this.kickArmed === s.slot ? `${clickWord()} again to kick` : 'Kick this player'}" aria-label="Kick ${esc(s.name)}">${this.kickArmed === s.slot ? '?' : '✕'}</button>` : '<span></span>';
       return `${color}<span class="lb-who"><b class="nm">${esc(s.name)}</b>${s.me ? '<em>you</em>' : ''}${tag}</span>${kick}`;
     }
     const label = s.kind === 'bot' ? `Computer (${DIFF_NAME[s.difficulty] || 'Normal'})` : s.kind === 'closed' ? 'Closed' : 'Open';

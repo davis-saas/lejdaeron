@@ -17,9 +17,9 @@
 // buys at the Arcade, { type: 'chat', text, towers?, tech? } says something and runs the map's chat commands,
 // { type: 'destroy', tower | towers, tech? } kills your own towers or tech buildings. new Match({ ..., options: { extra } })
 // turns '-onextra' off for a lobby (on by default, like the map).
-import { Lane, addGold, addLumber, requiresText, techUnlocks } from './lane.js?v=c7bd234229c1';
-import { LTW_RULES, LTW_UNITS, LTW_SHOPS, LTW_CREEP_FIX, LTW_COLORS, LTW_MESSAGES, LTW_TECH, LTW_TECH_ORDER, LTW_ARCADE, LTW_CHAT } from './data/ltw.js?v=c7bd234229c1';
-import { mulberry32 } from './rng.js?v=c7bd234229c1';
+import { Lane, addGold, addLumber, requiresText, techUnlocks } from './lane.js?v=91305a8026e8';
+import { LTW_RULES, LTW_UNITS, LTW_SHOPS, LTW_CREEP_FIX, LTW_COLORS, LTW_MESSAGES, LTW_TECH, LTW_TECH_ORDER, LTW_ARCADE, LTW_CHAT } from './data/ltw.js?v=91305a8026e8';
+import { mulberry32 } from './rng.js?v=91305a8026e8';
 
 export const TPS = 60;                 // fixed ticks per second
 export const STEP = 1 / TPS;

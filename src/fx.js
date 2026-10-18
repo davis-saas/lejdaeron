@@ -1,6 +1,7 @@
 // Visual effects: projectiles, impacts, beams, corpses, floating text and ambient particles.
-import { P, sx, sy, hexA, drawFlame } from './render.js?v=c7bd234229c1';
-import { SIN, TILE } from './level.js?v=c7bd234229c1';
+import { P, sx, sy, hexA, drawFlame } from './render.js?v=91305a8026e8';
+import { SIN, TILE } from './level.js?v=91305a8026e8';
+import { LIGHT, FX_DENSITY } from './device.js?v=91305a8026e8';
 
 const COL = {
   arrow: '#e8d8b0', spear: '#d8c8a0', bullet: '#ffe9a0', blood: '#c01818', quake: '#b08a5a', wisp: '#bfe8ff', frost: '#8fe0ff',
@@ -8,7 +9,8 @@ const COL = {
   poison: '#7dff4a', spirit: '#9dffb0', holy: '#fff0a8', swarm: '#9a7aba', spore: '#bfe8ff', moon: '#cfe8ff',
 };
 const rnd = (a, b) => a + Math.random() * (b - a);
-const MAX_PARTS = 1400;
+// particles and floating numbers one layer keeps (the light set: fewer, and every effect spawns FX_DENSITY of its particles)
+const MAX_PARTS = LIGHT ? 500 : 1400, MAX_TEXTS = LIGHT ? 40 : Infinity, MAX_DECALS = LIGHT ? 40 : 90;
 // Drops the finished entries of a list in place (no new array every frame).
 function prune(list, alive) {
   let n = 0;
@@ -20,7 +22,7 @@ const live = (o) => o.life > 0;
 export class FX {
   // opts.lane: a Line Tower Wars lane (leaks show at the exit, there is no castle). opts.maxParts caps the particles.
   constructor(opts = {}) {
-    this.lane = !!opts.lane; this.maxParts = opts.maxParts || MAX_PARTS;
+    this.lane = !!opts.lane; this.maxParts = opts.maxParts || MAX_PARTS; this.density = FX_DENSITY;
     this.parts = []; this.decals = []; this.texts = []; this.beams = []; this.corpses = [];
     this.track = new Map(); this.hitFlash = new Map(); this.emitters = new Map(); this.seen = new Set();
     this.castleFlash = 0; this.t = 0;
@@ -32,17 +34,20 @@ export class FX {
 
   // ---------------------------------------------------------------- spawning helpers
   part(p) { if (this.parts.length < this.maxParts) this.parts.push(Object.assign({ vx: 0, vy: 0, g: 0, grow: 0, add: true, kind: 'glow', life: 0.5, a: 1 }, p, { max: p.life ?? 0.5 })); }
-  text(X, Y, text, color, size = 14, life = 1.2) { this.texts.push({ X, Y, text, color, size, life, max: life }); }
+  text(X, Y, text, color, size = 14, life = 1.2) { this.addText({ X, Y, text, color, size, life, max: life }); }
+  addText(t) { if (this.texts.length >= MAX_TEXTS) this.texts.shift(); this.texts.push(t); }
   burst(X, Y, color, n = 8, speed = 60, life = 0.35, size = 2, g = 0) {
+    n = Math.ceil(n * this.density);
     for (let i = 0; i < n; i++) {
       const a = Math.random() * Math.PI * 2, v = rnd(0.3, 1) * speed;
       this.part({ x: X, y: Y, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.7 - speed * 0.2, g, life: rnd(0.6, 1) * life, size: rnd(0.6, 1.2) * size, color, kind: 'spark' });
     }
   }
   smoke(X, Y, n = 4, size = 6, color = '#5a5048') {
+    n = Math.ceil(n * this.density);
     for (let i = 0; i < n; i++) this.part({ x: X + rnd(-6, 6), y: Y + rnd(-4, 4), vx: rnd(-8, 8), vy: rnd(-24, -8), life: rnd(0.6, 1.1), size, grow: 14, color, kind: 'smoke', add: false, a: 0.5 });
   }
-  decal(X, Y, r, kind, life = 4) { this.decals.push({ X, Y, r, kind, life, max: life, rot: Math.random() * 6 }); if (this.decals.length > 90) this.decals.shift(); }
+  decal(X, Y, r, kind, life = 4) { this.decals.push({ X, Y, r, kind, life, max: life, rot: Math.random() * 6 }); if (this.decals.length > MAX_DECALS) this.decals.shift(); }
 
   // ---------------------------------------------------------------- events
   handle(e, r, game) {
@@ -83,7 +88,7 @@ export class FX {
       case 'build': case 'upgrade': {
         const X = sx(e.tower.x), Y = sy(e.tower.y);
         this.smoke(X, Y, 8, 7, '#8a7a62');
-        if (e.type === 'upgrade') for (let i = 0; i < 14; i++) this.part({ x: X + rnd(-16, 16), y: Y - rnd(0, 40), vy: rnd(-40, -15), life: rnd(0.5, 1), size: 2.5, color: '#ffe39a' });
+        if (e.type === 'upgrade') for (let i = 0; i < 14 * this.density; i++) this.part({ x: X + rnd(-16, 16), y: Y - rnd(0, 40), vy: rnd(-40, -15), life: rnd(0.5, 1), size: 2.5, color: '#ffe39a' });
         break;
       }
       case 'sell': this.goldText(sx(e.tower.x), sy(e.tower.y) - 30, e.gold); this.smoke(sx(e.tower.x), sy(e.tower.y), 8, 8, '#8a7a62'); break;
@@ -115,7 +120,7 @@ export class FX {
     }
   }
 
-  goldText(X, Y, gold) { this.texts.push({ X, Y, text: '+' + gold, color: '#ffd84a', size: 13, life: 1.3, max: 1.3, coin: true }); }
+  goldText(X, Y, gold) { this.addText({ X, Y, text: '+' + gold, color: '#ffd84a', size: 13, life: 1.3, max: 1.3, coin: true }); }
 
   impact(kind, X, Y, splash, GX, GY) {
     const col = COL[kind] || '#ffffff';
@@ -194,7 +199,7 @@ export class FX {
       s.X = X; s.Y = Y;
       const kind = m.def.missile;
       s.kind = kind;
-      if (Math.random() < dt * 40) {
+      if (Math.random() < dt * 40 * this.density) {
         if (kind === 'shell') this.part({ x: X, y: Y, vy: -6, life: 0.5, size: 3, grow: 8, color: '#6a625a', kind: 'smoke', add: false, a: 0.5 });
         else if (kind === 'fire' || kind === 'meteor') this.part({ x: X + rnd(-2, 2), y: Y + rnd(-2, 2), vy: -10, life: 0.35, size: kind === 'meteor' ? 6 : 3.5, color: '#ff8a22' });
         else if (kind === 'frost' || kind === 'wisp' || kind === 'spore' || kind === 'moon') this.part({ x: X, y: Y, life: 0.3, size: 2.2, color: COL[kind] });
@@ -209,7 +214,7 @@ export class FX {
       const m = r.man.towers[tw.def.id];
       for (const f of m.fx) {
         const rate = { wisp: 6, flame: 9, bubble: 3, spores: 2.5, sparkle: 2, orb: 1.2 }[f.kind];
-        if (!rate || Math.random() > rate * dt) continue;
+        if (!rate || Math.random() > rate * this.density * dt) continue;
         const { X, Y } = r.fxPoint(tw, f), s = f.size || 1;
         if (f.kind === 'flame') this.part({ x: X + rnd(-4, 4) * s, y: Y - 8 * s, vx: rnd(-6, 6), vy: rnd(-40, -20), life: rnd(0.4, 0.8), size: 1.6, color: '#ffb040' });
         else if (f.kind === 'bubble') this.part({ x: X + rnd(-9, 9) * s, y: Y + rnd(-2, 2), vy: rnd(-18, -8), life: rnd(0.5, 1), size: 2.4, color: f.color });
@@ -217,7 +222,7 @@ export class FX {
         else this.part({ x: X + rnd(-6, 6) * s, y: Y + rnd(-6, 6) * s, vy: rnd(-16, -4), life: rnd(0.4, 0.9), size: 1.8, color: f.color });
       }
     }
-    if (!this.lane && Math.random() < dt * 8) {
+    if (!this.lane && Math.random() < dt * 8 * this.density) {
       const p = r.props.find(q => q.portal);
       if (p) this.part({ x: sx(p.x) + rnd(-20, 20), y: sy(p.y) - rnd(10, 70), vy: rnd(-22, -8), vx: rnd(-6, 6), life: rnd(0.6, 1.2), size: 2, color: Math.random() < 0.5 ? '#7dff5a' : '#b06bff' });
     }
@@ -348,13 +353,16 @@ export class FX {
     ctx.restore();
   }
 
+  // The canvas state is set once for the batch, the font only when the size changes (setting it is not cheap).
   drawTexts(ctx) {
+    if (!this.texts.length) return;
+    ctx.save();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    let size = 0;
     for (const t of this.texts) {
       const k = t.life / t.max;
-      ctx.save();
       ctx.globalAlpha = Math.min(1, k * 2.2);
-      ctx.font = `700 ${t.size}px 'Alegreya Sans', sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      if (t.size !== size) { size = t.size; ctx.font = `700 ${size}px 'Alegreya Sans', sans-serif`; }
       let x = t.X;
       if (t.coin) {
         const w = ctx.measureText(t.text).width;
@@ -366,7 +374,7 @@ export class FX {
       }
       ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.85)'; ctx.strokeText(t.text, x, t.Y);
       ctx.fillStyle = t.color; ctx.fillText(t.text, x, t.Y);
-      ctx.restore();
     }
+    ctx.restore();
   }
 }

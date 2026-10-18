@@ -1,0 +1,70 @@
+{
+ "scale": 0.5,
+ "manifest": "0779bb79",
+ "files": {
+  "atlas_creeps_0.png": {
+   "w": 1024,
+   "h": 2000,
+   "from": {
+    "bytes": 7045267,
+    "sha1": "dc9ea2544cd3d3c8adb3c562d6a8d09037099aea"
+   }
+  },
+  "atlas_creeps_1.png": {
+   "w": 1024,
+   "h": 1228,
+   "from": {
+    "bytes": 4731225,
+    "sha1": "f6a1b70972fba0936f06f59eac4f524ded35ed7b"
+   }
+  },
+  "atlas_portraits_0.png": {
+   "w": 1024,
+   "h": 2014,
+   "from": {
+    "bytes": 5188044,
+    "sha1": "b720ecbf41ef05d55514406416a187d99beb5725"
+   }
+  },
+  "atlas_portraits_1.png": {
+   "w": 1024,
+   "h": 454,
+   "from": {
+    "bytes": 1219905,
+    "sha1": "da853ecb1e305a304c0bf9cc540514caa3e497e8"
+   }
+  },
+  "atlas_props.png": {
+   "w": 1024,
+   "h": 726,
+   "from": {
+    "bytes": 2878124,
+    "sha1": "2df257a8d4106c97760f3ec8f63f3466f1f5f257"
+   }
+  },
+  "atlas_towers.png": {
+   "w": 1024,
+   "h": 572,
+   "from": {
+    "bytes": 2841094,
+    "sha1": "772c3f90818fb2e937b6c253376ff6f50be85cae"
+   }
+  },
+  "ground.jpg": {
+   "w": 1440,
+   "h": 734,
+   "from": {
+    "bytes": 1150533,
+    "sha1": "b63d03f4aa2ea20b0c031b13959e7c62a11b6559"
+   }
+  },
+  "lane_ground.jpg": {
+   "w": 2496,
+   "h": 442,
+   "from": {
+    "bytes": 834608,
+    "sha1": "5309fa3c588bddf3bcea28abe5844d8a39e5bdd0"
+   }
+  }
+ }
+}

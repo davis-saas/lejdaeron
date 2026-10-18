@@ -1,8 +1,10 @@
 // The overlay dialogs: the mode menu, the vs Computer setup and a helper every mode uses for its pause and end screens.
 // They all reuse the one dialog in index.html (#overlay: crest, h1, .ov-sub, #ov-body and #ov-foot with the main #ov-btn).
 // The body scrolls when the window is too short for it; the dialog's own buttons stay in view under it.
-import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME } from './common.js?v=c7bd234229c1';
-import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=c7bd234229c1';
+import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME } from './common.js?v=91305a8026e8';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=91305a8026e8';
+import { LIGHT, capped, setCapped } from '../device.js?v=91305a8026e8';
+import { appHint, bindAppHint } from './app.js?v=91305a8026e8';
 
 const $ = (id) => document.getElementById(id);
 const box = () => document.querySelector('.ov-box');
@@ -31,6 +33,17 @@ export function screen({ title, sub = '', body = '', primary = null, wide = fals
 export function hideScreen() { $('overlay').classList.remove('show'); }
 export const screenShown = () => $('overlay').classList.contains('show');
 
+// The pause menus' settings, at the top of the menu (above the help, which may scroll): the frame rate (src/device.js;
+// 30 saves battery, the default on a phone), where the light set is loaded (phones, tablets, computers with little
+// memory) or 30 is on; a computer's menus stay as they were. bindSettings() wires it after screen().
+const fpsLabel = () => `Frame rate: ${capped() ? '30 (saves battery)' : '60'}`;
+export const settingsLine = () => (!LIGHT && !capped() ? ''
+  : `<div class="ov-settings"><button class="wc-btn small" id="ov-fps" aria-pressed="${capped()}" title="30 frames a second save battery and heat on a phone">${fpsLabel()}</button></div>`);
+export function bindSettings() {
+  const b = $('ov-fps');
+  if (b) b.onclick = () => { setCapped(!capped()); b.textContent = fpsLabel(); b.setAttribute('aria-pressed', String(capped())); };
+}
+
 // ---------------------------------------------------------------- mode menu
 export function modeMenu({ classic, computer, players = null }) {
   screen({
@@ -39,8 +52,9 @@ export function modeMenu({ classic, computer, players = null }) {
       <button class="mode" data-mode="classic"><b>Classic Defense</b><span>One road and 28 levels of creeps. Build, upgrade and hold the castle.</span></button>
       <button class="mode" data-mode="computer"><b>vs Computer</b><span>Line Tower Wars against 1 to 7 computer players. Maze your lane, send creeps, steal lives.</span></button>
       <button class="mode" data-mode="players" ${players ? '' : 'disabled'}><b>vs Players</b><span>${players ? 'Line Tower Wars online, 2 to 8 players. Host a game and send the invite link; empty seats can be computers.' : 'Online with friends · coming soon'}</span></button>
-    </div>${CREDIT}`,
+    </div>${appHint()}${CREDIT}`,
   });
+  bindAppHint();
   const run = { classic, computer, players };
   for (const b of document.querySelectorAll('#ov-body .mode')) b.onclick = () => { const f = run[b.dataset.mode]; if (f) f(); };
 }
@@ -63,7 +77,10 @@ export function slotsFor(setup) {
 
 export function setupScreen({ start, back }) {
   const setup = loadSetup();
+  let shown = false;
   const render = () => {
+    const top = shown ? $('ov-body').scrollTop : 0;   // a change keeps the list where it was (it scrolls on a phone)
+    shown = true;
     let rows = `<div class="seat"><i class="sw" style="background:${PLAYER_HEX[1]}"></i><b style="color:${PLAYER_TEXT[1]}">${LTW_COLORS[1]}</b><span class="who">You</span></div>`;
     setup.bots.forEach((d, i) => {
       const slot = i + 2;
@@ -85,6 +102,7 @@ export function setupScreen({ start, back }) {
         <div class="ov-actions"><button class="wc-btn small" id="su-back">Back</button></div>`,
       primary: { label: 'Start', run: () => { saveSetup(setup); start({ bots: setup.bots.slice() }); } },
     });
+    $('ov-body').scrollTop = top;
     for (const row of document.querySelectorAll('#ov-body .seat[data-i]')) {
       const i = +row.dataset.i;
       for (const b of row.querySelectorAll('.diffs button')) b.onclick = () => { setup.bots[i] = b.dataset.d; render(); };

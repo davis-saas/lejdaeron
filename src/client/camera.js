@@ -1,21 +1,29 @@
-// The Line Tower Wars camera: pan and zoom over the stacked lanes. It works in the logical pixels every sprite is
-// placed in (src/render.js: x * P across, (y * SIN - z * COS + TOP) * P down), so the projection is exactly Classic's.
-// x, y is the logical point at the centre of the view; zoom is css px per logical px.
-import { P } from '../render.js?v=c7bd234229c1';
+// The camera of every mode: pan and zoom over the battlefield. It works in the logical pixels every sprite is placed in
+// (src/render.js: x * P across, (y * SIN - z * COS + TOP) * P down), so the projection is exactly Classic's.
+// x, y is the logical point at the centre of the view; zoom is css px per logical px. The wheel and the zoom buttons
+// step between its levels (eased); a pinch zooms freely between the farthest and the closest.
+import { P } from '../render.js?v=91305a8026e8';
 
 export const ZOOMS = [26, 36, 48, 62];   // css px per tile, far to close; the farthest narrows so a whole lane fits
 const EASE = 14;                         // zoom easing rate (1/s)
+const WHEEL_STEP = 40, WHEEL_GAP = 140;  // wheel delta (px) for one zoom step, and ms between two steps
 
 export class Camera {
-  constructor() {
+  // levels(vw, vh): the zoom levels in css px per tile, far to close (the default is Line Tower Wars')
+  constructor(levels = null) {
     this.x = 0; this.y = 0; this.vw = 1; this.vh = 1;
     this.level = 2; this.zoom = ZOOMS[2] / P; this.goal = this.zoom; this.anchor = null;
     this.bounds = [0, 0, 1, 1];
     this.padRight = 0;                   // css px the world may be panned left past its right edge (from under the scoreboard)
     this.moved = true;                   // set whenever the view changes (the minimap redraws its frame)
+    this.live = false;                   // a pinch is under way (caches sized to the zoom wait for its end)
+    this.wheelAcc = 0; this.wheelT = 0;
+    if (levels) this.levels = () => levels(this.vw, this.vh);
   }
   levels() { return [Math.max(10, Math.min(ZOOMS[0], this.vw / 54)), ...ZOOMS.slice(1)]; }
   get zooming() { return Math.abs(this.zoom - this.goal) > 1e-4; }
+  get far() { return this.goal <= this.levels()[0] / P + 1e-6; }
+  get close() { const lv = this.levels(); return this.goal >= lv[lv.length - 1] / P - 1e-6; }
   setView(w, h) {
     this.vw = Math.max(1, w); this.vh = Math.max(1, h);
     this.goal = this.levels()[this.level] / P;
@@ -38,16 +46,42 @@ export class Camera {
 
   center(X, Y) { this.x = X; this.y = Y; this.anchor = null; this.clamp(); }
   pan(dxCss, dyCss) { if (!dxCss && !dyCss) return; this.x += dxCss / this.zoom; this.y += dyCss / this.zoom; this.clamp(); }
-  // Step one zoom level in (dir > 0) or out, keeping the world point under the cursor (mx, my) in place.
+  // Step one zoom level in (dir > 0) or out, keeping the world point under the cursor (mx, my) in place. After a pinch
+  // the zoom may lie between levels: the step goes to the next level past it.
   zoomStep(dir, mx = this.vw / 2, my = this.vh / 2) {
-    const lv = Math.max(0, Math.min(ZOOMS.length - 1, this.level + (dir > 0 ? 1 : -1)));
-    if (lv === this.level) return;
+    const levels = this.levels(), g = this.goal * P;
+    let lv = -1;
+    if (dir > 0) lv = levels.findIndex(z => z > g * 1.001);
+    else for (let i = levels.length - 1; i >= 0; i--) if (levels[i] < g * 0.999) { lv = i; break; }
+    if (lv < 0) return;
     this.level = lv;
-    this.goal = this.levels()[lv] / P;
+    this.goal = levels[lv] / P;
     const w = this.toWorld(mx, my);
     this.anchor = { mx, my, X: w.X, Y: w.Y };
   }
-  setLevel(lv) { this.level = Math.max(0, Math.min(ZOOMS.length - 1, lv)); this.goal = this.levels()[this.level] / P; this.zoom = this.goal; this.anchor = null; this.clamp(); }
+  setLevel(lv) { this.level = Math.max(0, Math.min(this.levels().length - 1, lv)); this.goal = this.levels()[this.level] / P; this.zoom = this.goal; this.anchor = null; this.clamp(); }
+  // A pinch: the zoom times k about the view point (mx, my), which stays over the same world point, clamped to the
+  // farthest and closest levels. The level becomes the nearest one (the wheel and the buttons step on from there).
+  zoomBy(k, mx = this.vw / 2, my = this.vh / 2) {
+    const levels = this.levels(), w = this.toWorld(mx, my);
+    const z = Math.max(levels[0] / P, Math.min(levels[levels.length - 1] / P, this.zoom * k));
+    this.zoom = this.goal = z; this.anchor = null;
+    let best = 0;
+    levels.forEach((l, i) => { if (Math.abs(Math.log(l / P / z)) < Math.abs(Math.log(levels[best] / P / z))) best = i; });
+    this.level = best;
+    this.x = w.X - (mx - this.vw / 2) / z; this.y = w.Y - (my - this.vh / 2) / z;
+    this.clamp();
+  }
+  // A wheel event: +1 (zoom in), -1 or 0. Small deltas (a touchpad) add up to one step, and steps come at most every
+  // WHEEL_GAP ms.
+  wheelDir(ev) {
+    const now = performance.now();
+    this.wheelAcc += ev.deltaMode === 1 ? ev.deltaY * 40 : ev.deltaY;
+    if (Math.abs(this.wheelAcc) < WHEEL_STEP || now - this.wheelT < WHEEL_GAP) return 0;
+    const dir = -Math.sign(this.wheelAcc);
+    this.wheelAcc = 0; this.wheelT = now;
+    return dir;
+  }
 
   update(dt) {
     if (!this.zooming) { this.anchor = null; return; }

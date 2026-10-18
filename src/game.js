@@ -1,11 +1,11 @@
 // Classic Warcraft TD rules. Tower, creep and economy numbers come from Line Tower Wars 45 (see tools/gen_ltw.py).
 // The combat itself (towers, creeps, missiles, damage, buffs, events) is the shared core in src/field.js; this file adds
 // the snake road, the level-by-level waves, the income timer, lives and the build grid.
-import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=c7bd234229c1';
-import { CREEPS } from './data/creeps.js?v=c7bd234229c1';
-import { RULES } from './data/rules.js?v=c7bd234229c1';
-import { COLS, PATH, buildable, pointAt, TOTAL_LEN } from './level.js?v=c7bd234229c1';
-import { Field, BUILD_TIME, SPLASH_MED, SPLASH_SMALL, typeFactor, avgDamage } from './field.js?v=c7bd234229c1';
+import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=91305a8026e8';
+import { CREEPS } from './data/creeps.js?v=91305a8026e8';
+import { RULES } from './data/rules.js?v=91305a8026e8';
+import { COLS, PATH, buildable, pointAt, TOTAL_LEN } from './level.js?v=91305a8026e8';
+import { Field, BUILD_TIME, SPLASH_MED, SPLASH_SMALL, typeFactor, avgDamage } from './field.js?v=91305a8026e8';
 
 export { TOWERS, BUILD_ROOTS, CREEPS, RULES, BUILD_TIME, SPLASH_MED, SPLASH_SMALL, typeFactor, avgDamage };
 export const LEVELS = CREEPS.length;

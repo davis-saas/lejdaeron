@@ -1,5 +1,7 @@
 // Draws the battlefield: Blender ground and props, depth-sorted towers and creeps, overlays.
-import { COLS, ROWS, SIN, COS, TOP, SCREEN_W, SCREEN_H, buildable, TILE } from './level.js?v=c7bd234229c1';
+import { COLS, ROWS, SIN, COS, TOP, SCREEN_W, SCREEN_H, buildable, TILE } from './level.js?v=91305a8026e8';
+import { tinted } from './assets.js?v=91305a8026e8';
+import { pixelRatio, canvasScale } from './device.js?v=91305a8026e8';
 
 export const P = 48;                 // logical px per tile
 export const K = P / 96;             // sprites are rendered at 96 px per tile
@@ -19,6 +21,7 @@ export class Renderer {
     this.man = assets.man;
     this.layout = assets.layout;
     this.scale = 1;
+    this.res = 2 * this.man.ground.ss;   // device px per logical px the art has (96 px per tile; the light art 48)
     this.looks = new Map();   // creep def -> { m, k }: its sprite and draw scale
     this.props = this.buildProps();
   }
@@ -34,22 +37,38 @@ export class Renderer {
     return list;
   }
 
+  // Classic's view. resize(): the whole map fitted to the stage (css px), as the farthest zoom shows it. view(cam), every
+  // frame: the canvas covers what the camera shows (src/client/camera.js, its view is the stage), so it has the fitted
+  // size at the farthest zoom, exactly as before there was a camera, and at most the stage's when zoomed in.
   resize(cssW, cssH) {
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    this.canvas.style.width = cssW + 'px';
-    this.canvas.style.height = cssH + 'px';
-    this.scale = (cssW / W) * dpr;
-    this.canvas.width = Math.round(W * this.scale);
-    this.canvas.height = Math.round(H * this.scale);
-    this.buildStatic();
+    this.fitW = cssW; this.fitH = cssH; this.fitZoom = cssW / W;
+    this.size = null;
+  }
+  view(cam) {
+    const dpr = pixelRatio(), fitted = cam.zoom <= this.fitZoom * 1.0001;
+    const w = fitted ? this.fitW : Math.min(Math.floor(cam.vw), Math.round(W * cam.zoom));
+    const h = fitted ? this.fitH : Math.min(Math.floor(cam.vh), Math.round(H * cam.zoom));
+    if (!this.size || this.size[0] !== w || this.size[1] !== h || this.size[2] !== dpr) {
+      this.size = [w, h, dpr];
+      this.canvas.style.width = w + 'px';
+      this.canvas.style.height = h + 'px';
+      this.canvas.width = Math.round(fitted ? W * this.fitZoom * dpr : w * dpr);
+      this.canvas.height = Math.round(fitted ? H * this.fitZoom * dpr : h * dpr);
+    }
+    this.scale = cam.zoom * dpr;
+    // the ground and props at the view's resolution, up to the art's own (or the fitted view's, where that is finer)
+    // and within the device's canvas budget; while the zoom moves the one there is is scaled
+    const cs = canvasScale(W, H, Math.min(this.scale, Math.max(this.res, this.fitZoom * dpr)));
+    if (!this.static || (Math.abs(this.static.cs - cs) > 1e-6 && !cam.zooming && !cam.live)) this.buildStatic(cs);
   }
 
-  buildStatic() {
-    if (!this.canvas.width || !this.canvas.height) { this.static = null; this.mini = null; return; }   // zero-size viewport
+  buildStatic(cs) {
     const c = document.createElement('canvas');
-    c.width = this.canvas.width; c.height = this.canvas.height;
+    c.width = Math.round(W * cs); c.height = Math.round(H * cs);
+    if (!c.width || !c.height) { this.static = null; return; }   // zero-size viewport
+    c.cs = cs;
     const x = c.getContext('2d');
-    x.setTransform(this.scale, 0, 0, this.scale, 0, 0);
+    x.setTransform(cs, 0, 0, cs, 0, 0);
     x.imageSmoothingQuality = 'high';
     x.drawImage(this.man.ground.img, 0, 0, W, H);
     if (!this.man.shadows) for (const p of this.props) if (!p.castle && !p.portal) this.blob(x, sx(p.x) + 2, sy(p.y) + 1, p.m.w * K * 0.3, 0.32);
@@ -61,25 +80,26 @@ export class Renderer {
     x.fillStyle = g;
     x.fillRect(0, 0, W, H);
     this.static = c;
-    this.mini = null;
   }
 
   // ---------------------------------------------------------------- primitives
+  // m: a manifest sprite (src/assets.js: its source rectangle is in its image's pixels, ss of them per manifest pixel)
   sprite(ctx, m, X, Y, flip = false, img = null, k = K) {
-    const im = img || m.img;
+    const im = img || m.img, q = m.ss;
     if (flip) {
       ctx.save(); ctx.translate(X, Y); ctx.scale(-1, 1);
-      ctx.drawImage(im, m.sx, m.sy, m.w, m.h, -m.ax * k, -m.ay * k, m.w * k, m.h * k);
+      ctx.drawImage(im, m.sx, m.sy, m.w * q, m.h * q, -m.ax * k, -m.ay * k, m.w * k, m.h * k);
       ctx.restore();
-    } else ctx.drawImage(im, m.sx, m.sy, m.w, m.h, X - m.ax * k, Y - m.ay * k, m.w * k, m.h * k);
+    } else ctx.drawImage(im, m.sx, m.sy, m.w * q, m.h * q, X - m.ax * k, Y - m.ay * k, m.w * k, m.h * k);
   }
   frame(ctx, m, img, col, row, X, Y, flip, alpha = 1, k = CK) {
+    const q = m.ss;
     if (alpha < 1) { ctx.save(); ctx.globalAlpha = alpha; }
     if (flip) {
       ctx.save(); ctx.translate(X, Y); ctx.scale(-1, 1);
-      ctx.drawImage(img, m.sx + col * m.fw, m.sy + row * m.fh, m.fw, m.fh, -m.ax * k, -m.ay * k, m.fw * k, m.fh * k);
+      ctx.drawImage(img, m.sx + col * m.fw * q, m.sy + row * m.fh * q, m.fw * q, m.fh * q, -m.ax * k, -m.ay * k, m.fw * k, m.fh * k);
       ctx.restore();
-    } else ctx.drawImage(img, m.sx + col * m.fw, m.sy + row * m.fh, m.fw, m.fh, X - m.ax * k, Y - m.ay * k, m.fw * k, m.fh * k);
+    } else ctx.drawImage(img, m.sx + col * m.fw * q, m.sy + row * m.fh * q, m.fw * q, m.fh * q, X - m.ax * k, Y - m.ay * k, m.fw * k, m.fh * k);
     if (alpha < 1) ctx.restore();
   }
   blob(ctx, X, Y, rx, a = 0.3) {
@@ -162,12 +182,15 @@ export class Renderer {
   }
 
   // ---------------------------------------------------------------- frame
-  draw(game, view, fx, t) {
+  draw(game, view, fx, t, cam) {
     const ctx = this.ctx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (!this.static) return;   // zero-size viewport
-    ctx.drawImage(this.static, 0, 0);
-    ctx.setTransform(this.scale, 0, 0, this.scale, 0, 0);
+    const s = this.scale, st = this.static;
+    const tx = Math.round(this.canvas.width / 2 - cam.x * s), ty = Math.round(this.canvas.height / 2 - cam.y * s);
+    if (Math.abs(st.cs - s) < 1e-6) ctx.drawImage(st, tx, ty);
+    else ctx.drawImage(st, tx, ty, W * s, H * s);
+    ctx.setTransform(s, 0, 0, s, tx, ty);
 
     if (view.placing) this.drawGrid(ctx, game, view);
     fx.drawGround(ctx);
@@ -289,9 +312,9 @@ export class Renderer {
     const col = Math.floor(c.walk * 1.7) % m.frames;
     const slowed = (c.slowUntil > game.time && c.slowPct > 0) || c.auraSlow > 0 || c.poisons.some(p => p.slow);
     const hit = fx.hitFlash.get(c.id);
-    const img = hit && t - hit < 0.06 ? m.hitImg : slowed ? m.slowImg : m.img;
+    const look = hit && t - hit < 0.06 ? tinted(m, 'hit') : slowed ? tinted(m, 'slow') : m;
     const hidden = c.def.invisible && !game.visible(c);
-    this.frame(ctx, m, img, col, row, X, Y, flip, hidden ? 0.28 : 1, k);
+    this.frame(ctx, look, look.img, col, row, X, Y, flip, hidden ? 0.28 : 1, k);
     if (c.stunUntil > game.time) {
       const top = Y - m.ay * k - 4;
       for (let i = 0; i < 3; i++) {
