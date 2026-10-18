@@ -53,7 +53,15 @@ export const LTW_RULES = {
    -5632.0,
    -3008.0
   ]
- }
+ },
+ "minSpeed": 150,
+ "maxSpeed": 400,
+ "moveBonusesStack": false,
+ "invisibleBestowAuras": false,
+ "resourceMax": 1000000,
+ "trainQueue": 7,
+ "sellValue": "points",
+ "extra": true
 };
 export const LTW_SHOPS = [
  {
@@ -119,12 +127,15 @@ export const LTW_UNITS = {
   "look": "packhorse",
   "hp": 2,
   "armor": 0,
-  "armorType": "none",
+  "armorType": "medium",
   "speed": 270,
   "cost": 5,
   "lumber": 0,
   "bounty": 1,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -152,7 +163,13 @@ export const LTW_UNITS = {
    "9": 1,
    "10": 1,
    "11": 1
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "n00C": {
   "id": "n00C",
@@ -166,7 +183,10 @@ export const LTW_UNITS = {
   "cost": 10,
   "lumber": 0,
   "bounty": 2,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -194,7 +214,13 @@ export const LTW_UNITS = {
    "9": 2,
    "10": 2,
    "11": 2
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "u003": {
   "id": "u003",
@@ -203,12 +229,15 @@ export const LTW_UNITS = {
   "look": "centaur",
   "hp": 20,
   "armor": 0,
-  "armorType": "medium",
+  "armorType": "large",
   "speed": 270,
   "cost": 22,
   "lumber": 0,
   "bounty": 4,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -236,7 +265,13 @@ export const LTW_UNITS = {
    "9": 4,
    "10": 4,
    "11": 4
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 2,
+   "type": "blight"
+  },
+  "mechanical": false
  },
  "u000": {
   "id": "u000",
@@ -250,7 +285,10 @@ export const LTW_UNITS = {
   "cost": 40,
   "lumber": 0,
   "bounty": 6,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -278,7 +316,13 @@ export const LTW_UNITS = {
    "9": 8,
    "10": 8,
    "11": 8
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 2,
+   "type": "blight"
+  },
+  "mechanical": false
  },
  "n005": {
   "id": "n005",
@@ -286,13 +330,16 @@ export const LTW_UNITS = {
   "base": "nenc",
   "look": "treant",
   "hp": 35,
-  "armor": 1,
-  "armorType": "medium",
+  "armor": 0,
+  "armorType": "large",
   "speed": 270,
   "cost": 60,
   "lumber": 0,
   "bounty": 8,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": true,
@@ -322,7 +369,16 @@ export const LTW_UNITS = {
    "9": 10,
    "10": 10,
    "11": 10
-  }
+  },
+  "effectiveAbilities": [
+   "ACev"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false,
+  "evade": 0.15
  },
  "h00U": {
   "id": "h00U",
@@ -336,7 +392,10 @@ export const LTW_UNITS = {
   "cost": 75,
   "lumber": 0,
   "bounty": 10,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -364,7 +423,13 @@ export const LTW_UNITS = {
    "9": 12,
    "10": 12,
    "11": 12
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0.25,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "n000": {
   "id": "n000",
@@ -378,7 +443,10 @@ export const LTW_UNITS = {
   "cost": 100,
   "lumber": 0,
   "bounty": 12,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -406,7 +474,15 @@ export const LTW_UNITS = {
    "9": 14,
    "10": 14,
    "11": 14
-  }
+  },
+  "effectiveAbilities": [
+   "Asal"
+  ],
+  "regen": {
+   "hp": 1,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "n00A": {
   "id": "n00A",
@@ -414,13 +490,16 @@ export const LTW_UNITS = {
   "base": "ndqt",
   "look": "thrall",
   "hp": 100,
-  "armor": 1,
-  "armorType": "medium",
+  "armor": 0,
+  "armorType": "large",
   "speed": 270,
   "cost": 160,
   "lumber": 0,
   "bounty": 15,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -450,21 +529,47 @@ export const LTW_UNITS = {
    "9": 20,
    "10": 20,
    "11": 20
-  }
+  },
+  "effectiveAbilities": [
+   "SCae"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false,
+  "auras": [
+   {
+    "id": "SCae",
+    "kind": "endurance",
+    "range": 900,
+    "targets": [
+     "air",
+     "ground",
+     "friend",
+     "self"
+    ],
+    "move": 0.1,
+    "attack": 0.05
+   }
+  ]
  },
  "u001": {
   "id": "u001",
   "name": "Shade",
   "base": "ushd",
   "look": "shade",
-  "hp": 75,
+  "hp": 125,
   "armor": 0,
   "armorType": "medium",
   "speed": 180,
   "cost": 200,
   "lumber": 0,
   "bounty": 20,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": true,
+  "air": true,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -492,7 +597,13 @@ export const LTW_UNITS = {
    "9": 22,
    "10": 22,
    "11": 22
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0,
+   "type": "blight"
+  },
+  "mechanical": false
  },
  "n00F": {
   "id": "n00F",
@@ -500,13 +611,16 @@ export const LTW_UNITS = {
   "base": "ngrk",
   "look": "paladin",
   "hp": 180,
-  "armor": 4,
-  "armorType": "large",
+  "armor": 0,
+  "armorType": "medium",
   "speed": 270,
   "cost": 350,
   "lumber": 0,
   "bounty": 25,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": true,
   "invisible": false,
   "evasion": false,
@@ -537,6 +651,26 @@ export const LTW_UNITS = {
    "9": 37,
    "10": 37,
    "11": 37
+  },
+  "effectiveAbilities": [
+   "ACim",
+   "Amim"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false,
+  "immolation": {
+   "id": "ACim",
+   "damage": 50000.0,
+   "interval": 1,
+   "range": 400.0,
+   "targets": [
+    "player"
+   ],
+   "manaCost": 25,
+   "active": false
   }
  },
  "h01B": {
@@ -551,7 +685,10 @@ export const LTW_UNITS = {
   "cost": 750,
   "lumber": 0,
   "bounty": 30,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -581,6 +718,31 @@ export const LTW_UNITS = {
    "9": 50,
    "10": 50,
    "11": 50
+  },
+  "effectiveAbilities": [
+   "Adef",
+   "Aihn"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": true,
+  "weapon": {
+   "dmgBase": 2,
+   "dice": 2,
+   "sides": 2,
+   "cooldown": 2.0,
+   "range": 100,
+   "attackType": "siege",
+   "weaponType": "normal",
+   "targets": [
+    "debris",
+    "structure"
+   ],
+   "acquire": 500,
+   "damagePoint": 0.5,
+   "backswing": 0.5
   }
  },
  "n008": {
@@ -591,11 +753,14 @@ export const LTW_UNITS = {
   "hp": 950,
   "armor": 0,
   "armorType": "normal",
-  "speed": 350,
+  "speed": 270,
   "cost": 1000,
   "lumber": 0,
   "bounty": 75,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": true,
   "invisible": false,
   "evasion": false,
@@ -625,7 +790,15 @@ export const LTW_UNITS = {
    "9": 100,
    "10": 100,
    "11": 100
-  }
+  },
+  "effectiveAbilities": [
+   "ACmi"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "h01H": {
   "id": "h01H",
@@ -639,7 +812,10 @@ export const LTW_UNITS = {
   "cost": 1000,
   "lumber": 0,
   "bounty": 50,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -667,7 +843,15 @@ export const LTW_UNITS = {
    "9": 100,
    "10": 100,
    "11": 100
-  }
+  },
+  "effectiveAbilities": [
+   "Aihn"
+  ],
+  "regen": {
+   "hp": 0.25,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "o000": {
   "id": "o000",
@@ -681,7 +865,10 @@ export const LTW_UNITS = {
   "cost": 2000,
   "lumber": 0,
   "bounty": 75,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -709,7 +896,16 @@ export const LTW_UNITS = {
    "9": 200,
    "10": 200,
    "11": 200
-  }
+  },
+  "effectiveAbilities": [
+   "Awar",
+   "Aion"
+  ],
+  "regen": {
+   "hp": 0.25,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "n002": {
   "id": "n002",
@@ -723,7 +919,10 @@ export const LTW_UNITS = {
   "cost": 4000,
   "lumber": 0,
   "bounty": 100,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -751,7 +950,13 @@ export const LTW_UNITS = {
    "9": 350,
    "10": 350,
    "11": 350
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "n003": {
   "id": "n003",
@@ -765,7 +970,10 @@ export const LTW_UNITS = {
   "cost": 7500,
   "lumber": 0,
   "bounty": 200,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": true,
+  "air": true,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -777,7 +985,7 @@ export const LTW_UNITS = {
   "stock": {
    "max": 15,
    "replenish": 7,
-   "start": 0
+   "start": 440
   },
   "abilities": [],
   "sold": true,
@@ -793,7 +1001,13 @@ export const LTW_UNITS = {
    "9": 625,
    "10": 625,
    "11": 625
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0.5,
+   "type": "none"
+  },
+  "mechanical": false
  },
  "n00B": {
   "id": "n00B",
@@ -802,12 +1016,15 @@ export const LTW_UNITS = {
   "look": "priestess",
   "hp": 4500,
   "armor": 0,
-  "armorType": "medium",
+  "armorType": "large",
   "speed": 270,
   "cost": 10000,
   "lumber": 0,
   "bounty": 175,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -835,7 +1052,13 @@ export const LTW_UNITS = {
    "9": 800,
    "10": 800,
    "11": 800
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "n006": {
   "id": "n006",
@@ -844,12 +1067,15 @@ export const LTW_UNITS = {
   "look": "farseer",
   "hp": 4500,
   "armor": 0,
-  "armorType": "medium",
-  "speed": 270,
+  "armorType": "large",
+  "speed": 300,
   "cost": 12000,
   "lumber": 0,
   "bounty": 200,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -879,7 +1105,32 @@ export const LTW_UNITS = {
    "9": 900,
    "10": 900,
    "11": 900
-  }
+  },
+  "effectiveAbilities": [
+   "ACua"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false,
+  "auras": [
+   {
+    "id": "ACua",
+    "kind": "unholy",
+    "range": 900,
+    "targets": [
+     "air",
+     "ground",
+     "friend",
+     "self",
+     "vuln",
+     "invu"
+    ],
+    "move": 0.1,
+    "regen": 0.5
+   }
+  ]
  },
  "n004": {
   "id": "n004",
@@ -888,12 +1139,15 @@ export const LTW_UNITS = {
   "look": "darkmage",
   "hp": 9000,
   "armor": 0,
-  "armorType": "medium",
+  "armorType": "large",
   "speed": 450,
   "cost": 15000,
   "lumber": 0,
   "bounty": 250,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -921,7 +1175,13 @@ export const LTW_UNITS = {
    "9": 1100,
    "10": 1100,
    "11": 1100
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "n009": {
   "id": "n009",
@@ -931,11 +1191,14 @@ export const LTW_UNITS = {
   "hp": 11000,
   "armor": 0,
   "armorType": "large",
-  "speed": 270,
+  "speed": 300,
   "cost": 20000,
   "lumber": 0,
   "bounty": 400,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": true,
   "invisible": false,
   "evasion": false,
@@ -965,7 +1228,15 @@ export const LTW_UNITS = {
    "9": 1300,
    "10": 1300,
    "11": 1300
-  }
+  },
+  "effectiveAbilities": [
+   "ACmi"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "u002": {
   "id": "u002",
@@ -974,12 +1245,15 @@ export const LTW_UNITS = {
   "look": "banshee",
   "hp": 9000,
   "armor": 0,
-  "armorType": "small",
+  "armorType": "none",
   "speed": 250,
   "cost": 30000,
   "lumber": 0,
   "bounty": 500,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": true,
+  "air": true,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1007,7 +1281,13 @@ export const LTW_UNITS = {
    "9": 1600,
    "10": 1600,
    "11": 1600
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0,
+   "type": "blight"
+  },
+  "mechanical": false
  },
  "h01I": {
   "id": "h01I",
@@ -1021,7 +1301,10 @@ export const LTW_UNITS = {
   "cost": 50000,
   "lumber": 0,
   "bounty": 1000,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1051,6 +1334,31 @@ export const LTW_UNITS = {
    "9": 3000,
    "10": 3000,
    "11": 3000
+  },
+  "effectiveAbilities": [
+   "Srtt",
+   "Aroc"
+  ],
+  "regen": {
+   "hp": 0,
+   "type": "none"
+  },
+  "mechanical": true,
+  "weapon": {
+   "dmgBase": 6,
+   "dice": 3,
+   "sides": 3,
+   "cooldown": 2.1,
+   "range": 192,
+   "attackType": "siege",
+   "weaponType": "instant",
+   "targets": [
+    "structure",
+    "debris"
+   ],
+   "acquire": 500,
+   "damagePoint": 0.5,
+   "backswing": 0.5
   }
  },
  "n00D": {
@@ -1065,7 +1373,10 @@ export const LTW_UNITS = {
   "cost": 50000,
   "lumber": 0,
   "bounty": 3000,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": true,
   "invisible": false,
   "evasion": false,
@@ -1095,7 +1406,15 @@ export const LTW_UNITS = {
    "9": 3000,
    "10": 3000,
    "11": 3000
-  }
+  },
+  "effectiveAbilities": [
+   "ACmi"
+  ],
+  "regen": {
+   "hp": 1,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "h01M": {
   "id": "h01M",
@@ -1105,11 +1424,14 @@ export const LTW_UNITS = {
   "hp": 15000,
   "armor": 4,
   "armorType": "fort",
-  "speed": 350,
+  "speed": 320,
   "cost": 100000,
   "lumber": 0,
   "bounty": 5000,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": true,
+  "air": false,
   "magicImmune": true,
   "invisible": false,
   "evasion": false,
@@ -1119,7 +1441,7 @@ export const LTW_UNITS = {
   "shop": "h00T",
   "copies": 3,
   "stock": {
-   "max": 1,
+   "max": 3,
    "replenish": 30,
    "start": 740
   },
@@ -1142,6 +1464,46 @@ export const LTW_UNITS = {
    "9": -30000,
    "10": -30000,
    "11": -30000
+  },
+  "effectiveAbilities": [
+   "Adda",
+   "Amim"
+  ],
+  "regen": {
+   "hp": 0,
+   "type": "always"
+  },
+  "mechanical": false,
+  "deathDamage": {
+   "id": "Adda",
+   "fullRadius": 100,
+   "full": 500,
+   "partialRadius": 250,
+   "partial": 200,
+   "delay": 0.3,
+   "targets": [
+    "ground",
+    "structure",
+    "debris",
+    "enemy",
+    "ward"
+   ]
+  },
+  "weapon": {
+   "dmgBase": 130,
+   "dice": 2,
+   "sides": 75,
+   "cooldown": 2.0,
+   "range": 250,
+   "attackType": "siege",
+   "weaponType": "instant",
+   "targets": [
+    "debris",
+    "structure"
+   ],
+   "acquire": 600,
+   "damagePoint": 0.43,
+   "backswing": 0.633
   }
  },
  "ugho": {
@@ -1156,7 +1518,10 @@ export const LTW_UNITS = {
   "cost": 20000,
   "lumber": 0,
   "bounty": 5000,
+  "bountyDice": 6,
+  "bountySides": 3,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1186,6 +1551,35 @@ export const LTW_UNITS = {
    "9": -100,
    "10": -100,
    "11": -100
+  },
+  "effectiveAbilities": [
+   "Acan",
+   "Ahrl",
+   "Aiun"
+  ],
+  "regen": {
+   "hp": 2,
+   "type": "blight"
+  },
+  "mechanical": false,
+  "weapon": {
+   "dmgBase": 80,
+   "dice": 2,
+   "sides": 2,
+   "cooldown": 1.3,
+   "range": 90,
+   "attackType": "normal",
+   "weaponType": "normal",
+   "targets": [
+    "ward",
+    "structure",
+    "debris",
+    "item",
+    "ground"
+   ],
+   "acquire": 500,
+   "damagePoint": 0.39,
+   "backswing": 0.44
   }
  },
  "n00H": {
@@ -1200,7 +1594,10 @@ export const LTW_UNITS = {
   "cost": 22000,
   "lumber": 0,
   "bounty": 2000,
+  "bountyDice": 1,
+  "bountySides": 3,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1230,7 +1627,30 @@ export const LTW_UNITS = {
    "9": 2000,
    "10": 2000,
    "11": 2000
-  }
+  },
+  "effectiveAbilities": [
+   "SCae"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false,
+  "auras": [
+   {
+    "id": "SCae",
+    "kind": "endurance",
+    "range": 900,
+    "targets": [
+     "air",
+     "ground",
+     "friend",
+     "self"
+    ],
+    "move": 0.1,
+    "attack": 0.05
+   }
+  ]
  },
  "u006": {
   "id": "u006",
@@ -1244,7 +1664,10 @@ export const LTW_UNITS = {
   "cost": 25000,
   "lumber": 0,
   "bounty": 2500,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1272,7 +1695,13 @@ export const LTW_UNITS = {
    "9": 2250,
    "10": 2250,
    "11": 2250
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 2,
+   "type": "blight"
+  },
+  "mechanical": false
  },
  "u007": {
   "id": "u007",
@@ -1281,12 +1710,15 @@ export const LTW_UNITS = {
   "look": "necromancer",
   "hp": 35000,
   "armor": 0,
-  "armorType": "small",
+  "armorType": "none",
   "speed": 270,
   "cost": 28000,
   "lumber": 0,
   "bounty": 3000,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": true,
   "invisible": false,
   "evasion": false,
@@ -1316,6 +1748,22 @@ export const LTW_UNITS = {
    "9": 0,
    "10": 0,
    "11": 0
+  },
+  "effectiveAbilities": [
+   "ACm3"
+  ],
+  "regen": {
+   "hp": 2,
+   "type": "blight"
+  },
+  "mechanical": false,
+  "hpBonus": {
+   "1": 80,
+   "2": 80,
+   "3": 80,
+   "4": 80,
+   "5": 80,
+   "6": 80
   }
  },
  "o002": {
@@ -1330,7 +1778,10 @@ export const LTW_UNITS = {
   "cost": 32000,
   "lumber": 0,
   "bounty": 10000,
+  "bountyDice": 7,
+  "bountySides": 3,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1362,7 +1813,31 @@ export const LTW_UNITS = {
    "9": -3000,
    "10": -3000,
    "11": -3000
-  }
+  },
+  "effectiveAbilities": [
+   "ACnr"
+  ],
+  "regen": {
+   "hp": 0.25,
+   "type": "always"
+  },
+  "mechanical": false,
+  "auras": [
+   {
+    "id": "ACnr",
+    "kind": "regeneration",
+    "range": 500,
+    "targets": [
+     "ground",
+     "air",
+     "organic",
+     "vuln",
+     "invu"
+    ],
+    "regenPct": 0.01,
+    "regen": 0
+   }
+  ]
  },
  "h02E": {
   "id": "h02E",
@@ -1370,13 +1845,16 @@ export const LTW_UNITS = {
   "base": "hspt",
   "look": "spellbreaker",
   "hp": 45000,
-  "armor": 0,
+  "armor": 3,
   "armorType": "medium",
-  "speed": 270,
+  "speed": 300,
   "cost": 36000,
   "lumber": 0,
   "bounty": 3500,
+  "bountyDice": 6,
+  "bountySides": 3,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": true,
   "evasion": false,
@@ -1406,7 +1884,15 @@ export const LTW_UNITS = {
    "9": 3500,
    "10": 3500,
    "11": 3500
-  }
+  },
+  "effectiveAbilities": [
+   "Apiv"
+  ],
+  "regen": {
+   "hp": 0.25,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "n00G": {
   "id": "n00G",
@@ -1420,7 +1906,10 @@ export const LTW_UNITS = {
   "cost": 70000,
   "lumber": 0,
   "bounty": 4000,
+  "bountyDice": 4,
+  "bountySides": 3,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1452,7 +1941,16 @@ export const LTW_UNITS = {
    "9": 3500,
    "10": 3500,
    "11": 3500
-  }
+  },
+  "effectiveAbilities": [
+   "Aspo",
+   "Aspt"
+  ],
+  "regen": {
+   "hp": 10,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "hgry": {
   "id": "hgry",
@@ -1461,12 +1959,15 @@ export const LTW_UNITS = {
   "look": "gryphon",
   "hp": 50000,
   "armor": 0,
-  "armorType": "large",
+  "armorType": "small",
   "speed": 250,
   "cost": 100000,
   "lumber": 0,
   "bounty": 25,
+  "bountyDice": 7,
+  "bountySides": 3,
   "flying": true,
+  "air": true,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1481,7 +1982,7 @@ export const LTW_UNITS = {
    "start": 1010
   },
   "abilities": [],
-  "bountyDefault": true,
+  "bountyStock": true,
   "sold": true,
   "income": {
    "1": 0,
@@ -1495,7 +1996,13 @@ export const LTW_UNITS = {
    "9": 0,
    "10": 0,
    "11": 0
-  }
+  },
+  "effectiveAbilities": [],
+  "regen": {
+   "hp": 0.25,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "u004": {
   "id": "u004",
@@ -1508,8 +2015,11 @@ export const LTW_UNITS = {
   "speed": 522,
   "cost": 100000,
   "lumber": 10,
-  "bounty": 25,
+  "bounty": 30,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1524,7 +2034,7 @@ export const LTW_UNITS = {
    "start": 1500
   },
   "abilities": [],
-  "bountyDefault": true,
+  "bountyStock": true,
   "placeholder": true,
   "scale": 1.4,
   "sold": true,
@@ -1540,7 +2050,17 @@ export const LTW_UNITS = {
    "9": -25000,
    "10": -25000,
    "11": -25000
-  }
+  },
+  "effectiveAbilities": [
+   "Aap1",
+   "Aiun",
+   "Acn2"
+  ],
+  "regen": {
+   "hp": 2,
+   "type": "blight"
+  },
+  "mechanical": false
  },
  "e000": {
   "id": "e000",
@@ -1549,12 +2069,15 @@ export const LTW_UNITS = {
   "look": "treant",
   "hp": 200000,
   "armor": 20,
-  "armorType": "large",
+  "armorType": "medium",
   "speed": 5,
   "cost": 100000,
   "lumber": 20,
-  "bounty": 25,
+  "bounty": 30,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1569,7 +2092,7 @@ export const LTW_UNITS = {
    "start": 1800
   },
   "abilities": [],
-  "bountyDefault": true,
+  "bountyStock": true,
   "placeholder": true,
   "scale": 1.8,
   "sold": true,
@@ -1585,6 +2108,45 @@ export const LTW_UNITS = {
    "9": -50000,
    "10": -50000,
    "11": -50000
+  },
+  "effectiveAbilities": [
+   "Atau",
+   "Agra",
+   "Arsk",
+   "Assk",
+   "Aien"
+  ],
+  "regen": {
+   "hp": 1.5,
+   "type": "night"
+  },
+  "mechanical": false,
+  "hardenedSkin": {
+   "id": "Assk",
+   "chance": 1.0,
+   "min": 3,
+   "ignore": 12
+  },
+  "weapon": {
+   "dmgBase": 4000,
+   "dice": 2,
+   "sides": 7,
+   "cooldown": 10.0,
+   "range": 128,
+   "attackType": "normal",
+   "weaponType": "normal",
+   "targets": [
+    "ground",
+    "structure",
+    "debris",
+    "tree",
+    "wall",
+    "item",
+    "ward"
+   ],
+   "acquire": 500,
+   "damagePoint": 0.49,
+   "backswing": 1
   }
  },
  "n00I": {
@@ -1594,12 +2156,15 @@ export const LTW_UNITS = {
   "look": "horse",
   "hp": 500000,
   "armor": 20,
-  "armorType": "none",
+  "armorType": "medium",
   "speed": 150,
   "cost": 100000,
   "lumber": 30,
-  "bounty": 25,
+  "bounty": 0,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": true,
+  "air": true,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1614,7 +2179,7 @@ export const LTW_UNITS = {
    "start": 2200
   },
   "abilities": [],
-  "bountyDefault": true,
+  "bountyStock": true,
   "placeholder": true,
   "scale": 1.3,
   "sold": true,
@@ -1630,7 +2195,15 @@ export const LTW_UNITS = {
    "9": -100000,
    "10": -100000,
    "11": -100000
-  }
+  },
+  "effectiveAbilities": [
+   "Awan"
+  ],
+  "regen": {
+   "hp": 0.5,
+   "type": "always"
+  },
+  "mechanical": false
  },
  "u005": {
   "id": "u005",
@@ -1643,8 +2216,11 @@ export const LTW_UNITS = {
   "speed": 522,
   "cost": 100000,
   "lumber": 60,
-  "bounty": 25,
+  "bounty": 30,
+  "bountyDice": 0,
+  "bountySides": 0,
   "flying": true,
+  "air": true,
   "magicImmune": false,
   "invisible": true,
   "evasion": false,
@@ -1665,7 +2241,7 @@ export const LTW_UNITS = {
    "ACnr",
    "ACrn"
   ],
-  "bountyDefault": true,
+  "bountyStock": true,
   "placeholder": true,
   "scale": 1.6,
   "sold": true,
@@ -1681,7 +2257,67 @@ export const LTW_UNITS = {
    "9": -300000,
    "10": -300000,
    "11": -300000
-  }
+  },
+  "effectiveAbilities": [
+   "Apiv",
+   "SCae",
+   "ACac",
+   "ACnr",
+   "ACrn"
+  ],
+  "regen": {
+   "hp": 7.5,
+   "type": "always"
+  },
+  "mechanical": false,
+  "reincarnation": {
+   "id": "ACrn",
+   "delay": 7,
+   "cooldown": 240
+  },
+  "auras": [
+   {
+    "id": "SCae",
+    "kind": "endurance",
+    "range": 900,
+    "targets": [
+     "air",
+     "ground",
+     "friend",
+     "self"
+    ],
+    "move": 0.1,
+    "attack": 0.05
+   },
+   {
+    "id": "ACac",
+    "kind": "command",
+    "range": 900,
+    "targets": [
+     "air",
+     "ground",
+     "friend",
+     "self",
+     "vuln",
+     "invu"
+    ],
+    "damage": 0.1
+   },
+   {
+    "id": "ACnr",
+    "kind": "regeneration",
+    "range": 500,
+    "targets": [
+     "ground",
+     "air",
+     "organic",
+     "vuln",
+     "invu"
+    ],
+    "regenPct": 0.01,
+    "regen": 0
+   }
+  ]
  },
  "n00J": {
   "id": "n00J",
@@ -1690,12 +2326,15 @@ export const LTW_UNITS = {
   "look": "hydra",
   "hp": 15000,
   "armor": 0,
-  "armorType": "large",
+  "armorType": "medium",
   "speed": 522,
   "cost": 0,
   "lumber": 0,
   "bounty": 1000,
+  "bountyDice": 1,
+  "bountySides": 3,
   "flying": false,
+  "air": false,
   "magicImmune": false,
   "invisible": false,
   "evasion": false,
@@ -1706,7 +2345,15 @@ export const LTW_UNITS = {
   "abilities": [],
   "placeholder": true,
   "scale": 0.55,
-  "sold": false
+  "sold": false,
+  "effectiveAbilities": [
+   "Aspo"
+  ],
+  "regen": {
+   "hp": 4,
+   "type": "always"
+  },
+  "mechanical": false
  }
 };
 export const LTW_HYDRA = {
@@ -1782,7 +2429,14 @@ export const LTW_MESSAGES = {
   "10": "------ Light Blue has won the game !! -------",
   "11": "------ Dark Green has won the game !! -------"
  },
- "yourIncome": "Your income is : {income}"
+ "yourIncome": "Your income is : {income}",
+ "techOwned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+ "sold": "You recieved {gold} gold for selling a {name}",
+ "incomeLine": "{slot})  {income}",
+ "incomeList": {
+  "line": "{slot})  {income}",
+  "duration": 6.0
+ }
 };
 export const LTW_DEAD_INCOME = {
  "e001": [
@@ -1800,4 +2454,1502 @@ export const LTW_DEAD_INCOME = {
  "unec": [
   2500
  ]
+};
+export const LTW_TOWER_STATS = {
+ "h003": {
+  "hp": 25,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 8,
+  "requires": []
+ },
+ "h000": {
+  "hp": 25,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 8,
+  "requires": []
+ },
+ "h004": {
+  "hp": 35,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 30,
+  "requires": []
+ },
+ "h001": {
+  "hp": 50,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 30,
+  "requires": []
+ },
+ "h005": {
+  "hp": 125,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h006": {
+  "hp": 75,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 100,
+  "requires": [],
+  "pointsStock": true
+ },
+ "h008": {
+  "hp": 75,
+  "armor": 0,
+  "armorType": "small",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 150,
+  "requires": []
+ },
+ "h009": {
+  "hp": 100,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 0,
+  "requires": [
+   "h00W"
+  ]
+ },
+ "h00A": {
+  "hp": 150,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 600,
+  "requires": []
+ },
+ "h00B": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3000,
+  "requires": [
+   "h012"
+  ]
+ },
+ "h00C": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 2600,
+  "requires": [
+   "h013"
+  ]
+ },
+ "h00D": {
+  "hp": 100,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 0,
+  "requires": [
+   "h00X"
+  ]
+ },
+ "h00E": {
+  "hp": 150,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 600,
+  "requires": []
+ },
+ "h00F": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4500,
+  "requires": [
+   "h00Z"
+  ]
+ },
+ "h00G": {
+  "hp": 300,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 2600,
+  "requires": [
+   "h015"
+  ]
+ },
+ "h00H": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3000,
+  "requires": [
+   "h014"
+  ]
+ },
+ "h00I": {
+  "hp": 100,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 100,
+  "requires": [
+   "h00V"
+  ],
+  "pointsStock": true
+ },
+ "h00J": {
+  "hp": 150,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 600,
+  "requires": []
+ },
+ "h00K": {
+  "hp": 400,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3000,
+  "requires": [
+   "h010"
+  ]
+ },
+ "h00L": {
+  "hp": 100,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 250,
+  "requires": [
+   "h00Z"
+  ]
+ },
+ "h00M": {
+  "hp": 150,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 600,
+  "requires": []
+ },
+ "h00N": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3300,
+  "requires": [
+   "h019"
+  ]
+ },
+ "h00O": {
+  "hp": 400,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 2600,
+  "requires": [
+   "h018"
+  ]
+ },
+ "h00P": {
+  "hp": 100,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 0,
+  "requires": [
+   "h00Y"
+  ]
+ },
+ "h00Q": {
+  "hp": 150,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 600,
+  "requires": []
+ },
+ "h00R": {
+  "hp": 350,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3000,
+  "requires": [
+   "h017"
+  ]
+ },
+ "h00S": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 2800,
+  "requires": [
+   "h016"
+  ]
+ },
+ "h01D": {
+  "hp": 125,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h01E": {
+  "hp": 75,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 90,
+  "requires": []
+ },
+ "h01F": {
+  "hp": 125,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h01G": {
+  "hp": 125,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h01J": {
+  "hp": 75,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 90,
+  "requires": []
+ },
+ "h01K": {
+  "hp": 75,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 90,
+  "requires": []
+ },
+ "h01O": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 5000,
+  "requires": [
+   "h00W"
+  ]
+ },
+ "h01P": {
+  "hp": 400,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3000,
+  "requires": [
+   "h00Y"
+  ]
+ },
+ "h01Q": {
+  "hp": 500,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 2900,
+  "requires": [
+   "h011"
+  ]
+ },
+ "h01R": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4500,
+  "requires": [
+   "h00X"
+  ]
+ },
+ "h01S": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4600,
+  "requires": [
+   "h00V"
+  ]
+ },
+ "h01T": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4500,
+  "requires": [
+   "h00Z"
+  ]
+ },
+ "h01U": {
+  "hp": 400,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4100,
+  "requires": [
+   "h00W"
+  ]
+ },
+ "h01V": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 2600,
+  "requires": [
+   "h00X"
+  ]
+ },
+ "h01W": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3000,
+  "requires": [
+   "h00Y"
+  ]
+ },
+ "h01Y": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4500,
+  "requires": [
+   "h00Z"
+  ]
+ },
+ "h01Z": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h020": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h022": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 2600,
+  "requires": [
+   "h00X"
+  ]
+ },
+ "h023": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3000,
+  "requires": [
+   "h00Y"
+  ]
+ },
+ "h027": {
+  "hp": 400,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4500,
+  "requires": [
+   "h00X"
+  ]
+ },
+ "h028": {
+  "hp": 500,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4500,
+  "requires": [
+   "h00Z"
+  ]
+ },
+ "h029": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4600,
+  "requires": [
+   "h00V"
+  ]
+ },
+ "h02A": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 4100,
+  "requires": [
+   "h00W"
+  ]
+ },
+ "h02C": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h02D": {
+  "hp": 2000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h01N": {
+  "hp": 400,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 2800,
+  "requires": [
+   "h016"
+  ]
+ },
+ "h026": {
+  "hp": 450,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 3000,
+  "requires": [
+   "h00Y"
+  ]
+ },
+ "h02H": {
+  "hp": 5000,
+  "armor": 5,
+  "armorType": "hero",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 800,
+  "requires": []
+ },
+ "h02I": {
+  "hp": 5000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h02J": {
+  "hp": 5000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 100,
+  "requires": [],
+  "pointsStock": true
+ },
+ "h02K": {
+  "hp": 1000,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 750,
+  "requires": []
+ },
+ "h02L": {
+  "hp": 5000,
+  "armor": 5,
+  "armorType": "hero",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 800,
+  "requires": []
+ },
+ "h02M": {
+  "hp": 45,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 30,
+  "requires": []
+ },
+ "h02N": {
+  "hp": 60,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 30,
+  "requires": []
+ },
+ "h02O": {
+  "hp": 60,
+  "armor": 5,
+  "armorType": "fort",
+  "regen": 1.0,
+  "regenType": "always",
+  "points": 30,
+  "requires": []
+ }
+};
+export const LTW_TECH = {
+ "h00V": {
+  "id": "h00V",
+  "name": "Fire tower",
+  "element": "Fire",
+  "tier": 1,
+  "requires": [],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "FIRE:  good splash damages  but  slow fire rate\nGrenade tower.... huge splash GROUND only\nMeteor Attractor.... Slow speed, meduim splash, excellent damage\nMagma Tower... Medium Splash, can stun",
+  "circles": [
+   "feu",
+   "feu_Copy"
+  ],
+  "unlocks": [
+   "h00I",
+   "h01S",
+   "h029"
+  ]
+ },
+ "h010": {
+  "id": "h010",
+  "name": "Fire 1",
+  "element": "Fire",
+  "tier": 2,
+  "requires": [
+   "h00V"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "FIRE:  good splash damages  but  slow fire rate\nGrenade tower.... huge splash GROUND only\nMeteor Attractor.... Slow speed, meduim splash, excellent damage\nMagma Tower... Medium Splash, can stun",
+  "circles": [
+   "feu_1",
+   "feu_1_Copy"
+  ],
+  "unlocks": [
+   "h00K"
+  ]
+ },
+ "h011": {
+  "id": "h011",
+  "name": "Fire 2",
+  "element": "Fire",
+  "tier": 2,
+  "requires": [
+   "h00V"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "FIRE:  good splash damages  but  slow fire rate\nGrenade tower.... huge splash GROUND only\nMeteor Attractor.... Slow speed, meduim splash, excellent damage\nMagma Tower... Medium Splash, can stun",
+  "circles": [
+   "feu_2",
+   "feu_2_Copy"
+  ],
+  "unlocks": [
+   "h01Q"
+  ]
+ },
+ "h00W": {
+  "id": "h00W",
+  "name": "Ice tower",
+  "element": "Ice",
+  "tier": 1,
+  "requires": [],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "WATER / ICE:  the ice can slow units. Balanced element.\nUltimate Ice Tower...       Good Aoe, and slows creeps\nUltimate Water Tower...   Fast Single Target tower, doesn't slow",
+  "circles": [
+   "glace",
+   "glace_Copy"
+  ],
+  "unlocks": [
+   "h009",
+   "h01O",
+   "h01U",
+   "h02A"
+  ]
+ },
+ "h012": {
+  "id": "h012",
+  "name": "Ice 1",
+  "element": "Ice",
+  "tier": 2,
+  "requires": [
+   "h00W"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "WATER / ICE:  the ice can slow units. Balanced element.\nUltimate Ice Tower...       Good Aoe, and slows creeps\nUltimate Water Tower...   Fast Single Target tower, doesn't slow",
+  "circles": [
+   "glace_1",
+   "glace_1_Copy"
+  ],
+  "unlocks": [
+   "h00B"
+  ]
+ },
+ "h013": {
+  "id": "h013",
+  "name": "Ice 2",
+  "element": "Ice",
+  "tier": 2,
+  "requires": [
+   "h00W"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "WATER / ICE:  the ice can slow units. Balanced element.\nUltimate Ice Tower...       Good Aoe, and slows creeps\nUltimate Water Tower...   Fast Single Target tower, doesn't slow",
+  "circles": [
+   "glace_2",
+   "glace_2_Copy"
+  ],
+  "unlocks": [
+   "h00C"
+  ]
+ },
+ "h00X": {
+  "id": "h00X",
+  "name": "Electricity tower",
+  "element": "Electricity",
+  "tier": 1,
+  "requires": [],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "ELECTRICITY: Good coldown  but no splash damage.\nLightning Generator ... Fast single target high damage\nCondensor...                Fast, moderate dmg, can stun target\nElectric Cannon...        Medium Speed, can stun target",
+  "circles": [
+   "foudre",
+   "foudre_Copy"
+  ],
+  "unlocks": [
+   "h00D",
+   "h01R",
+   "h01V",
+   "h022",
+   "h027"
+  ]
+ },
+ "h014": {
+  "id": "h014",
+  "name": "Elec 1",
+  "element": "Electricity",
+  "tier": 2,
+  "requires": [
+   "h00X"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "ELECTRICITY: Good coldown  but no splash damage.\nLightning Generator ... Fast single target high damage\nCondensor...                Fast, moderate dmg, can stun target\nElectric Cannon...        Medium Speed, can stun target",
+  "circles": [
+   "foudre_1",
+   "foudre_1_Copy"
+  ],
+  "unlocks": [
+   "h00H"
+  ]
+ },
+ "h015": {
+  "id": "h015",
+  "name": "Elec 2",
+  "element": "Electricity",
+  "tier": 2,
+  "requires": [
+   "h00X"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "ELECTRICITY: Good coldown  but no splash damage.\nLightning Generator ... Fast single target high damage\nCondensor...                Fast, moderate dmg, can stun target\nElectric Cannon...        Medium Speed, can stun target",
+  "circles": [
+   "foudre_2",
+   "foudre_2_Copy"
+  ],
+  "unlocks": [
+   "h00G"
+  ]
+ },
+ "h00Y": {
+  "id": "h00Y",
+  "name": "Light tower",
+  "element": "Light",
+  "tier": 1,
+  "requires": [],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "LIGHT: vaious good towers. \nEnchanted Mushroom...  Medium speed, large splash\nSorceress Tower...          Fast Single Target, has AoE slow aura\nHoly Lantern....                Medium speed, single target",
+  "circles": [
+   "Light",
+   "Light_Copy"
+  ],
+  "unlocks": [
+   "h00P",
+   "h01P",
+   "h01W",
+   "h023",
+   "h026"
+  ]
+ },
+ "h016": {
+  "id": "h016",
+  "name": "Light 1",
+  "element": "Light",
+  "tier": 2,
+  "requires": [
+   "h00Y"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "LIGHT: vaious good towers. \nEnchanted Mushroom...  Medium speed, large splash\nSorceress Tower...          Fast Single Target, has AoE slow aura\nHoly Lantern....                Medium speed, single target",
+  "circles": [
+   "Light_1",
+   "Light_1_Copy"
+  ],
+  "unlocks": [
+   "h00S",
+   "h01N"
+  ]
+ },
+ "h017": {
+  "id": "h017",
+  "name": "Light 2",
+  "element": "Light",
+  "tier": 2,
+  "requires": [
+   "h00Y"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "LIGHT: vaious good towers. \nEnchanted Mushroom...  Medium speed, large splash\nSorceress Tower...          Fast Single Target, has AoE slow aura\nHoly Lantern....                Medium speed, single target",
+  "circles": [
+   "Light_2",
+   "Light_2_Copy"
+  ],
+  "unlocks": [
+   "h00R"
+  ]
+ },
+ "h00Z": {
+  "id": "h00Z",
+  "name": "Dark tower",
+  "element": "Dark",
+  "tier": 1,
+  "requires": [],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "SHADOW / POISON : Slow Poison and reasonable damages.\nSeptic Tank....     Fast single target, has slow poison\nSwarmcaller....      Medium speed, huge splash, good damage\nDamned Tower ..  Medium speed, single target, has slow poison",
+  "circles": [
+   "Shadow",
+   "Shadow_Copy"
+  ],
+  "unlocks": [
+   "h00F",
+   "h00L",
+   "h01T",
+   "h01Y",
+   "h028"
+  ]
+ },
+ "h018": {
+  "id": "h018",
+  "name": "Shadow 1",
+  "element": "Dark",
+  "tier": 2,
+  "requires": [
+   "h00Z"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "SHADOW / POISON : Slow Poison and reasonable damages.\nSeptic Tank....     Fast single target, has slow poison\nSwarmcaller....      Medium speed, huge splash, good damage\nDamned Tower ..  Medium speed, single target, has slow poison",
+  "circles": [
+   "Shadow_1",
+   "Shadow_1_Copy"
+  ],
+  "unlocks": [
+   "h00O"
+  ]
+ },
+ "h019": {
+  "id": "h019",
+  "name": "Shadow 2",
+  "element": "Dark",
+  "tier": 2,
+  "requires": [
+   "h00Z"
+  ],
+  "consumes": true,
+  "owned": "YOU HAVE ALREADY THIS TECHNOLOGIE  !!!",
+  "area": "Tech_Area",
+  "invulnerable": true,
+  "description": "SHADOW / POISON : Slow Poison and reasonable damages.\nSeptic Tank....     Fast single target, has slow poison\nSwarmcaller....      Medium speed, huge splash, good damage\nDamned Tower ..  Medium speed, single target, has slow poison",
+  "circles": [
+   "Shadow_2",
+   "Shadow_2_Copy"
+  ],
+  "unlocks": [
+   "h00N"
+  ]
+ }
+};
+export const LTW_TECH_ORDER = [
+ "h00V",
+ "h010",
+ "h011",
+ "h00W",
+ "h012",
+ "h013",
+ "h00X",
+ "h014",
+ "h015",
+ "h00Y",
+ "h016",
+ "h017",
+ "h00Z",
+ "h018",
+ "h019"
+];
+export const LTW_TECH_CIRCLES = [
+ {
+  "trigger": "fire",
+  "rect": "feu",
+  "building": "h00V",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "fire Copy",
+  "rect": "feu_Copy",
+  "building": "h00V",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "fire 1",
+  "rect": "feu_1",
+  "building": "h010",
+  "requires": [
+   "h00V"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "fire 1 Copy",
+  "rect": "feu_1_Copy",
+  "building": "h010",
+  "requires": [
+   "h00V"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "fire 2",
+  "rect": "feu_2",
+  "building": "h011",
+  "requires": [
+   "h00V"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "fire 2 Copy",
+  "rect": "feu_2_Copy",
+  "building": "h011",
+  "requires": [
+   "h00V"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "glace",
+  "rect": "glace",
+  "building": "h00W",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "glace Copy",
+  "rect": "glace_Copy",
+  "building": "h00W",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "glace 1",
+  "rect": "glace_1",
+  "building": "h012",
+  "requires": [
+   "h00W"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "glace 1 Copy",
+  "rect": "glace_1_Copy",
+  "building": "h012",
+  "requires": [
+   "h00W"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "glace 2",
+  "rect": "glace_2",
+  "building": "h013",
+  "requires": [
+   "h00W"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "glace 2 Copy",
+  "rect": "glace_2_Copy",
+  "building": "h013",
+  "requires": [
+   "h00W"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "elec",
+  "rect": "foudre",
+  "building": "h00X",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "elec Copy",
+  "rect": "foudre_Copy",
+  "building": "h00X",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "elec 1",
+  "rect": "foudre_1",
+  "building": "h014",
+  "requires": [
+   "h00X"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "elec 1 Copy",
+  "rect": "foudre_1_Copy",
+  "building": "h014",
+  "requires": [
+   "h00X"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "elec 2",
+  "rect": "foudre_2",
+  "building": "h015",
+  "requires": [
+   "h00X"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "elec 2 Copy",
+  "rect": "foudre_2_Copy",
+  "building": "h015",
+  "requires": [
+   "h00X"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "lumiere",
+  "rect": "Light",
+  "building": "h00Y",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "lumiere Copy",
+  "rect": "Light_Copy",
+  "building": "h00Y",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "lumiere 1",
+  "rect": "Light_1",
+  "building": "h016",
+  "requires": [
+   "h00Y"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "lumiere 1 Copy",
+  "rect": "Light_1_Copy",
+  "building": "h016",
+  "requires": [
+   "h00Y"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "lumiere 2",
+  "rect": "Light_2",
+  "building": "h017",
+  "requires": [
+   "h00Y"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "lumiere 2 Copy",
+  "rect": "Light_2_Copy",
+  "building": "h017",
+  "requires": [
+   "h00Y"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "ombre",
+  "rect": "Shadow",
+  "building": "h00Z",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "ombre Copy",
+  "rect": "Shadow_Copy",
+  "building": "h00Z",
+  "requires": [],
+  "consumes": true
+ },
+ {
+  "trigger": "ombre 1",
+  "rect": "Shadow_1",
+  "building": "h018",
+  "requires": [
+   "h00Z"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "ombre 1 Copy",
+  "rect": "Shadow_1_Copy",
+  "building": "h018",
+  "requires": [
+   "h00Z"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "ombre 2",
+  "rect": "Shadow_2",
+  "building": "h019",
+  "requires": [
+   "h00Z"
+  ],
+  "consumes": true
+ },
+ {
+  "trigger": "ombre 2 Copy",
+  "rect": "Shadow_2_Copy",
+  "building": "h019",
+  "requires": [
+   "h00Z"
+  ],
+  "consumes": true
+ }
+];
+export const LTW_ARCADE = {
+ "id": "h02F",
+ "name": "Arcade",
+ "requires": [],
+ "lumber": {
+  "item": "I000",
+  "name": "bois",
+  "cost": 100000,
+  "lumber": 1,
+  "stock": {
+   "max": 30,
+   "replenish": 1,
+   "start": 0
+  }
+ },
+ "wisp": {
+  "unit": "e005",
+  "cost": 100000,
+  "lumber": 0,
+  "buildTime": 14,
+  "income": -50000,
+  "teleport": "extra_wisps",
+  "tooltip": "+ 1 technology AND - 50000income"
+ }
+};
+export const LTW_CHAT = {
+ "exact": true,
+ "caseInsensitive": true,
+ "help": {
+  "text": "-help",
+  "players": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11
+  ],
+  "message": "Check the quest menu for information about the game......",
+  "duration": 10.0
+ },
+ "income": {
+  "text": "-income",
+  "players": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11
+  ],
+  "line": "{slot})  {income}",
+  "duration": 6.0
+ },
+ "destroy": {
+  "text": "-destroy",
+  "players": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11
+  ],
+  "exclude": [
+   "h01X",
+   "h00T",
+   "h01A",
+   "h02F"
+  ]
+ },
+ "onextra": {
+  "text": "-onextra",
+  "players": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11
+  ],
+  "divisor": 10
+ },
+ "offextra": {
+  "text": "-offextra",
+  "players": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11
+  ]
+ },
+ "kick": {
+  "-kick blue": {
+   "slot": 2,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick teal": {
+   "slot": 3,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick purple": {
+   "slot": 4,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick yellow": {
+   "slot": 5,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick orange": {
+   "slot": 6,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick green": {
+   "slot": 7,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick pink": {
+   "slot": 8,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick gray": {
+   "slot": 9,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick light blue": {
+   "slot": 10,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  },
+  "-kick dark green": {
+   "slot": 11,
+   "by": [
+    1
+   ],
+   "label": "Kicked"
+  }
+ }
+};
+export const LTW_START_UPGRADES = {
+ "Remg": {
+  "1": 1
+ },
+ "Rune": {
+  "1": 2,
+  "2": 2,
+  "3": 2,
+  "4": 2,
+  "5": 2,
+  "6": 2
+ }
+};
+export const LTW_BUILDERS = {
+ "bySlot": {
+  "1": "h002",
+  "2": "h002",
+  "3": "h002",
+  "4": "h002",
+  "5": "h002",
+  "6": "h002",
+  "7": "h002",
+  "8": "h002",
+  "9": "h002",
+  "10": "h002",
+  "11": "h02P"
+ },
+ "units": {
+  "h002": {
+   "name": "Builder",
+   "builds": [
+    "h008",
+    "h003",
+    "h000"
+   ],
+   "speed": 522,
+   "move": "fly",
+   "abilities": [
+    "Avul",
+    "Ahrp"
+   ],
+   "weapon": {
+    "dmgBase": 10,
+    "dice": 1,
+    "sides": 2,
+    "cooldown": 2,
+    "range": 90,
+    "attackType": "normal"
+   }
+  },
+  "h02P": {
+   "name": "Super Builder",
+   "builds": [
+    "h008",
+    "h003",
+    "h000"
+   ],
+   "speed": 522,
+   "move": "fly",
+   "abilities": [
+    "Avul",
+    "Ahrp"
+   ],
+   "weapon": {
+    "dmgBase": 30,
+    "dice": 1,
+    "sides": 2,
+    "cooldown": 0.0,
+    "range": 90,
+    "attackType": "normal"
+   }
+  }
+ }
 };

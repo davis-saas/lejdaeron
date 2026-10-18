@@ -15,14 +15,20 @@
 //   payback (the map's per-slot income value against cost and the bounty the target collects) and by how many creeps
 //   would get through the target's defence; stronger bots save up for one big send of the unit the next opponent is
 //   weakest against and time it away from that lane's Creep Fix. Sends that lower income are only used far ahead.
+// - Technology (phase 3). Wisps go into tech buildings at once: hard and insane bots plan the set of buildings whose
+//   Elemental lines are worth most against the strong late creeps (tier 2 with its tier 1, two elements deep), normal
+//   bots take the best building one at a time, easy bots pick at random. Upgrades and swaps only look at towers whose
+//   requirements the bot owns. Rich hard and insane bots also train an Arcade wisp when a building still adds value.
+// - Lumber (phase 3). Far ahead, hard and insane bots buy the Arcade's lumber for a lumber send the next opponent cannot
+//   kill, then send it. Towers that attackers destroy leave holes in the maze walls, which the wall logic rebuilds.
 // - Difficulty sets the reaction delay, how often it thinks, how noisy and short-sighted its choices are, the maze it
 //   aims for, how much it saves and how aggressive it is. Decisions run a few times per second on cached evaluations
 //   (flow probes and coverage are recomputed only when towers change), so ten bots fit in a browser frame budget.
-import { TOWERS, BUILD_ROOTS } from './data/towers.js';
-import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_CREEP_FIX } from './data/ltw.js';
-import { typeFactor, armorFactor, avgDamage, TILE } from './field.js';
-import { flowField, INF, LANE_COLS, LANE_ROWS, SPAWN_U, EXIT_U, tileOf } from './lane.js';
-import { mulberry32 } from './rng.js';
+import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=c7bd234229c1';
+import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_CREEP_FIX, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_ARCADE } from './data/ltw.js?v=c7bd234229c1';
+import { typeFactor, armorFactor, avgDamage, TILE } from './field.js?v=c7bd234229c1';
+import { flowField, INF, LANE_COLS, LANE_ROWS, SPAWN_U, EXIT_U, tileOf, unitSpeed, RESOURCE_MAX } from './lane.js?v=c7bd234229c1';
+import { mulberry32 } from './rng.js?v=c7bd234229c1';
 
 const COLS = LANE_COLS, ROWS = LANE_ROWS, N = COLS * ROWS;
 const SOLD = LTW_SHOPS.flatMap(s => s.units);
@@ -36,41 +42,54 @@ const DIDX = Object.fromEntries(DEF_IDS.map((id, i) => [id, i]));
 const ARCHER = BUILD_ROOTS.find(id => TOWERS[id].name.startsWith('Archer')) || BUILD_ROOTS[0];
 const ELEMENTAL = BUILD_ROOTS.find(id => TOWERS[id].name.startsWith('Elemental')) || ARCHER;
 const SIGHT_R = (() => { const r = DEF_IDS.map(id => TOWERS[id].trueSight || 0).filter(Boolean); return (r.length ? Math.max(...r) : 900) / TILE; })();
-const TT = UNITS.map(u => TILE / Math.max(1, u.speed));       // seconds a creep needs per tile
+const TT = UNITS.map(u => TILE / Math.max(1, unitSpeed(u.speed)));   // seconds a creep needs per tile (WC3 speed limits)
 const FIX = LTW_CREEP_FIX.periods;
 
 // ---------------------------------------------------------------------------------------------------- difficulty
-// think: seconds between decisions. lag: seconds before a creep in the lane is noticed. noise: log-normal error on
-// every score. pick: chooses among the best `pick` candidates. depth: build-tree lookahead. maze: wall template.
-// defBase/defGain/defMin: defence share of income and how fast it reacts to threat. forecast: how many ticks of the
-// feeder's income it prepares for. horizon: ticks of income a send is valued over. roiMin: lowest payback accepted.
-// burst: save for one big send (leakGoal creeps through, up to saveTicks of income). weak: reads the target's
-// defence to pick units. foresight: seconds ahead it expects new shop units. farAhead: income ratio that allows
-// income-losing sends. replace: late swaps of cheap towers for strong lines.
+// think       seconds between decisions (jittered +-25%)          lag        seconds before a new creep is noticed
+// noise       log-normal error on every score                     pick       picks one of the best `pick` options
+// depth       build-tree lookahead for upgrades                   maze       wall template ('serpentine' or 'loose')
+// eslots      Elemental slot by each wall's gap                    mazeShare  extra weight on finishing the maze
+// defBase/defGain/defMin   defence share of income, how fast threat raises it, and its floor
+// forecast    ticks of the feeder's income it prepares for         panic      share of send money moved on danger
+// leakShare/leakMemory     defence share for `leakMemory` seconds after losing a life
+// horizon     ticks of income a send is valued over               roiMin     lowest payback ratio it sends at
+// burst       saves for big sends that push `leakGoal` creeps through, for up to `saveTicks` ticks of income
+// weak        reads the next opponent's defence to pick units      prior      weight of what the feeder can afford
+// foresight   seconds ahead it expects new shop units               afford     ticks of feeder income a send may cost
+// farAhead    income ratio over every opponent that allows income-losing sends
+// replace     late swaps of cheap maze towers into the Elemental lines   fixAware  avoids sends the Creep Fix eats
+// maxActions/maxSends      commands per decision                  alpha      share of the kill estimate it trusts
+// tech        how wisps are spent: 'random', 'greedy' (best building now) or 'plan' (the best set of buildings)
+// lumber      buys Arcade lumber for a lumber send when far ahead     arcadeWisp trains Arcade wisps when rich
 export const DIFFICULTY = {
   easy: {
     think: 2.0, lag: 7, noise: 0.45, pick: 3, depth: 1, maze: 'loose', eslots: false, mazeShare: 0.75,
     defBase: 0.5, defGain: 0.25, defMin: 0.35, forecast: 0, panic: 0.4, leakShare: 0.75, leakMemory: 20,
     horizon: 15, roiMin: 0.15, burst: false, leakGoal: 0, saveTicks: 0, weak: false, prior: 0.1, foresight: 0,
     afford: 2, farAhead: Infinity, replace: false, fixAware: false, maxActions: 4, maxSends: 6, alpha: 0.6,
+    tech: 'random', lumber: false, arcadeWisp: false,
   },
   normal: {
     think: 1.0, lag: 2.5, noise: 0.18, pick: 2, depth: 3, maze: 'serpentine', eslots: false, mazeShare: 0.85,
     defBase: 0.35, defGain: 0.35, defMin: 0.22, forecast: 1, panic: 0.7, leakShare: 0.85, leakMemory: 15,
     horizon: 16, roiMin: 0.25, burst: true, leakGoal: 3, saveTicks: 2, weak: true, prior: 0.3, foresight: 30,
     afford: 3, farAhead: 4, replace: false, fixAware: false, maxActions: 8, maxSends: 16, alpha: 0.6,
+    tech: 'greedy', lumber: false, arcadeWisp: false,
   },
   hard: {
     think: 0.5, lag: 0.8, noise: 0.04, pick: 1, depth: 8, maze: 'serpentine', eslots: true, mazeShare: 0.95,
     defBase: 0.25, defGain: 0.4, defMin: 0.12, forecast: 0.6, panic: 1, leakShare: 0.9, leakMemory: 12,
     horizon: 20, roiMin: 0.2, burst: true, leakGoal: 4, saveTicks: 3, weak: true, prior: 0.45, foresight: 90,
     afford: 4, farAhead: 2.5, replace: true, fixAware: true, maxActions: 14, maxSends: 40, alpha: 0.6,
+    tech: 'plan', lumber: true, arcadeWisp: true,
   },
   insane: {
     think: 0.25, lag: 0, noise: 0, pick: 1, depth: 8, maze: 'serpentine', eslots: true, mazeShare: 1,
     defBase: 0.22, defGain: 0.45, defMin: 0.1, forecast: 0.6, panic: 1, leakShare: 0.9, leakMemory: 12,
     horizon: 22, roiMin: 0.2, burst: true, leakGoal: 5, saveTicks: 3.5, weak: true, prior: 0.5, foresight: 120,
     afford: 4, farAhead: 2.2, replace: true, fixAware: true, maxActions: 20, maxSends: 64, alpha: 0.6,
+    tech: 'plan', lumber: true, arcadeWisp: true,
   },
 };
 export const DIFFICULTIES = Object.keys(DIFFICULTY);
@@ -80,8 +99,10 @@ export const DIFFICULTIES = Object.keys(DIFFICULTY);
 // targeting (air/ground, magic vs magic immune), splash and bounce against groups, poison, bash, slows and evasion.
 // Invisibility and coverage depend on the lane and are applied later.
 const SPLASH_K = 1.6, BOUNCE_K = 2.4;
+// `u.air` is how the unit is targeted (the map's Targeted As), `u.flying` how it moves: the Phoenix flies over the
+// maze but ground-only towers can hit it and the Creep Fix kills it.
 function effOf(d, u) {
-  if (u.flying ? !d.targetsAir : !d.targetsGround) return 0;
+  if (u.air ? !d.targetsAir : !d.targetsGround) return 0;
   if (d.attackType === 'magic' && u.magicImmune) return 0;
   const hitF = typeFactor(d.attackType, u.armorType) * armorFactor(u.armor);
   const crowd = (u.copies ?? 3) >= 3 ? 1 : 0.4;
@@ -102,14 +123,58 @@ function effOf(d, u) {
   return e;
 }
 const EFF = DEF_IDS.map(id => Float64Array.from(UNITS, u => effOf(TOWERS[id], u)));
-// Every node of the build tree below a tower type (itself included), with its depth.
+// Tech planning: what each tower type is worth against the strong creeps of the late game (sold units from 2000 gold
+// that need no lumber, weighted by the HP a purchase sends), per gold of its whole build chain.
+const LATE = UNITS.map(u => (u.sold && u.cost >= 2000 && !u.lumber ? u.hp * (u.copies ?? 3) : 0));
+const LATE_SUM = LATE.reduce((a, b) => a + b, 0) || 1;
+const POWER = DEF_IDS.map((id, d) => {
+  const t = TOWERS[id]; let s = 0;
+  for (let i = 0; i < NU; i++) if (LATE[i]) s += LATE[i] / LATE_SUM * EFF[d][i];
+  return s * (t.range + 48) / TILE / Math.max(1, t.value) * (1 + 0.15 * t.tier);
+});
+// Tech requirements as bit masks over the tech buildings (LTW_TECH_ORDER).
+const TECH_BIT = Object.fromEntries(LTW_TECH_ORDER.map((id, i) => [id, 1 << i]));
+const REQ = DEF_IDS.map(id => ((LTW_TOWER_STATS[id] && LTW_TOWER_STATS[id].requires) || []).reduce((m, r) => m | (TECH_BIT[r] || 0), 0));
+const techMaskOf = (list) => (list || []).reduce((m, id) => m | (TECH_BIT[id] || 0), 0);
+// Every node of the build tree below a tower type (itself included), with its depth and the tech it needs on the way.
 const rootOf = (id) => { let k = id; while (TOWERS[k].from) k = TOWERS[k].from; return k; };
 const SUBTREE = DEF_IDS.map(id => {
   const out = [];
-  const walk = (k, depth) => { out.push([DIDX[k], depth]); for (const n of TOWERS[k].upgrades) walk(n, depth + 1); };
-  walk(id, 0);
+  const walk = (k, depth, need) => { const m = need | REQ[DIDX[k]]; out.push([DIDX[k], depth, m]); for (const n of TOWERS[k].upgrades) walk(n, depth + 1, m); };
+  walk(id, 0, 0);
   return out;
 });
+// The Elemental tower's five element branches, each as [node, tech needed] pairs.
+const BRANCHES = TOWERS[ELEMENTAL].upgrades.map(k => SUBTREE[DIDX[k]].map(([n, , need]) => [n, need]));
+// What a set of tech buildings is worth: the best reachable node of the best branch, plus half the second best.
+function techValue(mask) {
+  let b1 = 0, b2 = 0;
+  for (const br of BRANCHES) {
+    let best = 0;
+    for (const [n, need] of br) if (!(need & ~mask) && POWER[n] > best) best = POWER[n];
+    if (best > b1) { b2 = b1; b1 = best; } else if (best > b2) b2 = best;
+  }
+  return b1 + 0.5 * b2;
+}
+const TECH_REQ = LTW_TECH_ORDER.map(id => techMaskOf(LTW_TECH[id].requires));
+// Buildings a player owning `mask` can raise now (their tier-1 building owned).
+const techOpen = (mask) => LTW_TECH_ORDER.filter((id, i) => !(mask & TECH_BIT[id]) && !(TECH_REQ[i] & ~mask));
+// The best set of up to `k` more buildings (each tier 2 with its tier 1), in an order that can be bought.
+function planTech(mask, k) {
+  const ids = LTW_TECH_ORDER.filter(id => !(mask & TECH_BIT[id]));
+  let best = { v: techValue(mask), set: [] };
+  const pick = [];
+  const rec = (from, m) => {
+    if (pick.length) {
+      const ok = pick.every(id => !(TECH_REQ[LTW_TECH_ORDER.indexOf(id)] & ~m));
+      if (ok) { const v = techValue(m); if (v > best.v + 1e-12) best = { v, set: pick.slice() }; }
+    }
+    if (pick.length >= k) return;
+    for (let i = from; i < ids.length; i++) { pick.push(ids[i]); rec(i + 1, m | TECH_BIT[ids[i]]); pick.pop(); }
+  };
+  rec(0, mask);
+  return best.set.sort((a, b) => LTW_TECH[a].tier - LTW_TECH[b].tier);
+}
 const RANGES = [...new Set(DEF_IDS.map(id => TOWERS[id].range))].sort((a, b) => a - b);
 const RIDX = Object.fromEntries(RANGES.map((r, i) => [r, i]));
 const NR = RANGES.length;
@@ -257,19 +322,32 @@ export class LaneView {
     if (n > 1) rho /= Math.min(3, 1 + (hi - lo) * this.path / 40);
     return rho;
   }
+  // How much of the towers' time the creeps already in the lane take up, for ground and for air (0..1 each).
+  // Creeps the towers cannot hit at all take none of it (they leak, but leave the towers free for other creeps).
+  busy(alpha) {
+    let g = 0, a = 0;
+    for (const c of this.lane.creeps) {
+      if (c.dead) continue;
+      const ui = UIDX[c.def.id]; if (ui === undefined) continue;
+      const kp = this.kpOf(ui);
+      if (!(kp > 0)) continue;
+      const f = Math.min(1, c.hp / (alpha * kp * this.remaining(c)));
+      if (UNITS[ui].air) a += f; else g += f;   // by target class: what ties up anti-air towers
+    }
+    return { ground: Math.min(1, g / 3), air: Math.min(1, a / 3) };
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------- the bot
-let botSerial = 0;
 const clock = typeof performance !== 'undefined' ? () => performance.now() : () => Date.now();   // timing stats only
 export class Bot {
   constructor(match, slot, difficulty = 'normal', { seed } = {}) {
+    if (!match.player(slot)) throw new Error(`Bot: no player in slot ${JSON.stringify(slot)} (slots are integers)`);
     this.m = match; this.slot = slot;
     this.level = DIFFICULTY[difficulty] ? difficulty : 'normal';
     this.cfg = DIFFICULTY[this.level];
     const s = (seed ?? match.seed ?? 1) >>> 0;
     this.rng = mulberry32((Math.imul(s, 2654435761) ^ Math.imul(slot + 1, 40503) ^ (DIFFICULTIES.indexOf(this.level) + 1) * 977) >>> 0);
-    this.id = ++botSerial;
     this.walls = makeTemplate(this.cfg.maze, this.rng() < 0.5);
     this.templateTiles = new Set(this.walls.flatMap(w => w.tiles));
     // Elemental slots: the tile by each wall's gap, built last and straight as an Elemental (the strong lines start
@@ -277,23 +355,26 @@ export class Bot {
     this.eslots = new Set(this.cfg.eslots ? this.walls.map(w => w.gapTile) : []);
     this.views = new Map();
     this.nextThink = this.cfg.think * this.rng();
-    this.defAcc = 0; this.sendAcc = 0; this.lastGold = null; this.reserve = 0;
+    this.defAcc = 0; this.sendAcc = 0; this.lastGold = null;
     this.seen = new Map(); this.obs = new Float64Array(NU); this.obsT = 0;
     this.lastLives = null; this.leakT = -1e9; this.share = 0.8;
     this.retry = new Map();      // tile -> time before which a refused build is not retried
     this.prefer = new Map();     // tile -> root to build there (after a swap sale)
     this.wallCache = { fv: -1, gains: null };
-    this.lastSwap = -1e9; this.lastSwapLook = -1e9; this.saving = null; this.refund = 0; this.sightMemo = new Map();
+    this.lastSwap = -1e9; this.lastSwapLook = -1e9; this.saving = null; this.saveBlock = 0; this.refund = 0; this.sightMemo = new Map();
+    this.sale = null;            // the swap sale in its 1 s delay: { t, gold }
     this.W = new Float64Array(NU); this.G = new Float64Array(DEF_IDS.length); this.A = new Float64Array(DEF_IDS.length);
     this.kpMix = 0; this.need = 0; this.danger = 0;
+    this.techMask = 0; this.lumberGoal = null;
     this.stats = { thinks: 0, commands: 0, failed: 0, builds: 0, upgrades: 0, sells: 0, sends: 0, sendGold: 0,
-      defGold: 0, bursts: 0, pushes: 0, lastOk: 0, ms: 0, maxMs: 0, why: {} };
+      defGold: 0, bursts: 0, pushes: 0, lastOk: 0, ms: 0, maxMs: 0, why: {}, tech: 0, lumber: 0, lumberSends: 0, wisps: 0 };
   }
 
   // ---------- driving ----------
+  // Call after every match.step(dt). Decisions follow the match clock, so a replay with the same calls is identical.
   tick(dt = 0) {
     const m = this.m, p = m.players[this.slot];
-    if (!p || !p.alive || m.phase !== 'playing') return;
+    if (!p || !p.alive || p.left || m.phase !== 'playing') return;   // a kicked bot gives no more orders
     if (m.time + 1e-9 < this.nextThink) return;
     this.nextThink = m.time + this.cfg.think * (0.75 + 0.5 * this.rng());
     this.think();
@@ -328,13 +409,90 @@ export class Bot {
     this.stats.thinks++;
     const m = this.m, p = m.players[this.slot];
     this.me = this.view(this.slot);
+    this.techMask = techMaskOf(p.tech);
+    this.technology(p);
     this.observe(p);
     this.accounts(p);
     this.defend(p);
     this.attack(p);
+    this.arcadeWisp(p);
     this.lastGold = p.gold;
     const dt = clock() - t0;
     this.stats.ms += dt; if (dt > this.stats.maxMs) this.stats.maxMs = dt;
+  }
+
+  // ---------- technology ----------
+  // Spends every wisp on a tech building: hard and insane follow a plan, normal takes the best one now, easy any.
+  technology(p) {
+    if (!(p.wisps > 0) || !Array.isArray(p.tech)) return;
+    const cfg = this.cfg;
+    let n = 0;
+    while (p.wisps > 0 && n < 8) {
+      n++;
+      const open = techOpen(this.techMask);
+      if (!open.length) return;
+      let id;
+      if (cfg.tech === 'random') id = open[Math.floor(this.rng() * open.length)];
+      else if (cfg.tech === 'greedy') {
+        const v0 = techValue(this.techMask);
+        let best = -Infinity;
+        for (const o of open) { const g = (techValue(this.techMask | TECH_BIT[o]) - v0) * this.noise(); if (g > best) { best = g; id = o; } }
+      } else {
+        const plan = planTech(this.techMask, Math.min(4, p.wisps));
+        id = plan.length ? plan[0] : open.slice().sort((a, b) => techValue(this.techMask | TECH_BIT[b]) - techValue(this.techMask | TECH_BIT[a]))[0];
+      }
+      const r = this.cmd({ type: 'tech', id });
+      if (!r.ok) return;
+      this.stats.tech++;
+      this.techMask = techMaskOf(p.tech);
+    }
+  }
+  // Rich hard and insane bots train an Arcade wisp (100000 gold, -50000 income) when another building still adds value
+  // and their gold sits near the 1,000,000 cap.
+  arcadeWisp(p) {
+    const cfg = this.cfg;
+    if (!cfg.arcadeWisp || !Array.isArray(p.training) || p.training.length || p.wisps > 0) return;
+    if (p.gold < 0.9 * RESOURCE_MAX || p.income < 150000 || p.gold < LTW_ARCADE.wisp.cost) return;
+    const v0 = techValue(this.techMask);
+    if (!techOpen(this.techMask).some(o => techValue(this.techMask | TECH_BIT[o]) > v0 + 1e-12)) return;
+    const r = this.cmd({ type: 'arcade', item: 'wisp' });
+    if (r.ok) { this.stats.wisps++; this.sendAcc = Math.max(0, this.sendAcc - LTW_ARCADE.wisp.cost); }
+  }
+  // Far ahead, hard and insane bots save lumber for the lumber send the next opponent is least able to kill.
+  lumberPlan(p, tv, myInc, farAhead) {
+    const m = this.m, cfg = this.cfg, slot = this.slot, now = m.time, LC = LTW_ARCADE.lumber.cost;
+    if (!farAhead) { this.lumberGoal = null; return; }
+    if (!this.lumberGoal) {
+      let best = null;
+      for (const id of SOLD) {
+        const u = LTW_UNITS[id], ui = UIDX[id];
+        if (!u.lumber || now < u.stock.start) continue;
+        const st = m.stockOf(slot, id);
+        if (st.count < 1) continue;
+        const inc = u.income[String(slot)] || 0;
+        if (myInc + inc < myInc * 0.5) continue;
+        const one = u.hp * u.copies, kp = cfg.alpha * tv.kpOf(ui);
+        if (kp >= one * 0.7) continue;   // the target would kill it
+        const total = u.cost + Math.max(0, u.lumber - p.lumber) * LC;
+        const score = (one - kp) / total;
+        if (!best || score > best.score) best = { id, need: u.lumber, score };
+      }
+      this.lumberGoal = best;
+    }
+    const g = this.lumberGoal;
+    if (!g) return;
+    let n = 0;
+    while (p.lumber < g.need && this.sendAcc >= LC && p.gold >= LC && n < 30) {
+      const r = this.cmd({ type: 'arcade', item: 'lumber' });
+      if (!r.ok) break;
+      n++; this.sendAcc -= LC; this.stats.lumber++;
+    }
+    const u = LTW_UNITS[g.id];
+    if (p.lumber >= g.need && p.gold >= u.cost && this.sendAcc >= u.cost * 0.5) {
+      const r = this.cmd({ type: 'send', unit: g.id });
+      if (r.ok) { this.sendAcc = Math.max(0, this.sendAcc - u.cost); this.stats.sends++; this.stats.sendGold += u.cost; this.stats.lumberSends++; }
+      this.lumberGoal = null;
+    }
   }
 
   // ---------- perception ----------
@@ -363,7 +521,7 @@ export class Bot {
       if (u.cost > fInc * cfg.afford) continue;   // more than a few ticks of the feeder's income
       const hp = u.hp * u.copies;
       let w = hp * (u.cost >= fInc * 0.1 ? 1 : 0.15);
-      if (cfg.weak && (u.flying || u.divine || u.invisible || u.magicImmune)) w *= 1.5;
+      if (cfg.weak && (u.air || u.divine || u.invisible || u.magicImmune)) w *= 1.5;
       prior[UIDX[id]] = w; ps += w; hpg += w * hp / u.cost; hpgW += w;
     }
     let os = 0; for (let i = 0; i < NU; i++) os += this.obs[i];
@@ -403,7 +561,6 @@ export class Bot {
     this.forecastHP = cfg.forecast * fInc * hpPerGold;
     this.risk = this.forecastHP / (cfg.alpha * kpMix + 1);
     this.need = Math.max(this.danger, this.risk);
-    this.fInc = fInc;
   }
 
   // ---------- gold: a defence account and a sending account ----------
@@ -447,18 +604,18 @@ export class Bot {
     if (g !== undefined) return g;
     const v = this.me, X = v.routeX, Y = v.routeY, Wt = v.routeW, x = i % COLS + 0.5, y = Math.floor(i / COLS) + 0.5;
     let w = 0;
-    for (let k = 0; k < X.length; k++) if (!v.sighted[k] && Math.hypot(X[k] - x, Y[k] - y) <= SIGHT_R) w += Wt[k];
+    for (let k = 0; k < X.length; k++) { const dx = X[k] - x, dy = Y[k] - y; if (!v.sighted[k] && dx * dx + dy * dy <= SIGHT_R * SIGHT_R) w += Wt[k]; }
     g = this.invW * w / v.routeLen;
     this.sightMemo.set(i, g);
     return g;
   }
   // Best (damage gained / gold) over the build tree below `start` (within the lookahead), measured from a tower of
-  // type `cur` at tile i that has cost `paid` so far.
+  // type `cur` at tile i that has cost `paid` so far. Only nodes whose tech requirements the bot owns count.
   treeScore(start, i, cur, paid, hasTS, minValue = 0) {
-    const v0 = this.value(cur, i), depth = this.cfg.depth;
+    const v0 = this.value(cur, i), depth = this.cfg.depth, mask = this.techMask;
     let top = -Infinity;
-    for (const [n, dep] of SUBTREE[start]) {
-      if (dep >= depth) continue;
+    for (const [n, dep, need] of SUBTREE[start]) {
+      if (dep >= depth || (need & ~mask)) continue;
       const def = TOWERS[DEF_IDS[n]];
       if (def.value < minValue) continue;
       let dv = this.value(n, i) - v0;
@@ -473,6 +630,7 @@ export class Bot {
     const cur = DIDX[t.def.id], ts = !!t.def.trueSight;
     let best = null;
     for (const k of t.def.upgrades) {
+      if (REQ[DIDX[k]] & ~this.techMask) continue;   // the upgrade needs a tech building the bot lacks
       const s = this.treeScore(DIDX[k], i, cur, t.def.value, ts);
       if (!best || s > best.score) best = { score: s, id: k, cost: TOWERS[k].cost };
     }
@@ -537,7 +695,7 @@ export class Bot {
         let near = false;
         for (const c of lane.creeps) if (!c.def.flying && Math.abs(c.x - x) < 3 && Math.abs(c.y - y) < 3) { near = true; break; }
         if (near) continue;
-        const back = Math.floor(t.spent * LTW_RULES.sellRate);
+        const back = lane.sellValue(t);   // the tower's point value (the map's sell trigger)
         const s = this.treeScore(DIDX[ELEMENTAL], i, DIDX[t.def.id], back, !!t.def.trueSight, t.spent * 4) * 0.8;   // 0.8: the hole costs path for a moment
         if (s > 0 && (!best || s > best.score)) best = { t, i, root: ELEMENTAL, score: s };
       }
@@ -553,6 +711,11 @@ export class Bot {
   }
   defend(p) {
     const cfg = this.cfg, m = this.m, lane = m.lanes[this.slot];
+    // an attacker destroyed the tower during the sell delay: no gold comes back (the tile is rebuilt all the same)
+    if (this.sale && (this.sale.t.sold || this.sale.t.destroyed)) {
+      if (this.sale.t.destroyed) this.refund = Math.max(0, this.refund - this.sale.gold);
+      this.sale = null;
+    }
     // a swap sale finished: its tile is a hole in a wall now and the maze rebuilds it first
     for (const [i, root] of this.prefer) {
       const t = lane.occupied.get(i);
@@ -591,7 +754,7 @@ export class Bot {
         r = this.cmd({ type: 'sell', tower: c.t.id });
         if (!r.ok) continue;
         this.stats.sells++; this.lastSwap = m.time; this.prefer.set(c.i, c.root); usedTowers.add(c.t);
-        this.refund += r.gold;   // arrives in 1 s and goes to the rebuild
+        this.refund += r.gold; this.sale = { t: c.t, gold: r.gold };   // arrives in 1 s and goes to the rebuild
         acts++;
         continue;
       }
@@ -612,7 +775,8 @@ export class Bot {
     const myInc = p.income, H = cfg.horizon;
     let maxOther = 0; for (const s of m.ring) if (s !== slot && m.players[s].alive) maxOther = Math.max(maxOther, m.players[s].income);
     const farAhead = myInc >= cfg.farAhead * Math.max(1, maxOther);
-    const tLoad = cfg.weak ? Math.min(1, tv.load(cfg.alpha)) : 0;
+    if (cfg.lumber) this.lumberPlan(p, tv, myInc, farAhead);
+    const tBusy = cfg.weak ? tv.busy(cfg.alpha) : { ground: 0, air: 0 };
     const lifeVal = 20 * Math.max(50, myInc) / Math.max(1, tp.lives);
     const fixIn = (() => { const per = FIX[String(T)]; return per ? per - (now % per) : Infinity; })();
     const opts = [];
@@ -624,13 +788,13 @@ export class Bot {
       const inc = u.income[String(slot)] || 0;
       if (inc < 0 && !farAhead) continue;
       if (inc < 0 && myInc + inc < myInc * 0.5) continue;
-      const kp = cfg.weak ? cfg.alpha * tv.kpOf(ui) * (1 - tLoad) : Infinity;   // easy bots don't look
+      const kp = cfg.weak ? cfg.alpha * tv.kpOf(ui) * (1 - (u.air ? tBusy.air : tBusy.ground)) : Infinity;   // easy bots don't look
       const one = u.hp * u.copies;
       const pKill = cfg.weak ? Math.min(1, kp / one) : 1;
       const roi = (inc * H - u.cost - u.copies * u.bounty * pKill) / u.cost;
       // ground creeps sent now would still be walking when the target's Creep Fix sweeps them
       const walk = (u.flying ? EXIT_U : tv.path) * TT[ui];
-      const fixed = cfg.fixAware && !u.flying && fixIn < walk + 4;
+      const fixed = cfg.fixAware && !u.air && fixIn < walk + 4;   // the Creep Fix kills what is targeted as ground
       opts.push({ id, u, ui, inc, kp, one, roi, st, fixed });
     }
     if (!opts.length) return;
@@ -664,7 +828,7 @@ export class Bot {
     if (burst && (!trickle || burst.score >= trickle.score * 0.8 || burst.leaks >= tp.lives)) {
       if (burst.gold <= this.sendAcc) {
         let n = 0;
-        while (n < burst.st.count && this.sendAcc >= burst.u.cost && p.gold >= burst.u.cost && n < 64) {
+        while (burst.st.count > 0 && this.sendAcc >= burst.u.cost && p.gold >= burst.u.cost && n < 64) {
           const r = this.cmd({ type: 'send', unit: burst.id });
           if (!r.ok) break;
           n++; this.sendAcc -= burst.u.cost; this.stats.sends++; this.stats.sendGold += burst.u.cost;
@@ -673,8 +837,11 @@ export class Bot {
         this.saving = null;
         return;
       }
-      if (!this.saving || this.saving.id !== burst.id) this.saving = { id: burst.id, since: now };
-      if (now - this.saving.since < 15 * (cfg.saveTicks + 1)) return;      // keep saving
+      if (now >= this.saveBlock) {
+        if (!this.saving || this.saving.id !== burst.id) this.saving = { id: burst.id, since: now };
+        if (now - this.saving.since < 15 * (cfg.saveTicks + 1)) return;   // keep saving
+        this.saveBlock = now + 30;                                        // saved long enough: trickle for a while
+      }
       this.saving = null;
     } else this.saving = null;
     // spend on payback sends
@@ -720,6 +887,7 @@ export class Bot {
   summary() {
     const p = this.m.players[this.slot], lane = this.m.lanes[this.slot];
     return { slot: this.slot, level: this.level, gold: p.gold, income: p.income, lives: p.lives, towers: lane.towers.length,
-      path: lane.pathLength(), share: +this.share.toFixed(2), need: +this.need.toFixed(2), kpMix: Math.round(this.kpMix), ...this.stats };
+      path: lane.pathLength(), share: +this.share.toFixed(2), need: +this.need.toFixed(2), kpMix: Math.round(this.kpMix),
+      techOwned: Array.isArray(p.tech) ? p.tech.slice() : [], lumber: p.lumber, wisps: p.wisps, ...this.stats };
   }
 }

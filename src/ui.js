@@ -1,13 +1,13 @@
 // Warcraft III Reforged-style console: resources, minimap, animated portrait + info, command card, tooltips, messages.
 // The chrome itself (frames, plates, buttons) is CSS over Blender-rendered images in assets/ui/ (see style.css).
-import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js';
-import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js';
-import { W, H, K, sx, sy } from './render.js';
+import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=c7bd234229c1';
+import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=c7bd234229c1';
+import { W, H, K, sx, sy } from './render.js?v=c7bd234229c1';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const ARMOR_NAME = { small: 'Light', medium: 'Medium', large: 'Heavy', fort: 'Fortified', normal: 'Normal', hero: 'Hero', divine: 'Divine', none: 'Unarmored' };
-const ATK_NAME = { normal: 'Normal', pierce: 'Pierce', siege: 'Siege', magic: 'Magic', chaos: 'Chaos', hero: 'Hero', spells: 'Spells' };
+export const ARMOR_NAME = { small: 'Light', medium: 'Medium', large: 'Heavy', fort: 'Fortified', normal: 'Normal', hero: 'Hero', divine: 'Divine', none: 'Unarmored' };
+export const ATK_NAME = { normal: 'Normal', pierce: 'Pierce', siege: 'Siege', magic: 'Magic', chaos: 'Chaos', hero: 'Hero', spells: 'Spells' };
 const ACCENT = { archer: '#3f7a2c', rifle: '#9a7a4a', guard: '#2c5fbe', ballista: '#6a6a72', cannon: '#6b5a3a', blade: '#8e1212', ogre: '#b0703a', wisp: '#5fb6e8',
   fire: '#d2501a', frost: '#7cc8f0', water: '#2a7fd0', arcane: '#6a4ab0', light: '#c9a43a', shroom: '#3e6fe0', poison: '#3f9a2a', artillery: '#7a5a34', moon: '#8aa8d8', flame: '#c4581f' };
 const UPGRADE_KEYS = ['Q', 'W', 'E', 'R', 'T'];
@@ -175,7 +175,8 @@ export class UI {
     if (c.cost !== undefined) html += `<div class="t-cost ${this.g.gold < c.cost ? 'poor' : ''}"><i class="ico ico-gold"></i>${c.cost === 0 ? 'Free' : c.cost}</div>`;
     const lines = c.def ? this.towerLines(c.def, c.upgrade ? this.act.view().selected.def : null) : (c.lines || []);
     html += lines.map(l => `<div class="t-line">${l}</div>`).join('');
-    if (c.def && c.def.tooltip && c.def.tooltip.length) html += `<div class="t-note">${esc(c.def.tooltip.join(' · '))}</div>`;
+    const note = c.def ? mapNote(c.def) : '';
+    if (note) html += `<div class="t-note">${esc(note)}</div>`;
     t.innerHTML = html;
     t.classList.add('show');
     const rect = el.getBoundingClientRect();
@@ -191,7 +192,7 @@ export class UI {
     let html, key;
     if (sel && sel.def && sel.def.upgrades) {
       const d = sel.def, lo = d.dmgBase + d.dice, hi = d.dmgBase + d.dice * d.sides;
-      key = `t${sel.id}:${d.id}:${sel.kills}:${g.gold >= 0}`;
+      key = `t${sel.id}:${d.id}:${sel.kills}:${sel.building > 0}`;
       html = `<h2>${esc(d.name)}</h2><div class="tier">Tier ${d.tier} · ${esc(kindName(d.kind))}${sel.building > 0 ? ' · under construction' : ''}</div>
         <div class="stats">
           <div><span>Damage</span><b>${lo}${hi !== lo ? '–' + hi : ''}</b></div>
@@ -202,7 +203,7 @@ export class UI {
           <div><span>Sell value</span><b>${g.sellValue(sel)}</b></div>
         </div>
         <div class="tags">${[d.targetsGround ? 'Ground' : '', d.targetsAir ? 'Air' : 'No air'].filter(Boolean).map(t => `<span class="tag ${t === 'No air' ? 'bad' : ''}">${t}</span>`).join('')}${specials(d).map(s => `<span class="tag good">${s}</span>`).join('')}</div>
-        ${d.tooltip && d.tooltip.length ? `<div class="lore">${esc(d.tooltip.join(' · '))}</div>` : ''}`;
+        ${mapNote(d) ? `<div class="lore">${esc(mapNote(d))}</div>` : ''}`;
     } else if (sel && sel.hp !== undefined) {
       const d = sel.def;
       key = `c${sel.id}:${Math.ceil(sel.hp)}`;
@@ -244,7 +245,7 @@ export class UI {
     }
     const d = sel && sel.hp !== undefined ? sel.def : (this.g.phase === 'countdown' ? this.g.nextCreep() : this.g.currentCreep());
     if (!d) return;
-    const p = this.man.portraits && this.man.portraits[d.look];
+    const p = this.man.portraits && (this.man.portraits[d.id] || this.man.portraits[d.look]);
     if (p && p.img) {
       // slow idle loop, cross-faded between frames so the breathing reads smooth
       const t = performance.now() / 1000 * 4.5;
@@ -255,7 +256,7 @@ export class UI {
       x.globalAlpha = 1;
       return;
     }
-    const m = this.man.creeps[d.look];
+    const m = this.r.creepMeta({ def: d });
     const col = Math.floor(performance.now() / 110) % m.frames;
     const s = Math.min((S - 16) / m.fw, (S - 16) / m.fh) * 1.1;
     x.drawImage(m.img, m.sx + col * m.fw, m.sy + m.fh, m.fw, m.fh, S / 2 - m.ax * s, S - 6 - m.fh * s + 6, m.fw * s, m.fh * s);
@@ -266,12 +267,13 @@ export class UI {
     const c = this.mm, rect = c.getBoundingClientRect();
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     if (c.width !== Math.round(rect.width * dpr)) { c.width = Math.round(rect.width * dpr); c.height = Math.round(rect.height * dpr); }
+    if (!c.width || !c.height) return;   // zero-size viewport (hidden pane): nothing to draw into
     const x = c.getContext('2d');
     x.fillStyle = '#000'; x.fillRect(0, 0, c.width, c.height);
     const s = Math.min(c.width / W, c.height / H);
     const ox = (c.width - W * s) / 2, oy = (c.height - H * s) / 2;
     x.setTransform(s, 0, 0, s, ox, oy);
-    if (this.r.static) x.drawImage(this.r.static, 0, 0, W, H);
+    if (this.r.static && this.r.static.width && this.r.static.height) x.drawImage(this.r.static, 0, 0, W, H);
     for (const t of this.g.towers) { x.fillStyle = '#5aa0ff'; x.fillRect(sx(t.x) - 9, sy(t.y) - 7, 18, 14); }
     for (const cr of this.g.creeps) { x.fillStyle = '#ff3b2b'; x.beginPath(); x.arc(sx(cr.x), sy(cr.y), 9, 0, Math.PI * 2); x.fill(); }
     x.setTransform(1, 0, 0, 1, 0, 0);
@@ -336,11 +338,11 @@ export class UI {
 }
 
 function setText(id, v) { const e = $(id); const s = String(v); if (e.textContent !== s) e.textContent = s; }
-function kindName(k) {
+export function kindName(k) {
   return { archer: 'Archery', rifle: 'Rifle', guard: 'Guard', ballista: 'Ballista', cannon: 'Cannon', blade: 'Blades', ogre: 'Ogre', wisp: 'Elemental', fire: 'Fire',
     frost: 'Frost', water: 'Water', arcane: 'Lightning', light: 'Light', shroom: 'Nature', poison: 'Shadow', artillery: 'Artillery', moon: 'Moon', flame: 'Fire' }[k] || k;
 }
-function specials(d) {
+export function specials(d) {
   const s = [];
   if (d.splash && d.weapon !== 'mbounce') s.push(`Splash ${d.splash.full}`);
   if (d.bounce) s.push(`Bounces ×${d.bounce.targets}`);
@@ -352,9 +354,23 @@ function specials(d) {
   if (d.trueSight) s.push('True sight');
   return s;
 }
-function creepTags(d) {
+// The map's own tooltip text under a tower's real stats: what it says about the tower ('Medium splash', 'Ground Only').
+// Its numbers (damage, range, shots a minute) are left out: the stats above are the real ones, and the map's text is
+// often out of date. The data splits '60 shots / minute' at the slash; what follows 'minute' on such a line stays.
+export function mapNote(def) {
+  const out = [];
+  for (const line of def.tooltip || []) {
+    const s = String(line).trim();
+    if (/^(Damage: *)?\d+$/.test(s) || /^Range: *\d+$/.test(s) || /^\d+ shots( per minute)?$/.test(s)) continue;
+    const rest = s.replace(/^minute\b\s*/, '');
+    if (rest) out.push(rest);
+  }
+  return out.join(' · ');
+}
+// Air: hit as air (the target class, where the data has one apart from how the unit moves).
+export function creepTags(d) {
   const t = [];
-  if (d.flying) t.push('<span class="tag">Air</span>');
+  if (d.air ?? d.flying) t.push('<span class="tag">Air</span>');
   if (d.magicImmune) t.push('<span class="tag bad">Magic immune</span>');
   if (d.invisible) t.push('<span class="tag bad">Invisible</span>');
   if (d.evasion) t.push('<span class="tag">Evasion</span>');

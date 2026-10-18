@@ -1416,7 +1416,7 @@
  "elev": 50.0,
  "creeps": {
   "grunt": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 93,
    "fh": 74,
    "ax": 30.0,
@@ -1428,10 +1428,10 @@
    ],
    "src": "creeps/grunt.png",
    "sx": 850,
-   "sy": 2832
+   "sy": 1608
   },
   "shade": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 89,
    "fh": 56,
    "ax": 37.0,
@@ -1442,11 +1442,11 @@
     "S"
    ],
    "src": "creeps/shade.png",
-   "sx": 810,
-   "sy": 3424
+   "sx": 0,
+   "sy": 2344
   },
   "knight": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 119,
    "fh": 105,
    "ax": 45.0,
@@ -1458,10 +1458,10 @@
    ],
    "src": "creeps/knight.png",
    "sx": 0,
-   "sy": 1644
+   "sy": 234
   },
   "hydra": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_0.png",
    "fw": 241,
    "fh": 150,
    "ax": 95.0,
@@ -1473,10 +1473,10 @@
    ],
    "src": "creeps/hydra.png",
    "sx": 0,
-   "sy": 332
+   "sy": 2178
   },
   "packhorse": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 102,
    "fh": 72,
    "ax": 39.0,
@@ -1488,10 +1488,10 @@
    ],
    "src": "creeps/packhorse.png",
    "sx": 0,
-   "sy": 3136
+   "sy": 1912
   },
   "horse": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 106,
    "fh": 76,
    "ax": 40.0,
@@ -1503,10 +1503,10 @@
    ],
    "src": "creeps/horse.png",
    "sx": 0,
-   "sy": 2832
+   "sy": 1608
   },
   "centaur": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 133,
    "fh": 98,
    "ax": 45.0,
@@ -1518,10 +1518,10 @@
    ],
    "src": "creeps/centaur.png",
    "sx": 0,
-   "sy": 2268
+   "sy": 858
   },
   "druid": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 77,
    "fh": 84,
    "ax": 22.0,
@@ -1532,11 +1532,11 @@
     "S"
    ],
    "src": "creeps/druid.png",
-   "sx": 666,
-   "sy": 2660
+   "sx": 0,
+   "sy": 1438
   },
   "treant": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 92,
    "fh": 97,
    "ax": 33.0,
@@ -1548,10 +1548,10 @@
    ],
    "src": "creeps/treant.png",
    "sx": 1066,
-   "sy": 2268
+   "sy": 858
   },
   "mage": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 74,
    "fh": 66,
    "ax": 22.0,
@@ -1562,11 +1562,11 @@
     "S"
    ],
    "src": "creeps/mage.png",
-   "sx": 1284,
-   "sy": 3282
+   "sx": 634,
+   "sy": 2202
   },
   "thrall": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 83,
    "fh": 85,
    "ax": 32.0,
@@ -1577,11 +1577,11 @@
     "S"
    ],
    "src": "creeps/thrall.png",
-   "sx": 0,
-   "sy": 2660
+   "sx": 914,
+   "sy": 1250
   },
   "paladin": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 86,
    "fh": 74,
    "ax": 29.0,
@@ -1593,10 +1593,10 @@
    ],
    "src": "creeps/paladin.png",
    "sx": 0,
-   "sy": 2986
+   "sy": 1762
   },
   "wolfrider_fel": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 118,
    "fh": 116,
    "ax": 49.0,
@@ -1608,10 +1608,10 @@
    ],
    "src": "creeps/wolfrider_fel.png",
    "sx": 0,
-   "sy": 1410
+   "sy": 0
   },
   "bandit": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 76,
    "fh": 73,
    "ax": 26.0,
@@ -1623,10 +1623,10 @@
    ],
    "src": "creeps/bandit.png",
    "sx": 690,
-   "sy": 2986
+   "sy": 1762
   },
   "wolfrider": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 113,
    "fh": 111,
    "ax": 47.0,
@@ -1638,10 +1638,10 @@
    ],
    "src": "creeps/wolfrider.png",
    "sx": 946,
-   "sy": 1410
+   "sy": 0
   },
   "wraith": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 111,
    "fh": 71,
    "ax": 45.0,
@@ -1652,11 +1652,11 @@
     "S"
    ],
    "src": "creeps/wraith.png",
-   "sx": 818,
-   "sy": 3136
+   "sx": 0,
+   "sy": 2058
   },
   "priestess": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 121,
    "fh": 96,
    "ax": 59.0,
@@ -1668,10 +1668,10 @@
    ],
    "src": "creeps/priestess.png",
    "sx": 0,
-   "sy": 2466
+   "sy": 1056
   },
   "farseer": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 114,
    "fh": 93,
    "ax": 47.0,
@@ -1682,11 +1682,11 @@
     "S"
    ],
    "src": "creeps/farseer.png",
-   "sx": 970,
-   "sy": 2466
+   "sx": 0,
+   "sy": 1250
   },
   "darkmage": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 81,
    "fh": 70,
    "ax": 25.0,
@@ -1697,11 +1697,11 @@
     "S"
    ],
    "src": "creeps/darkmage.png",
-   "sx": 0,
-   "sy": 3282
+   "sx": 890,
+   "sy": 2058
   },
   "warlord": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_0.png",
    "fw": 178,
    "fh": 132,
    "ax": 55.0,
@@ -1713,10 +1713,10 @@
    ],
    "src": "creeps/warlord.png",
    "sx": 0,
-   "sy": 634
+   "sy": 2480
   },
   "deathknight": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_0.png",
    "fw": 134,
    "fh": 131,
    "ax": 50.0,
@@ -1728,10 +1728,10 @@
    ],
    "src": "creeps/deathknight.png",
    "sx": 0,
-   "sy": 900
+   "sy": 2746
   },
   "dryad": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 126,
    "fh": 99,
    "ax": 41.0,
@@ -1743,10 +1743,10 @@
    ],
    "src": "creeps/dryad.png",
    "sx": 0,
-   "sy": 2068
+   "sy": 658
   },
   "cryptfiend": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 139,
    "fh": 105,
    "ax": 54.0,
@@ -1758,10 +1758,10 @@
    ],
    "src": "creeps/cryptfiend.png",
    "sx": 0,
-   "sy": 1856
+   "sy": 446
   },
   "necromancer": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 79,
    "fh": 70,
    "ax": 24.0,
@@ -1772,11 +1772,11 @@
     "S"
    ],
    "src": "creeps/necromancer.png",
-   "sx": 650,
-   "sy": 3282
+   "sx": 0,
+   "sy": 2202
   },
   "banshee": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 101,
    "fh": 61,
    "ax": 42.0,
@@ -1787,11 +1787,11 @@
     "S"
    ],
    "src": "creeps/banshee.png",
-   "sx": 0,
-   "sy": 3424
+   "sx": 1228,
+   "sy": 2202
   },
   "spellbreaker": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_1.png",
    "fw": 91,
    "fh": 83,
    "ax": 27.0,
@@ -1802,11 +1802,11 @@
     "S"
    ],
    "src": "creeps/spellbreaker.png",
-   "sx": 1284,
-   "sy": 2660
+   "sx": 618,
+   "sy": 1438
   },
   "infernal": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_0.png",
    "fw": 139,
    "fh": 122,
    "ax": 57.0,
@@ -1818,10 +1818,10 @@
    ],
    "src": "creeps/infernal.png",
    "sx": 0,
-   "sy": 1164
+   "sy": 3518
   },
   "gryphon": {
-   "file": "atlas_creeps.png",
+   "file": "atlas_creeps_0.png",
    "fw": 193,
    "fh": 165,
    "ax": 82.0,
@@ -1833,7 +1833,157 @@
    ],
    "src": "creeps/gryphon.png",
    "sx": 0,
+   "sy": 1200
+  },
+  "h01B": {
+   "file": "atlas_creeps_1.png",
+   "fw": 106,
+   "fh": 94,
+   "ax": 45.0,
+   "ay": 64.7,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/h01B.png",
+   "sx": 970,
+   "sy": 1056
+  },
+  "h01I": {
+   "file": "atlas_creeps_0.png",
+   "fw": 150,
+   "fh": 157,
+   "ax": 66.0,
+   "ay": 123.0,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/h01I.png",
+   "sx": 0,
+   "sy": 1862
+  },
+  "h01M": {
+   "file": "atlas_creeps_0.png",
+   "fw": 237,
+   "fh": 202,
+   "ax": 101.0,
+   "ay": 141.6,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/h01M.png",
+   "sx": 0,
+   "sy": 420
+  },
+  "ugho": {
+   "file": "atlas_creeps_0.png",
+   "fw": 165,
+   "fh": 164,
+   "ax": 64.0,
+   "ay": 114.6,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/ugho.png",
+   "sx": 0,
+   "sy": 1532
+  },
+  "o002": {
+   "file": "atlas_creeps_0.png",
+   "fw": 130,
+   "fh": 126,
+   "ax": 55.0,
+   "ay": 93.0,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/o002.png",
+   "sx": 0,
+   "sy": 3010
+  },
+  "u004": {
+   "file": "atlas_creeps_0.png",
+   "fw": 197,
+   "fh": 126,
+   "ax": 70.0,
+   "ay": 94.6,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/u004.png",
+   "sx": 0,
+   "sy": 3264
+  },
+  "e000": {
+   "file": "atlas_creeps_0.png",
+   "fw": 208,
+   "fh": 186,
+   "ax": 80.0,
+   "ay": 144.2,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/e000.png",
+   "sx": 0,
+   "sy": 826
+  },
+  "n00I": {
+   "file": "atlas_creeps_0.png",
+   "fw": 153,
+   "fh": 118,
+   "ax": 58.0,
+   "ay": 104.0,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/n00I.png",
+   "sx": 0,
+   "sy": 3764
+  },
+  "u005": {
+   "file": "atlas_creeps_0.png",
+   "fw": 248,
+   "fh": 209,
+   "ax": 104.0,
+   "ay": 154.2,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/u005.png",
+   "sx": 0,
    "sy": 0
+  },
+  "n00J": {
+   "file": "atlas_creeps_1.png",
+   "fw": 104,
+   "fh": 72,
+   "ax": 44.0,
+   "ay": 51.7,
+   "frames": 8,
+   "dirs": [
+    "E",
+    "S"
+   ],
+   "src": "creeps/n00J.png",
+   "sx": 818,
+   "sy": 1912
   }
  },
  "props": {
@@ -1846,7 +1996,7 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/oak1.png",
-   "sx": 301,
+   "sx": 829,
    "sy": 705
   },
   "oak2": {
@@ -1870,7 +2020,7 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/pine1.png",
-   "sx": 1271,
+   "sx": 1799,
    "sy": 705
   },
   "pine2": {
@@ -1882,8 +2032,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/pine2.png",
-   "sx": 1594,
-   "sy": 0
+   "sx": 0,
+   "sy": 705
   },
   "bush1": {
    "w": 114,
@@ -1894,8 +2044,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/bush1.png",
-   "sx": 937,
-   "sy": 967
+   "sx": 591,
+   "sy": 1300
   },
   "bush2": {
    "w": 113,
@@ -1906,8 +2056,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/bush2.png",
-   "sx": 1053,
-   "sy": 967
+   "sx": 707,
+   "sy": 1300
   },
   "rock1": {
    "w": 78,
@@ -1918,8 +2068,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/rock1.png",
-   "sx": 133,
-   "sy": 1116
+   "sx": 204,
+   "sy": 1391
   },
   "rock2": {
    "w": 96,
@@ -1930,8 +2080,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/rock2.png",
-   "sx": 1380,
-   "sy": 967
+   "sx": 1125,
+   "sy": 1300
   },
   "rock3": {
    "w": 93,
@@ -1942,8 +2092,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/rock3.png",
-   "sx": 1602,
-   "sy": 967
+   "sx": 1347,
+   "sy": 1300
   },
   "castle": {
    "w": 846,
@@ -2060,7 +2210,7 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/birch1.png",
-   "sx": 1059,
+   "sx": 1587,
    "sy": 705
   },
   "deadtree": {
@@ -2072,8 +2222,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/deadtree.png",
-   "sx": 1712,
-   "sy": 705
+   "sx": 779,
+   "sy": 967
   },
   "bush3": {
    "w": 124,
@@ -2084,8 +2234,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/bush3.png",
-   "sx": 683,
-   "sy": 967
+   "sx": 100,
+   "sy": 1300
   },
   "fence1": {
    "w": 187,
@@ -2096,8 +2246,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/fence1.png",
-   "sx": 1697,
-   "sy": 967
+   "sx": 1442,
+   "sy": 1300
   },
   "fence2": {
    "w": 131,
@@ -2109,7 +2259,7 @@
    "file": "atlas_props.png",
    "src": "props/fence2.png",
    "sx": 0,
-   "sy": 1116
+   "sy": 1391
   },
   "hay": {
    "w": 144,
@@ -2120,8 +2270,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/hay.png",
-   "sx": 332,
-   "sy": 967
+   "sx": 1568,
+   "sy": 1164
   },
   "barrels": {
    "w": 93,
@@ -2132,8 +2282,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/barrels.png",
-   "sx": 1168,
-   "sy": 967
+   "sx": 822,
+   "sy": 1300
   },
   "crates": {
    "w": 98,
@@ -2144,8 +2294,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/crates.png",
-   "sx": 583,
-   "sy": 967
+   "sx": 0,
+   "sy": 1300
   },
   "sign": {
    "w": 126,
@@ -2156,8 +2306,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/sign.png",
-   "sx": 809,
-   "sy": 967
+   "sx": 308,
+   "sy": 1300
   },
   "lamp": {
    "w": 103,
@@ -2177,8 +2327,8 @@
    ],
    "file": "atlas_props.png",
    "src": "props/lamp.png",
-   "sx": 478,
-   "sy": 967
+   "sx": 1834,
+   "sy": 1164
   },
   "flowers": {
    "w": 122,
@@ -2189,8 +2339,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/flowers.png",
-   "sx": 1478,
-   "sy": 967
+   "sx": 1223,
+   "sy": 1300
   },
   "shrooms": {
    "w": 65,
@@ -2201,8 +2351,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/shrooms.png",
-   "sx": 213,
-   "sy": 1116
+   "sx": 347,
+   "sy": 1391
   },
   "stump": {
    "w": 77,
@@ -2213,8 +2363,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/stump.png",
-   "sx": 1886,
-   "sy": 967
+   "sx": 1821,
+   "sy": 1300
   },
   "logs": {
    "w": 115,
@@ -2225,8 +2375,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/logs.png",
-   "sx": 1263,
-   "sy": 967
+   "sx": 1008,
+   "sy": 1300
   },
   "ruin1": {
    "w": 186,
@@ -2237,7 +2387,7 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/ruin1.png",
-   "sx": 0,
+   "sx": 1242,
    "sy": 967
   },
   "ruin2": {
@@ -2249,8 +2399,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/ruin2.png",
-   "sx": 188,
-   "sy": 967
+   "sx": 1202,
+   "sy": 1164
   },
   "oak3": {
    "w": 240,
@@ -2261,7 +2411,7 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/oak3.png",
-   "sx": 817,
+   "sx": 1345,
    "sy": 705
   },
   "pine3": {
@@ -2273,8 +2423,8 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/pine3.png",
-   "sx": 1508,
-   "sy": 705
+   "sx": 404,
+   "sy": 967
   },
   "oak4": {
    "w": 299,
@@ -2285,7 +2435,7 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/oak4.png",
-   "sx": 0,
+   "sx": 259,
    "sy": 705
   },
   "birch2": {
@@ -2297,8 +2447,607 @@
    "fx": [],
    "file": "atlas_props.png",
    "src": "props/birch2.png",
-   "sx": 580,
+   "sx": 1108,
    "sy": 705
+  },
+  "lane_waygate": {
+   "w": 267,
+   "h": 260,
+   "ax": 119.0,
+   "ay": 166.0,
+   "height": 2.25,
+   "fx": [
+    {
+     "kind": "orb",
+     "color": "#62c8ff",
+     "size": 1.6,
+     "px": 119.0,
+     "py": 87.6,
+     "z": 1.27
+    },
+    {
+     "kind": "sparkle",
+     "color": "#a6f2ff",
+     "size": 1.0,
+     "px": 148.6,
+     "py": 170.3,
+     "z": 0.4
+    }
+   ],
+   "file": "atlas_props.png",
+   "src": "props/lane_waygate.png",
+   "sx": 560,
+   "sy": 705
+  },
+  "lane_portal": {
+   "w": 315,
+   "h": 267,
+   "ax": 162.0,
+   "ay": 173.0,
+   "height": 2.48,
+   "fx": [
+    {
+     "kind": "flame",
+     "color": "#ff5a3a",
+     "size": 0.44000000000000006,
+     "px": 58.0,
+     "py": 131.0,
+     "z": 0.608
+    },
+    {
+     "kind": "flame",
+     "color": "#ff5a3a",
+     "size": 0.44000000000000006,
+     "px": 230.6,
+     "py": 195.5,
+     "z": 0.608
+    },
+    {
+     "kind": "orb",
+     "color": "#ff3a5a",
+     "size": 1.6,
+     "px": 162.0,
+     "py": 102.0,
+     "z": 1.15
+    }
+   ],
+   "file": "atlas_props.png",
+   "src": "props/lane_portal.png",
+   "sx": 1594,
+   "sy": 0
+  },
+  "lane_tree1": {
+   "w": 214,
+   "h": 190,
+   "ax": 79.0,
+   "ay": 142.4,
+   "height": 2.057,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_tree1.png",
+   "sx": 188,
+   "sy": 967
+  },
+  "lane_tree2": {
+   "w": 169,
+   "h": 168,
+   "ax": 81.0,
+   "ay": 133.0,
+   "height": 2.092,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_tree2.png",
+   "sx": 608,
+   "sy": 967
+  },
+  "lane_tree3": {
+   "w": 186,
+   "h": 195,
+   "ax": 65.0,
+   "ay": 153.0,
+   "height": 2.192,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_tree3.png",
+   "sx": 0,
+   "sy": 967
+  },
+  "lane_rock1": {
+   "w": 69,
+   "h": 60,
+   "ax": 35.0,
+   "ay": 26.4,
+   "height": 0.204,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_rock1.png",
+   "sx": 133,
+   "sy": 1391
+  },
+  "lane_rock2": {
+   "w": 77,
+   "h": 62,
+   "ax": 31.0,
+   "ay": 26.0,
+   "height": 0.183,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_rock2.png",
+   "sx": 1900,
+   "sy": 1300
+  },
+  "lane_bush": {
+   "w": 89,
+   "h": 76,
+   "ax": 51.0,
+   "ay": 39.6,
+   "height": 0.469,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_bush.png",
+   "sx": 917,
+   "sy": 1300
+  },
+  "lane_fence": {
+   "w": 188,
+   "h": 65,
+   "ax": 91.0,
+   "ay": 35.5,
+   "height": 0.494,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_fence.png",
+   "sx": 1631,
+   "sy": 1300
+  },
+  "lane_wall": {
+   "w": 153,
+   "h": 81,
+   "ax": 75.0,
+   "ay": 27.8,
+   "height": 0.378,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_wall.png",
+   "sx": 436,
+   "sy": 1300
+  },
+  "lane_brazier": {
+   "w": 80,
+   "h": 85,
+   "ax": 32.0,
+   "ay": 63.0,
+   "height": 0.991,
+   "fx": [
+    {
+     "kind": "flame",
+     "color": "#ffb040",
+     "size": 0.55,
+     "px": 32.0,
+     "py": 16.1,
+     "z": 0.76
+    }
+   ],
+   "file": "atlas_props.png",
+   "src": "props/lane_brazier.png",
+   "sx": 226,
+   "sy": 1300
+  },
+  "lane_lantern": {
+   "w": 74,
+   "h": 91,
+   "ax": 22.0,
+   "ay": 74.2,
+   "height": 1.15,
+   "fx": [
+    {
+     "kind": "flame",
+     "color": "#ffc466",
+     "size": 0.45,
+     "px": 22.0,
+     "py": 22.4,
+     "z": 0.84
+    }
+   ],
+   "file": "atlas_props.png",
+   "src": "props/lane_lantern.png",
+   "sx": 1939,
+   "sy": 1164
+  },
+  "lane_banner": {
+   "w": 141,
+   "h": 144,
+   "ax": 35.0,
+   "ay": 126.0,
+   "height": 2.007,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_banner.png",
+   "sx": 1430,
+   "sy": 967
+  },
+  "lane_banner_cloth": {
+   "w": 141,
+   "h": 144,
+   "ax": 35.0,
+   "ay": 126.0,
+   "height": 2.007,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_banner_cloth.png",
+   "sx": 1573,
+   "sy": 967
+  },
+  "lane_wisp": {
+   "w": 61,
+   "h": 57,
+   "ax": 30.0,
+   "ay": 62.4,
+   "height": 0.775,
+   "fx": [
+    {
+     "kind": "wisp",
+     "color": "#9fe8ff",
+     "size": 1.0,
+     "px": 30.0,
+     "py": 28.5,
+     "z": 0.55
+    }
+   ],
+   "file": "atlas_props.png",
+   "src": "props/lane_wisp.png",
+   "sx": 284,
+   "sy": 1391
+  },
+  "tech_h00V": {
+   "w": 135,
+   "h": 130,
+   "ax": 67.0,
+   "ay": 85.2,
+   "height": 1.345,
+   "fx": [
+    {
+     "kind": "flame",
+     "color": "#ff9a3a",
+     "size": 0.9,
+     "px": 67.0,
+     "py": 24.1,
+     "z": 0.99
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "fire",
+   "src": "props/tech_h00V.png",
+   "sx": 250,
+   "sy": 1164
+  },
+  "tech_h00W": {
+   "w": 115,
+   "h": 116,
+   "ax": 47.0,
+   "ay": 79.2,
+   "height": 1.218,
+   "fx": [
+    {
+     "kind": "sparkle",
+     "color": "#8fe6ff",
+     "size": 0.8,
+     "px": 47.0,
+     "py": 11.3,
+     "z": 1.1
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "ice",
+   "src": "props/tech_h00W.png",
+   "sx": 1346,
+   "sy": 1164
+  },
+  "tech_h00X": {
+   "w": 122,
+   "h": 132,
+   "ax": 51.0,
+   "ay": 93.2,
+   "height": 1.442,
+   "fx": [
+    {
+     "kind": "orb",
+     "color": "#7ab4ff",
+     "size": 1.0,
+     "px": 51.0,
+     "py": 18.5,
+     "z": 1.21
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "elec",
+   "src": "props/tech_h00X.png",
+   "sx": 126,
+   "sy": 1164
+  },
+  "tech_h00Y": {
+   "w": 129,
+   "h": 127,
+   "ax": 49.0,
+   "ay": 89.2,
+   "height": 1.409,
+   "fx": [
+    {
+     "kind": "orb",
+     "color": "#ffe08a",
+     "size": 1.0,
+     "px": 49.0,
+     "py": 21.9,
+     "z": 1.09
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "light",
+   "src": "props/tech_h00Y.png",
+   "sx": 655,
+   "sy": 1164
+  },
+  "tech_h00Z": {
+   "w": 124,
+   "h": 134,
+   "ax": 51.0,
+   "ay": 95.2,
+   "height": 1.481,
+   "fx": [
+    {
+     "kind": "orb",
+     "color": "#a050ff",
+     "size": 1.0,
+     "px": 51.0,
+     "py": 18.1,
+     "z": 1.25
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "dark",
+   "src": "props/tech_h00Z.png",
+   "sx": 0,
+   "sy": 1164
+  },
+  "tech_h010": {
+   "w": 118,
+   "h": 106,
+   "ax": 61.0,
+   "ay": 61.2,
+   "height": 0.905,
+   "fx": [
+    {
+     "kind": "flame",
+     "color": "#ff9a3a",
+     "size": 0.7,
+     "px": 61.0,
+     "py": 18.0,
+     "z": 0.7
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "fire",
+   "src": "props/tech_h010.png",
+   "sx": 1714,
+   "sy": 1164
+  },
+  "tech_h011": {
+   "w": 134,
+   "h": 138,
+   "ax": 61.0,
+   "ay": 96.2,
+   "height": 1.233,
+   "fx": [
+    {
+     "kind": "flame",
+     "color": "#ff9a3a",
+     "size": 0.6,
+     "px": 64.8,
+     "py": 99.8,
+     "z": 0.24
+    },
+    {
+     "kind": "flame",
+     "color": "#ff9a3a",
+     "size": 0.4,
+     "px": 74.4,
+     "py": 8.9,
+     "z": 1.2
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "fire",
+   "src": "props/tech_h011.png",
+   "sx": 1716,
+   "sy": 967
+  },
+  "tech_h012": {
+   "w": 114,
+   "h": 136,
+   "ax": 48.0,
+   "ay": 99.2,
+   "height": 1.546,
+   "fx": [
+    {
+     "kind": "sparkle",
+     "color": "#8fe6ff",
+     "size": 0.9,
+     "px": 48.0,
+     "py": 16.5,
+     "z": 1.34
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "ice",
+   "src": "props/tech_h012.png",
+   "sx": 1852,
+   "sy": 967
+  },
+  "tech_h013": {
+   "w": 123,
+   "h": 129,
+   "ax": 62.0,
+   "ay": 84.2,
+   "height": 1.205,
+   "fx": [
+    {
+     "kind": "bubble",
+     "color": "#7fd8ff",
+     "size": 1.0,
+     "px": 62.0,
+     "py": 63.2,
+     "z": 0.34
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "ice",
+   "src": "props/tech_h013.png",
+   "sx": 530,
+   "sy": 1164
+  },
+  "tech_h014": {
+   "w": 134,
+   "h": 150,
+   "ax": 53.0,
+   "ay": 110.2,
+   "height": 1.69,
+   "fx": [
+    {
+     "kind": "orb",
+     "color": "#7ab4ff",
+     "size": 1.0,
+     "px": 53.0,
+     "py": 12.7,
+     "z": 1.58
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "elec",
+   "src": "props/tech_h014.png",
+   "sx": 1106,
+   "sy": 967
+  },
+  "tech_h015": {
+   "w": 143,
+   "h": 117,
+   "ax": 57.0,
+   "ay": 74.2,
+   "height": 1.175,
+   "fx": [
+    {
+     "kind": "sparkle",
+     "color": "#7ab4ff",
+     "size": 0.8,
+     "px": 57.0,
+     "py": 35.9,
+     "z": 0.74
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "elec",
+   "src": "props/tech_h015.png",
+   "sx": 1057,
+   "sy": 1164
+  },
+  "tech_h016": {
+   "w": 103,
+   "h": 111,
+   "ax": 46.0,
+   "ay": 75.2,
+   "height": 0.953,
+   "fx": [
+    {
+     "kind": "spores",
+     "color": "#ffe08a",
+     "size": 1.0,
+     "px": 46.0,
+     "py": 29.5,
+     "z": 0.74
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "light",
+   "src": "props/tech_h016.png",
+   "sx": 1463,
+   "sy": 1164
+  },
+  "tech_h017": {
+   "w": 131,
+   "h": 121,
+   "ax": 52.0,
+   "ay": 82.2,
+   "height": 1.395,
+   "fx": [
+    {
+     "kind": "orb",
+     "color": "#ffe08a",
+     "size": 0.9,
+     "px": 69.3,
+     "py": 6.9,
+     "z": 1.34
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "light",
+   "src": "props/tech_h017.png",
+   "sx": 924,
+   "sy": 1164
+  },
+  "tech_h018": {
+   "w": 141,
+   "h": 130,
+   "ax": 80.0,
+   "ay": 85.2,
+   "height": 1.019,
+   "fx": [
+    {
+     "kind": "sparkle",
+     "color": "#b05cff",
+     "size": 0.8,
+     "px": 80.0,
+     "py": 80.2,
+     "z": 0.32
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "dark",
+   "src": "props/tech_h018.png",
+   "sx": 387,
+   "sy": 1164
+  },
+  "tech_h019": {
+   "w": 136,
+   "h": 122,
+   "ax": 72.0,
+   "ay": 77.2,
+   "height": 1.093,
+   "fx": [
+    {
+     "kind": "spores",
+     "color": "#b05cff",
+     "size": 1.0,
+     "px": 72.0,
+     "py": 50.0,
+     "z": 0.44
+    }
+   ],
+   "file": "atlas_props.png",
+   "element": "dark",
+   "src": "props/tech_h019.png",
+   "sx": 786,
+   "sy": 1164
+  },
+  "lane_tree4": {
+   "w": 146,
+   "h": 155,
+   "ax": 43.0,
+   "ay": 138.0,
+   "height": 2.003,
+   "fx": [],
+   "file": "atlas_props.png",
+   "src": "props/lane_tree4.png",
+   "sx": 958,
+   "sy": 967
   }
  },
  "ground": {
@@ -2464,6 +3213,18 @@
    "h": 64,
    "file": "ui/res_level.png",
    "src": "ui/res_level.png"
+  },
+  "res_lumber": {
+   "w": 64,
+   "h": 64,
+   "file": "ui/res_lumber.png",
+   "src": "ui/res_lumber.png"
+  },
+  "res_wisp": {
+   "w": 64,
+   "h": 64,
+   "file": "ui/res_wisp.png",
+   "src": "ui/res_wisp.png"
   }
  },
  "icons": {
@@ -2994,11 +3755,427 @@
    "src": "icons/h008.png",
    "sx": 650,
    "sy": 520
+  },
+  "u_n00E": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00E.png",
+   "sx": 780,
+   "sy": 520
+  },
+  "u_n00C": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00C.png",
+   "sx": 910,
+   "sy": 520
+  },
+  "u_u003": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_u003.png",
+   "sx": 1040,
+   "sy": 520
+  },
+  "u_u000": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_u000.png",
+   "sx": 1170,
+   "sy": 520
+  },
+  "u_n005": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n005.png",
+   "sx": 1300,
+   "sy": 520
+  },
+  "u_h00U": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_h00U.png",
+   "sx": 1430,
+   "sy": 520
+  },
+  "u_n000": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n000.png",
+   "sx": 1560,
+   "sy": 520
+  },
+  "u_n00A": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00A.png",
+   "sx": 1690,
+   "sy": 520
+  },
+  "u_u001": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_u001.png",
+   "sx": 1820,
+   "sy": 520
+  },
+  "u_n00F": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00F.png",
+   "sx": 0,
+   "sy": 650
+  },
+  "u_h01B": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_h01B.png",
+   "sx": 130,
+   "sy": 650
+  },
+  "u_n008": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n008.png",
+   "sx": 260,
+   "sy": 650
+  },
+  "u_h01H": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_h01H.png",
+   "sx": 390,
+   "sy": 650
+  },
+  "u_o000": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_o000.png",
+   "sx": 520,
+   "sy": 650
+  },
+  "u_n002": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n002.png",
+   "sx": 650,
+   "sy": 650
+  },
+  "u_n003": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n003.png",
+   "sx": 780,
+   "sy": 650
+  },
+  "u_n00B": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00B.png",
+   "sx": 910,
+   "sy": 650
+  },
+  "u_n006": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n006.png",
+   "sx": 1040,
+   "sy": 650
+  },
+  "u_n004": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n004.png",
+   "sx": 1170,
+   "sy": 650
+  },
+  "u_n009": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n009.png",
+   "sx": 1300,
+   "sy": 650
+  },
+  "u_u002": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_u002.png",
+   "sx": 1430,
+   "sy": 650
+  },
+  "u_h01I": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_h01I.png",
+   "sx": 1560,
+   "sy": 650
+  },
+  "u_n00D": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00D.png",
+   "sx": 1690,
+   "sy": 650
+  },
+  "u_h01M": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_h01M.png",
+   "sx": 1820,
+   "sy": 650
+  },
+  "u_ugho": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_ugho.png",
+   "sx": 0,
+   "sy": 780
+  },
+  "u_n00H": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00H.png",
+   "sx": 130,
+   "sy": 780
+  },
+  "u_u006": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_u006.png",
+   "sx": 260,
+   "sy": 780
+  },
+  "u_u007": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_u007.png",
+   "sx": 390,
+   "sy": 780
+  },
+  "u_o002": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_o002.png",
+   "sx": 520,
+   "sy": 780
+  },
+  "u_h02E": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_h02E.png",
+   "sx": 650,
+   "sy": 780
+  },
+  "u_n00G": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00G.png",
+   "sx": 780,
+   "sy": 780
+  },
+  "u_hgry": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_hgry.png",
+   "sx": 910,
+   "sy": 780
+  },
+  "u_u004": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_u004.png",
+   "sx": 1040,
+   "sy": 780
+  },
+  "u_e000": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_e000.png",
+   "sx": 1170,
+   "sy": 780
+  },
+  "u_n00I": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00I.png",
+   "sx": 1300,
+   "sy": 780
+  },
+  "u_u005": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_u005.png",
+   "sx": 1430,
+   "sy": 780
+  },
+  "u_n00J": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/u_n00J.png",
+   "sx": 1560,
+   "sy": 780
+  },
+  "tech_h00V": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h00V.png",
+   "sx": 1690,
+   "sy": 780
+  },
+  "tech_h00W": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h00W.png",
+   "sx": 1820,
+   "sy": 780
+  },
+  "tech_h00X": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h00X.png",
+   "sx": 0,
+   "sy": 910
+  },
+  "tech_h00Y": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h00Y.png",
+   "sx": 130,
+   "sy": 910
+  },
+  "tech_h00Z": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h00Z.png",
+   "sx": 260,
+   "sy": 910
+  },
+  "tech_h010": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h010.png",
+   "sx": 390,
+   "sy": 910
+  },
+  "tech_h011": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h011.png",
+   "sx": 520,
+   "sy": 910
+  },
+  "tech_h012": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h012.png",
+   "sx": 650,
+   "sy": 910
+  },
+  "tech_h013": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h013.png",
+   "sx": 780,
+   "sy": 910
+  },
+  "tech_h014": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h014.png",
+   "sx": 910,
+   "sy": 910
+  },
+  "tech_h015": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h015.png",
+   "sx": 1040,
+   "sy": 910
+  },
+  "tech_h016": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h016.png",
+   "sx": 1170,
+   "sy": 910
+  },
+  "tech_h017": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h017.png",
+   "sx": 1300,
+   "sy": 910
+  },
+  "tech_h018": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h018.png",
+   "sx": 1430,
+   "sy": 910
+  },
+  "tech_h019": {
+   "file": "atlas_icons.png",
+   "w": 128,
+   "h": 128,
+   "src": "icons/tech_h019.png",
+   "sx": 1560,
+   "sy": 910
   }
  },
  "portraits": {
   "cryptfiend": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3007,7 +4184,7 @@
    "sy": 0
   },
   "grunt": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3016,7 +4193,7 @@
    "sy": 130
   },
   "gryphon": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3025,7 +4202,7 @@
    "sy": 260
   },
   "hydra": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3034,7 +4211,7 @@
    "sy": 390
   },
   "knight": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3043,7 +4220,7 @@
    "sy": 520
   },
   "shade": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3052,7 +4229,7 @@
    "sy": 650
   },
   "banshee": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3061,7 +4238,7 @@
    "sy": 780
   },
   "mage": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3070,7 +4247,7 @@
    "sy": 910
   },
   "packhorse": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3079,7 +4256,7 @@
    "sy": 1040
   },
   "thrall": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3088,7 +4265,7 @@
    "sy": 1170
   },
   "wolfrider": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3097,7 +4274,7 @@
    "sy": 1300
   },
   "bandit": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3106,7 +4283,7 @@
    "sy": 1430
   },
   "centaur": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3115,7 +4292,7 @@
    "sy": 1560
   },
   "darkmage": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3124,7 +4301,7 @@
    "sy": 1690
   },
   "deathknight": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3133,7 +4310,7 @@
    "sy": 1820
   },
   "druid": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3142,7 +4319,7 @@
    "sy": 1950
   },
   "dryad": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3151,7 +4328,7 @@
    "sy": 2080
   },
   "farseer": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3160,7 +4337,7 @@
    "sy": 2210
   },
   "horse": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3169,7 +4346,7 @@
    "sy": 2340
   },
   "infernal": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3178,7 +4355,7 @@
    "sy": 2470
   },
   "necromancer": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3187,7 +4364,7 @@
    "sy": 2600
   },
   "paladin": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3196,7 +4373,7 @@
    "sy": 2730
   },
   "priestess": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3205,7 +4382,7 @@
    "sy": 2860
   },
   "spellbreaker": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3214,7 +4391,7 @@
    "sy": 2990
   },
   "treant": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3223,7 +4400,7 @@
    "sy": 3120
   },
   "warlord": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3232,7 +4409,7 @@
    "sy": 3250
   },
   "wolfrider_fel": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
@@ -3241,14 +4418,700 @@
    "sy": 3380
   },
   "wraith": {
-   "file": "atlas_portraits.png",
+   "file": "atlas_portraits_0.png",
    "fw": 128,
    "fh": 128,
    "frames": 8,
    "src": "portraits/wraith.png",
    "sx": 0,
    "sy": 3510
+  },
+  "h01B": {
+   "file": "atlas_portraits_0.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/h01B.png",
+   "sx": 0,
+   "sy": 3640
+  },
+  "h01I": {
+   "file": "atlas_portraits_0.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/h01I.png",
+   "sx": 0,
+   "sy": 3770
+  },
+  "h01M": {
+   "file": "atlas_portraits_0.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/h01M.png",
+   "sx": 0,
+   "sy": 3900
+  },
+  "ugho": {
+   "file": "atlas_portraits_1.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/ugho.png",
+   "sx": 0,
+   "sy": 0
+  },
+  "o002": {
+   "file": "atlas_portraits_1.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/o002.png",
+   "sx": 0,
+   "sy": 130
+  },
+  "u004": {
+   "file": "atlas_portraits_1.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/u004.png",
+   "sx": 0,
+   "sy": 260
+  },
+  "e000": {
+   "file": "atlas_portraits_1.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/e000.png",
+   "sx": 0,
+   "sy": 390
+  },
+  "n00I": {
+   "file": "atlas_portraits_1.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/n00I.png",
+   "sx": 0,
+   "sy": 520
+  },
+  "u005": {
+   "file": "atlas_portraits_1.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/u005.png",
+   "sx": 0,
+   "sy": 650
+  },
+  "n00J": {
+   "file": "atlas_portraits_1.png",
+   "fw": 128,
+   "fh": 128,
+   "frames": 8,
+   "src": "portraits/n00J.png",
+   "sx": 0,
+   "sy": 780
   }
  },
- "shadows": true
+ "shadows": true,
+ "lane": {
+  "ground": {
+   "file": "lane_ground.jpg",
+   "w": 4992,
+   "h": 883,
+   "src": "lane_ground.jpg"
+  },
+  "x0": -4,
+  "y0": -2,
+  "x1": 48,
+  "y1": 10,
+  "ppu": 96,
+  "pitch": 12,
+  "layout": [
+   {
+    "type": "lane_tree1",
+    "x": 1.42,
+    "y": -1.46,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 31.11,
+    "y": -1.45,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 3.62,
+    "y": -1.44,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 7.33,
+    "y": -1.42,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 8.32,
+    "y": -1.42,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 17.17,
+    "y": -1.42,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 10.31,
+    "y": -1.41,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 15.32,
+    "y": -1.41,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 39.32,
+    "y": -1.41,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 22.07,
+    "y": -1.4,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 30.03,
+    "y": -1.37,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 33.67,
+    "y": -1.37,
+    "flip": false
+   },
+   {
+    "type": "lane_tree3",
+    "x": 24.84,
+    "y": -1.36,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": -1.62,
+    "y": -1.35,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 34.63,
+    "y": -1.34,
+    "flip": false
+   },
+   {
+    "type": "lane_tree3",
+    "x": 5.56,
+    "y": -1.33,
+    "flip": false
+   },
+   {
+    "type": "lane_tree3",
+    "x": 11.41,
+    "y": -1.33,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 37.44,
+    "y": -1.32,
+    "flip": false
+   },
+   {
+    "type": "lane_tree3",
+    "x": -0.68,
+    "y": -1.3,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 20.16,
+    "y": -1.3,
+    "flip": false
+   },
+   {
+    "type": "lane_tree3",
+    "x": 23.98,
+    "y": -1.3,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": -2.58,
+    "y": -1.29,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 32.78,
+    "y": -1.29,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 18.29,
+    "y": -1.28,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 27.1,
+    "y": -1.28,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 46.06,
+    "y": -1.27,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 43.94,
+    "y": -1.25,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": -3.69,
+    "y": -1.24,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 13.17,
+    "y": -1.24,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 19.24,
+    "y": -1.24,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 46.89,
+    "y": -1.24,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 0.27,
+    "y": -1.23,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 40.54,
+    "y": -1.23,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 45.0,
+    "y": -1.23,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 38.45,
+    "y": -1.22,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 9.36,
+    "y": -1.21,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 26.15,
+    "y": -1.17,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 21.16,
+    "y": -1.16,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 41.34,
+    "y": -1.16,
+    "flip": false
+   },
+   {
+    "type": "lane_tree1",
+    "x": 43.15,
+    "y": -1.16,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 16.16,
+    "y": -1.15,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 29.07,
+    "y": -1.14,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 2.46,
+    "y": -1.13,
+    "flip": false
+   },
+   {
+    "type": "lane_tree4",
+    "x": 42.25,
+    "y": -1.13,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 12.17,
+    "y": -1.12,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 31.92,
+    "y": -1.11,
+    "flip": false
+   },
+   {
+    "type": "lane_tree3",
+    "x": 36.36,
+    "y": -1.11,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 14.41,
+    "y": -1.1,
+    "flip": false
+   },
+   {
+    "type": "lane_tree2",
+    "x": 28.05,
+    "y": -1.1,
+    "flip": false
+   },
+   {
+    "type": "lane_rock1",
+    "x": 4.58,
+    "y": -0.98,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 6.32,
+    "y": -0.98,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 22.98,
+    "y": -0.98,
+    "flip": false
+   },
+   {
+    "type": "lane_rock1",
+    "x": 35.52,
+    "y": -0.98,
+    "flip": false
+   },
+   {
+    "type": "lane_rock1",
+    "x": 8.4,
+    "y": -0.75,
+    "flip": false
+   },
+   {
+    "type": "lane_rock1",
+    "x": 19.7,
+    "y": -0.75,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": 30.2,
+    "y": -0.75,
+    "flip": false
+   },
+   {
+    "type": "lane_rock1",
+    "x": 41.1,
+    "y": -0.75,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": -3.2,
+    "y": -0.75,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": 46.9,
+    "y": -0.75,
+    "flip": false
+   },
+   {
+    "type": "lane_fence",
+    "x": 5.5,
+    "y": -0.62,
+    "flip": false
+   },
+   {
+    "type": "lane_fence",
+    "x": 27.5,
+    "y": -0.62,
+    "flip": false
+   },
+   {
+    "type": "lane_wall",
+    "x": 16.6,
+    "y": -0.6,
+    "flip": false
+   },
+   {
+    "type": "lane_wall",
+    "x": 38.4,
+    "y": -0.6,
+    "flip": false
+   },
+   {
+    "type": "lane_banner",
+    "x": 1.0,
+    "y": -0.45,
+    "flip": false
+   },
+   {
+    "type": "lane_banner",
+    "x": 22.0,
+    "y": -0.45,
+    "flip": false
+   },
+   {
+    "type": "lane_banner",
+    "x": 43.0,
+    "y": -0.45,
+    "flip": false
+   },
+   {
+    "type": "lane_lantern",
+    "x": 11.5,
+    "y": -0.42,
+    "flip": false
+   },
+   {
+    "type": "lane_lantern",
+    "x": 32.5,
+    "y": -0.42,
+    "flip": false
+   },
+   {
+    "type": "lane_brazier",
+    "x": -0.55,
+    "y": 0.75,
+    "flip": false
+   },
+   {
+    "type": "lane_brazier",
+    "x": 44.55,
+    "y": 0.75,
+    "flip": false
+   },
+   {
+    "type": "lane_waygate",
+    "x": -2.0,
+    "y": 4.0,
+    "flip": false
+   },
+   {
+    "type": "lane_portal",
+    "x": 46.0,
+    "y": 4.0,
+    "flip": false
+   },
+   {
+    "type": "lane_brazier",
+    "x": -0.55,
+    "y": 7.25,
+    "flip": false
+   },
+   {
+    "type": "lane_brazier",
+    "x": 44.55,
+    "y": 7.25,
+    "flip": false
+   },
+   {
+    "type": "lane_wall",
+    "x": 10.5,
+    "y": 8.58,
+    "flip": false
+   },
+   {
+    "type": "lane_wall",
+    "x": 33.5,
+    "y": 8.58,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 24.91,
+    "y": 8.59,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": 7.77,
+    "y": 8.6,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 41.7,
+    "y": 8.6,
+    "flip": false
+   },
+   {
+    "type": "lane_rock1",
+    "x": -3.4,
+    "y": 8.61,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": 22.03,
+    "y": 8.61,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 30.21,
+    "y": 8.61,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 19.37,
+    "y": 8.62,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": -0.28,
+    "y": 8.63,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 5.56,
+    "y": 8.63,
+    "flip": false
+   },
+   {
+    "type": "lane_rock1",
+    "x": 36.08,
+    "y": 8.63,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": 27.81,
+    "y": 8.64,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 44.25,
+    "y": 8.64,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 2.5,
+    "y": 8.65,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": 46.69,
+    "y": 8.66,
+    "flip": false
+   },
+   {
+    "type": "lane_rock1",
+    "x": 39.04,
+    "y": 8.67,
+    "flip": false
+   },
+   {
+    "type": "lane_bush",
+    "x": 16.36,
+    "y": 8.68,
+    "flip": false
+   },
+   {
+    "type": "lane_rock2",
+    "x": 13.75,
+    "y": 8.7,
+    "flip": false
+   },
+   {
+    "type": "lane_brazier",
+    "x": 1.0,
+    "y": 8.72,
+    "flip": false
+   },
+   {
+    "type": "lane_brazier",
+    "x": 43.0,
+    "y": 8.72,
+    "flip": false
+   }
+  ],
+  "spawn": {
+   "x": -2.0,
+   "y": 4.0,
+   "z": 1.27
+  },
+  "exit": {
+   "x": 46.0,
+   "y": 4.0,
+   "z": 1.15
+  }
+ }
 }

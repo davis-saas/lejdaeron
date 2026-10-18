@@ -1,5 +1,9 @@
 // Loads the Blender-rendered sprite atlases listed in assets/manifest.json and prepares tinted variants.
-const V = Date.now();   // bust the browser cache so re-rendered sprites show up immediately
+// Asset URLs carry a version: the published build's stamp (tools/publish.mjs writes BUILD, a hash of the build), so a
+// browser keeps what it has until the next build; a working copy has none and asks for fresh files on every load, so
+// re-rendered sprites show up at once.
+const BUILD = 'c7bd234229c1';
+const V = BUILD || String(Date.now());
 
 function loadImage(file, tries = 3) {
   return new Promise((resolve, reject) => {
@@ -25,6 +29,7 @@ export async function loadAssets(onProgress) {
   const man = await fetch(`assets/manifest.json?v=${V}`).then(r => r.json());
   const layout = await fetch(`assets/layout.json?v=${V}`).then(r => r.json());
   const entries = [man.ground];
+  if (man.lane && man.lane.ground && man.lane.ground.file) entries.push(man.lane.ground);   // Line Tower Wars lane art
   for (const sec of ['towers', 'creeps', 'props', 'icons', 'portraits', 'ui']) if (man[sec]) entries.push(...Object.values(man[sec]).filter(m => m && m.file));
   const files = [...new Set(entries.map(m => m.file))];
   const images = {};

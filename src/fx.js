@@ -1,6 +1,6 @@
 // Visual effects: projectiles, impacts, beams, corpses, floating text and ambient particles.
-import { P, CK as K, sx, sy, hexA, drawFlame } from './render.js';
-import { SIN, TILE } from './level.js';
+import { P, sx, sy, hexA, drawFlame } from './render.js?v=c7bd234229c1';
+import { SIN, TILE } from './level.js?v=c7bd234229c1';
 
 const COL = {
   arrow: '#e8d8b0', spear: '#d8c8a0', bullet: '#ffe9a0', blood: '#c01818', quake: '#b08a5a', wisp: '#bfe8ff', frost: '#8fe0ff',
@@ -9,16 +9,29 @@ const COL = {
 };
 const rnd = (a, b) => a + Math.random() * (b - a);
 const MAX_PARTS = 1400;
+// Drops the finished entries of a list in place (no new array every frame).
+function prune(list, alive) {
+  let n = 0;
+  for (let i = 0; i < list.length; i++) if (alive(list[i])) list[n++] = list[i];
+  list.length = n;
+}
+const live = (o) => o.life > 0;
 
 export class FX {
-  constructor() {
+  // opts.lane: a Line Tower Wars lane (leaks show at the exit, there is no castle). opts.maxParts caps the particles.
+  constructor(opts = {}) {
+    this.lane = !!opts.lane; this.maxParts = opts.maxParts || MAX_PARTS;
     this.parts = []; this.decals = []; this.texts = []; this.beams = []; this.corpses = [];
-    this.track = new Map(); this.hitFlash = new Map(); this.emitters = new Map();
+    this.track = new Map(); this.hitFlash = new Map(); this.emitters = new Map(); this.seen = new Set();
     this.castleFlash = 0; this.t = 0;
+  }
+  clear() {
+    this.parts.length = 0; this.decals.length = 0; this.texts.length = 0; this.beams.length = 0; this.corpses.length = 0;
+    this.track.clear(); this.hitFlash.clear(); this.castleFlash = 0;
   }
 
   // ---------------------------------------------------------------- spawning helpers
-  part(p) { if (this.parts.length < MAX_PARTS) this.parts.push(Object.assign({ vx: 0, vy: 0, g: 0, grow: 0, add: true, kind: 'glow', life: 0.5, a: 1 }, p, { max: p.life ?? 0.5 })); }
+  part(p) { if (this.parts.length < this.maxParts) this.parts.push(Object.assign({ vx: 0, vy: 0, g: 0, grow: 0, add: true, kind: 'glow', life: 0.5, a: 1 }, p, { max: p.life ?? 0.5 })); }
   text(X, Y, text, color, size = 14, life = 1.2) { this.texts.push({ X, Y, text, color, size, life, max: life }); }
   burst(X, Y, color, n = 8, speed = 60, life = 0.35, size = 2, g = 0) {
     for (let i = 0; i < n; i++) {
@@ -50,17 +63,19 @@ export class FX {
         break;
       }
       case 'death': {
-        const c = e.creep, m = r.creepMeta(c), { row, flip } = r.creepDir(c);
+        const c = e.creep, m = r.creepMeta(c), K = r.creepK(c), { row, flip } = r.creepDir(c);
         const X = sx(c.x), Y = sy(c.y);
-        this.corpses.push({ m, x: c.x, y: c.y, row, flip, col: Math.floor(c.walk * 1.7) % m.frames, life: 1.1, max: 1.1, fly: c.def.flying,
+        this.corpses.push({ m, k: K, x: c.x, y: c.y, row, flip, col: Math.floor(c.walk * 1.7) % m.frames, life: 1.1, max: 1.1, fly: c.def.flying,
           box: [X - m.ax * K, Y - m.ay * K, m.fw * K, m.fh * K] });
         const top = Y - m.ay * K;
-        this.goldText(X, top - 2, e.gold);
+        if (e.gold) this.goldText(X, top - 2, e.gold);   // Creep Fix kills pay nothing
+        if (e.fix) this.burst(X, Y - m.ay * K * 0.5, '#fff0a8', 10, 60, 0.5, 2);
         if (c.def.look === 'infernal' || c.def.look === 'shade' || c.def.look === 'wraith' || c.def.look === 'banshee') this.burst(X, Y - m.ay * K * 0.5, c.def.look === 'infernal' ? '#6bff3a' : '#cfe8ff', 14, 70, 0.6, 2.5);
         else { this.decal(X, Y, 7 + m.fw * K * 0.12, 'blood', 5); this.burst(X, Y - m.ay * K * 0.4, '#a01010', 6, 40, 0.4, 2, 160); }
         break;
       }
       case 'leak': {
+        if (this.lane) { const c = e.creep; this.text(sx(Math.min(c.x, 43.5)), sy(c.y) - 40, '-1 life', '#ff5a48', 16, 1.4); break; }
         this.castleFlash = 1;
         this.text(sx(6.6), sy(14.5) - 46, '-1 life', '#ff5a48', 16, 1.4);
         break;
@@ -73,6 +88,30 @@ export class FX {
       }
       case 'sell': this.goldText(sx(e.tower.x), sy(e.tower.y) - 30, e.gold); this.smoke(sx(e.tower.x), sy(e.tower.y), 8, 8, '#8a7a62'); break;
       case 'bash': { const c = r.creepCenter(e.creep); this.burst(c.X, c.Y, '#ffe36b', 6, 50, 0.3, 2); break; }
+      // Line Tower Wars attackers (phase 3): towers that take blows and fall, death damage, reincarnation
+      case 'damaged': if (e.tower) this.burst(sx(e.tower.x), sy(e.tower.y) - 22, '#c8b48a', 3, 45, 0.3, 1.8, 180); break;
+      case 'destroyed': {
+        const X = sx(e.tower.x), Y = sy(e.tower.y);
+        this.part({ x: X, y: Y - 20, life: 0.35, size: 30, color: '#ffb040', kind: 'flash' });
+        this.burst(X, Y - 18, '#8a7458', 16, 110, 0.6, 3, 260);
+        this.smoke(X, Y - 8, 10, 10, '#5a5048');
+        this.decal(X, Y, 14, 'scorch', 8);
+        break;
+      }
+      case 'blast': {
+        const X = sx(e.x), Y = sy(e.y);
+        this.decals.push({ X, Y, r: Math.max(0.5, (e.radius || 100) / TILE) * P, kind: 'ring', color: '#ff7a2a', life: 0.5, max: 0.5 });
+        this.part({ x: X, y: Y - 10, life: 0.4, size: 34, color: '#ff8a22', kind: 'flash' });
+        this.burst(X, Y - 10, '#ffcf60', 14, 120, 0.5, 2.5, 120);
+        break;
+      }
+      case 'hurt': if (e.creep) this.hitFlash.set(e.creep.id, this.t); break;
+      case 'reincarnate': case 'reborn': {
+        const c = r.creepCenter(e.creep);
+        this.burst(c.X, c.Y, e.type === 'reborn' ? '#dff6ff' : '#8fd0ff', e.type === 'reborn' ? 16 : 8, 70, 0.6, 2.2, -40);
+        if (e.type === 'reborn') this.part({ x: c.X, y: c.Y, life: 0.4, size: 26, color: '#bfe8ff', kind: 'flash' });
+        break;
+      }
     }
   }
 
@@ -122,20 +161,21 @@ export class FX {
     for (const p of this.parts) {
       p.life -= dt; p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.size += p.grow * dt;
     }
-    this.parts = this.parts.filter(p => p.life > 0);
+    prune(this.parts, live);
     for (const d of this.decals) d.life -= dt;
-    this.decals = this.decals.filter(d => d.life > 0);
+    prune(this.decals, live);
     for (const t of this.texts) { t.life -= dt; t.Y -= 26 * dt; }
-    this.texts = this.texts.filter(t => t.life > 0);
+    prune(this.texts, live);
     for (const b of this.beams) b.life -= dt;
-    this.beams = this.beams.filter(b => b.life > 0);
+    prune(this.beams, live);
     for (const c of this.corpses) c.life -= dt;
-    this.corpses = this.corpses.filter(c => c.life > 0);
+    prune(this.corpses, live);
     this.castleFlash = Math.max(0, this.castleFlash - dt * 1.5);
     if (this.hitFlash.size > 400) this.hitFlash.clear();
 
     // projectiles: screen positions and trails
-    const seen = new Set();
+    const seen = this.seen;
+    seen.clear();
     for (const m of game.missiles) {
       seen.add(m.id);
       let s = this.track.get(m.id);
@@ -177,7 +217,7 @@ export class FX {
         else this.part({ x: X + rnd(-6, 6) * s, y: Y + rnd(-6, 6) * s, vy: rnd(-16, -4), life: rnd(0.4, 0.9), size: 1.8, color: f.color });
       }
     }
-    if (Math.random() < dt * 8) {
+    if (!this.lane && Math.random() < dt * 8) {
       const p = r.props.find(q => q.portal);
       if (p) this.part({ x: sx(p.x) + rnd(-20, 20), y: sy(p.y) - rnd(10, 70), vy: rnd(-22, -8), vx: rnd(-6, 6), life: rnd(0.6, 1.2), size: 2, color: Math.random() < 0.5 ? '#7dff5a' : '#b06bff' });
     }
@@ -212,30 +252,36 @@ export class FX {
   drawCorpse(ctx, d, r) {
     const k = d.life / d.max;
     const X = sx(d.x), Y = sy(d.y) + (1 - k) * (d.fly ? 14 : 6);
-    r.frame(ctx, d.m, d.m.img, d.col, d.row, X, Y, d.flip, Math.min(1, k * 1.6) * 0.95);
+    r.frame(ctx, d.m, d.m.img, d.col, d.row, X, Y, d.flip, Math.min(1, k * 1.6) * 0.95, d.k);
   }
 
   drawAir(ctx, r) {
     // castle hit flash
     if (this.castleFlash > 0) r.glow(ctx, sx(5.2), sy(14.5) - 30, 90, '#ff3020', 0.5 * this.castleFlash);
-    for (const b of this.beams) this.drawBeam(ctx, b);
-    for (const s of this.track.values()) this.drawMissile(ctx, s, s.kind);
+    for (const b of this.beams) this.drawBeam(ctx, b, r);
+    for (const s of this.track.values()) this.drawMissile(ctx, s, s.kind, r);
+    if (!this.parts.length) return;
+    // smoke first with normal blending, then every additive particle in one 'lighter' batch
+    ctx.save();
+    for (const p of this.parts) {
+      if (p.kind !== 'smoke') continue;
+      ctx.globalAlpha = Math.max(0, p.a * p.life / p.max); ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'lighter';
     for (const p of this.parts) {
       const k = Math.max(0, p.life / p.max);
-      if (p.kind === 'smoke') {
-        ctx.save(); ctx.globalAlpha = p.a * k; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-      } else if (p.kind === 'spark') {
-        ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = hexA(p.color, k); ctx.lineWidth = p.size;
-        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 0.04, p.y - p.vy * 0.04); ctx.stroke(); ctx.restore();
-      } else if (p.kind === 'flash') {
-        r.glow(ctx, p.x, p.y, p.size * (1.4 - k * 0.4), p.color, 0.9 * k);
-      } else {
-        r.glow(ctx, p.x, p.y, p.size * 2.2, p.color, 0.85 * k);
-      }
+      if (p.kind === 'smoke') continue;
+      if (p.kind === 'spark') {
+        ctx.globalAlpha = 1; ctx.strokeStyle = hexA(p.color, k); ctx.lineWidth = p.size;
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 0.04, p.y - p.vy * 0.04); ctx.stroke();
+      } else if (p.kind === 'flash') r.glowAdd(ctx, p.x, p.y, p.size * (1.4 - k * 0.4), p.color, 0.9 * k);
+      else r.glowAdd(ctx, p.x, p.y, p.size * 2.2, p.color, 0.85 * k);
     }
+    ctx.restore();
   }
 
-  drawMissile(ctx, s, kind) {
+  drawMissile(ctx, s, kind, r) {
     const { X, Y, ang } = s, c = Math.cos(ang), n = Math.sin(ang);
     ctx.save();
     switch (kind) {
@@ -258,19 +304,21 @@ export class FX {
         for (let i = 0; i < 4; i++) { const a = this.t * 14 + i * 1.6; ctx.beginPath(); ctx.ellipse(X + Math.cos(a) * 5, Y + Math.sin(a) * 3, 3, 1.4, a, 0, Math.PI * 2); ctx.fill(); }
         break;
       case 'meteor':
-        ctx.restore(); drawGlow(ctx, X, Y, 18, '#ff6a1a', 0.9); drawGlow(ctx, X, Y, 6, '#fff0c0', 1); return;
+        ctx.globalCompositeOperation = 'lighter';
+        r.glowAdd(ctx, X, Y, 18, '#ff6a1a', 0.9); r.glowAdd(ctx, X, Y, 6, '#fff0c0', 1);
+        break;
       default: {
         const col = COL[kind] || '#ffffff';
-        ctx.restore();
-        drawGlow(ctx, X, Y, kind === 'wisp' || kind === 'moon' ? 11 : 9, col, 0.85);
-        drawGlow(ctx, X, Y, 3.5, '#ffffff', 0.9);
-        return;
+        ctx.globalCompositeOperation = 'lighter';
+        r.glowAdd(ctx, X, Y, kind === 'wisp' || kind === 'moon' ? 11 : 9, col, 0.85);
+        r.glowAdd(ctx, X, Y, 3.5, '#ffffff', 0.9);
+        break;
       }
     }
     ctx.restore();
   }
 
-  drawBeam(ctx, b) {
+  drawBeam(ctx, b, r) {
     const k = b.life / b.max;
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
     if (b.kind === 'lightning') {
@@ -295,7 +343,7 @@ export class FX {
       ctx.strokeStyle = hexA(col, 0.85 * k); ctx.lineWidth = wdt;
       ctx.beginPath(); ctx.moveTo(b.x0, b.y0); ctx.lineTo(b.x1, b.y1); ctx.stroke();
       if (wdt > 2) { ctx.strokeStyle = `rgba(255,255,255,${0.7 * k})`; ctx.lineWidth = 1.2; ctx.stroke(); }
-      drawGlow(ctx, b.x1, b.y1, 8, col, 0.7 * k);
+      r.glowAdd(ctx, b.x1, b.y1, 8, col, 0.7 * k);
     }
     ctx.restore();
   }
@@ -321,11 +369,4 @@ export class FX {
       ctx.restore();
     }
   }
-}
-
-function drawGlow(ctx, X, Y, r, color, a) {
-  ctx.save(); ctx.globalCompositeOperation = 'lighter';
-  const g = ctx.createRadialGradient(X, Y, 0, X, Y, r);
-  g.addColorStop(0, hexA(color, a)); g.addColorStop(0.45, hexA(color, a * 0.35)); g.addColorStop(1, hexA(color, 0));
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X, Y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore();
 }

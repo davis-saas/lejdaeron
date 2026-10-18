@@ -1,5 +1,5 @@
 // Draws the battlefield: Blender ground and props, depth-sorted towers and creeps, overlays.
-import { COLS, ROWS, SIN, COS, TOP, SCREEN_W, SCREEN_H, buildable, TILE } from './level.js';
+import { COLS, ROWS, SIN, COS, TOP, SCREEN_W, SCREEN_H, buildable, TILE } from './level.js?v=c7bd234229c1';
 
 export const P = 48;                 // logical px per tile
 export const K = P / 96;             // sprites are rendered at 96 px per tile
@@ -10,6 +10,7 @@ export const sx = (x) => x * P;
 export const sy = (y, z = 0) => (y * SIN - z * COS + TOP) * P;
 
 const overlap = (a, b) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
+const GLOWS = new Map();   // color -> pre-rendered radial glow, so particles cost one drawImage instead of a gradient
 
 export class Renderer {
   constructor(canvas, assets) {
@@ -18,6 +19,7 @@ export class Renderer {
     this.man = assets.man;
     this.layout = assets.layout;
     this.scale = 1;
+    this.looks = new Map();   // creep def -> { m, k }: its sprite and draw scale
     this.props = this.buildProps();
   }
 
@@ -43,6 +45,7 @@ export class Renderer {
   }
 
   buildStatic() {
+    if (!this.canvas.width || !this.canvas.height) { this.static = null; this.mini = null; return; }   // zero-size viewport
     const c = document.createElement('canvas');
     c.width = this.canvas.width; c.height = this.canvas.height;
     const x = c.getContext('2d');
@@ -110,16 +113,34 @@ export class Renderer {
     g.addColorStop(0, hexA(color, a)); g.addColorStop(0.45, hexA(color, a * 0.35)); g.addColorStop(1, hexA(color, 0));
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X, Y, r, 0, Math.PI * 2); ctx.fill(); ctx.restore();
   }
+  // The same glow from a cached sprite. The caller sets the 'lighter' blend (and restores globalAlpha) once for a batch.
+  glowAdd(ctx, X, Y, r, color, a = 0.7) {
+    if (!(r > 0) || !(a > 0)) return;
+    ctx.globalAlpha = a > 1 ? 1 : a;
+    ctx.drawImage(glowSprite(color), X - r, Y - r, r * 2, r * 2);
+  }
 
   // ---------------------------------------------------------------- geometry helpers
-  creepMeta(c) { return this.man.creeps[c.def.look]; }
+  // A creep's sprite: one modelled for its unit id if it exists, else its shared look (scaled by the unit's
+  // placeholder `scale` hint, which a unit-id sprite ignores). Portraits follow the same rule.
+  look(def) {
+    let l = this.looks.get(def);
+    if (!l) {
+      const own = this.man.creeps[def.id];
+      l = { m: own || this.man.creeps[def.look] || Object.values(this.man.creeps)[0], k: CK * (own ? 1 : def.scale || 1) };
+      this.looks.set(def, l);
+    }
+    return l;
+  }
+  creepMeta(c) { return this.look(c.def).m; }
+  creepK(c) { return this.look(c.def).k; }
   creepBox(c) {
-    const m = this.creepMeta(c), X = sx(c.x), Y = sy(c.y);
-    return [X - m.ax * CK, Y - m.ay * CK, m.fw * CK, m.fh * CK];
+    const { m, k } = this.look(c.def), X = sx(c.x), Y = sy(c.y);
+    return [X - m.ax * k, Y - m.ay * k, m.fw * k, m.fh * k];
   }
   creepCenter(c) {
-    const m = this.creepMeta(c);
-    return { X: sx(c.x), Y: sy(c.y) - m.ay * CK * (c.def.flying ? 0.55 : 0.45) };
+    const { m, k } = this.look(c.def);
+    return { X: sx(c.x), Y: sy(c.y) - m.ay * k * (c.def.flying ? 0.55 : 0.45) };
   }
   towerBox(t) {
     const m = this.man.towers[t.def.id], X = sx(t.x), Y = sy(t.y);
@@ -144,7 +165,8 @@ export class Renderer {
   draw(game, view, fx, t) {
     const ctx = this.ctx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    if (this.static) ctx.drawImage(this.static, 0, 0);
+    if (!this.static) return;   // zero-size viewport
+    ctx.drawImage(this.static, 0, 0);
     ctx.setTransform(this.scale, 0, 0, this.scale, 0, 0);
 
     if (view.placing) this.drawGrid(ctx, game, view);
@@ -155,7 +177,7 @@ export class Renderer {
 
     const baked = this.man.shadows;   // Cycles sprites carry their own cast shadows; keep only a faint contact shadow
     for (const tw of game.towers) this.blob(ctx, sx(tw.x) + 1, sy(tw.y) + 1, P * 0.42, baked ? 0.14 : 0.34);
-    for (const c of game.creeps) { const m = this.creepMeta(c); this.blob(ctx, sx(c.x) + 1, sy(c.y) + 1, P * (c.def.flying ? 0.16 : 0.2), baked ? (c.def.flying ? 0.12 : 0.16) : 0.3); }
+    for (const c of game.creeps) this.blob(ctx, sx(c.x) + 1, sy(c.y) + 1, P * (c.def.flying ? 0.16 : 0.2), baked ? (c.def.flying ? 0.12 : 0.16) : 0.3);
     if (sel) {
       if (sel.def && sel.def.range) this.selection(ctx, sx(sel.x), sy(sel.y), P * 0.5, '#5aff4a');
       else if (sel.hp !== undefined) this.selection(ctx, sx(sel.x), sy(sel.y), P * (sel.def.flying ? 0.3 : 0.34), '#ff4a3a');
@@ -262,16 +284,16 @@ export class Renderer {
   }
 
   drawCreep(ctx, c, game, t, fx) {
-    const m = this.creepMeta(c), X = sx(c.x), Y = sy(c.y);
+    const { m, k } = this.look(c.def), X = sx(c.x), Y = sy(c.y);
     const { row, flip } = this.creepDir(c);
     const col = Math.floor(c.walk * 1.7) % m.frames;
     const slowed = (c.slowUntil > game.time && c.slowPct > 0) || c.auraSlow > 0 || c.poisons.some(p => p.slow);
     const hit = fx.hitFlash.get(c.id);
     const img = hit && t - hit < 0.06 ? m.hitImg : slowed ? m.slowImg : m.img;
     const hidden = c.def.invisible && !game.visible(c);
-    this.frame(ctx, m, img, col, row, X, Y, flip, hidden ? 0.28 : 1);
+    this.frame(ctx, m, img, col, row, X, Y, flip, hidden ? 0.28 : 1, k);
     if (c.stunUntil > game.time) {
-      const top = Y - m.ay * CK - 4;
+      const top = Y - m.ay * k - 4;
       for (let i = 0; i < 3; i++) {
         const a = t * 6 + i * 2.1;
         ctx.fillStyle = '#ffe36b';
@@ -281,8 +303,8 @@ export class Renderer {
   }
 
   healthBar(ctx, c, game) {
-    const m = this.creepMeta(c), X = sx(c.x), Y = sy(c.y);
-    const w = Math.max(22, Math.min(46, m.fw * CK * 0.75)), top = Y - m.ay * CK - 5;
+    const { m, k: ck } = this.look(c.def), X = sx(c.x), Y = sy(c.y);
+    const w = Math.max(22, Math.min(46, m.fw * ck * 0.75)), top = Y - m.ay * ck - 5;
     const k = Math.max(0, c.hp / c.maxHp);
     ctx.fillStyle = 'rgba(8,6,4,0.9)';
     ctx.fillRect(X - w / 2 - 1.5, top - 1.5, w + 3, 6);
@@ -305,9 +327,9 @@ export class Renderer {
     let best = null, bd = 1e9;
     for (const c of game.creeps) {
       if (c.def.invisible && !game.visible(c)) continue;
-      const { X, Y } = this.creepCenter(c), m = this.creepMeta(c);
+      const { X, Y } = this.creepCenter(c), { m, k } = this.look(c.def);
       const d = Math.hypot(lx - X, ly - Y);
-      if (d < Math.max(14, m.fw * CK * 0.45) && d < bd) { bd = d; best = c; }
+      if (d < Math.max(14, m.fw * k * 0.45) && d < bd) { bd = d; best = c; }
     }
     if (best) return { creep: best };
     const x = lx / P, y = (ly / P - TOP) / SIN;
@@ -318,6 +340,18 @@ export class Renderer {
     for (let dr = 1; dr <= 2; dr++) { const t2 = game.towerAt(c, r + dr); if (t2 && overlap([lx, ly, 1, 1], this.towerBox(t2))) return { tower: t2, c, r: r + dr }; }
     return { c, r };
   }
+}
+
+function glowSprite(color) {
+  let c = GLOWS.get(color);
+  if (!c) {
+    c = document.createElement('canvas'); c.width = c.height = 64;
+    const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, hexA(color, 1)); g.addColorStop(0.45, hexA(color, 0.35)); g.addColorStop(1, hexA(color, 0));
+    x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+    GLOWS.set(color, c);
+  }
+  return c;
 }
 
 export function hexA(h, a) {

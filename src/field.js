@@ -1,9 +1,11 @@
 // The combat core shared by every mode: towers, creeps and missiles, the WC3 damage and armour rules, splash, bounce,
 // slow, poison, bash, the slow aura, immolation, true sight, bounty and the event stream the renderer and effects use.
+// Line Tower Wars lanes (src/lane.js) add the phase-3 rules on top by overriding hooks (creep auras and regeneration,
+// reincarnation, hardened skin, attackers and tower hit points); Classic Defense uses this file as it is.
 // Movement is pluggable: a mover's advance(c, tiles) moves a creep `tiles` along its route and returns true when the
 // creep has reached the end. Classic Defense (src/game.js) uses a fixed road; Line Tower Wars lanes (src/lane.js) use
 // a flow field. Subclasses decide what an arrival or a kill means by overriding arrive(c) and kill(c).
-import { DAMAGE, ARMOR } from './data/rules.js';
+import { DAMAGE, ARMOR } from './data/rules.js?v=c7bd234229c1';
 
 export const TILE = 128;             // WC3 units per tile (one tower footprint)
 export const BUILD_TIME = 1.0;       // construction animation, seconds
@@ -14,19 +16,23 @@ export const armorFactor = (a) => a >= 0 ? 1 - (0.06 * a) / (1 + 0.06 * a) : 2 -
 export const typeFactor = (atk, armorType) => (DAMAGE[atk] || DAMAGE.normal)[Math.max(0, ARMOR.indexOf(armorType))];
 export const avgDamage = (t) => t.dmgBase + t.dice * (t.sides + 1) / 2;
 
-// Object ids are unique across every field in the process, so a creep keeps its id when it walks into another lane.
-let uid = 1;
-export const nextId = () => uid++;
+// Air or ground as a target: Line Tower Wars units carry the map's Targeted As (`air`), which can differ from how they
+// move (h01M Phoenix flies but is targeted as ground); Classic creeps only have `flying`.
+export const isAirTarget = (def) => def.air ?? def.flying;
 
 export class Field {
-  constructor({ rng = Math.random, mover = null } = {}) {
+  // ids: the id counter ({ next }). A match passes one counter to all its lanes, so ids are unique across the match and
+  // a creep keeps its id when it walks into another lane; every game or match starts again at 1, whatever ran before.
+  constructor({ rng = Math.random, mover = null, ids = null } = {}) {
     this.rng = rng;                  // injectable: Math.random by default, a seeded generator for tests and matches
     this.mover = mover;
+    this.ids = ids || { next: 1 };
     this.towers = []; this.creeps = []; this.missiles = []; this.events = [];
     this.time = 0;
     this.visEpoch = 0;               // bumped whenever creeps move or towers change; visible() caches per epoch
   }
   emit(e) { this.events.push(e); }
+  nextId() { return this.ids.next++; }
   roll(dice, sides) { let s = 0; for (let i = 0; i < dice; i++) s += 1 + Math.floor(this.rng() * sides); return s; }
 
   // ---------- hooks ----------
@@ -60,7 +66,10 @@ export class Field {
       if (t.building) continue;
       const d = t.def;
       if (!d.auraSlow && !d.immolation) continue;
+      // cheap reject before the exact distance: outside this box both rings miss (padded, so no edge case changes)
+      const R = Math.max(d.auraSlow ? d.auraSlow.range : 0, d.immolation ? d.immolation.range + 64 : 0) / TILE + 1e-6;
       for (const c of this.creeps) {
+        if (Math.abs(c.x - t.x) > R || Math.abs(c.y - t.y) > R) continue;
         const dist = Math.hypot(c.x - t.x, c.y - t.y) * TILE;
         if (d.auraSlow && dist <= d.auraSlow.range && !c.def.magicImmune) c.auraSlow = Math.max(c.auraSlow, d.auraSlow.pct);
         if (d.immolation && dist <= d.immolation.range + 64) c.burn += d.immolation.dps;
@@ -76,6 +85,7 @@ export class Field {
     return Math.max(Math.min(MIN_SPEED, c.def.speed), s);
   }
   move(c, dt) {
+    if (c.idle) return;              // a creep with no orders stands where it is (Line Tower Wars: a leaver's lane)
     const speed = this.speedOf(c);
     if (c.speedNow !== undefined) c.walk += dt * speed / 60;
     c.speedNow = speed;
@@ -93,7 +103,7 @@ export class Field {
   canHit(t, c) {
     const d = t.def;
     if (c.dead) return false;
-    if (c.def.flying ? !d.targetsAir : !d.targetsGround) return false;
+    if (isAirTarget(c.def) ? !d.targetsAir : !d.targetsGround) return false;
     if (d.attackType === 'magic' && c.def.magicImmune) return false;
     return this.visible(c);
   }
@@ -107,9 +117,9 @@ export class Field {
       let best = null;
       for (const c of this.creeps) {
         if (best && c.dist <= best.dist) continue;
-        if (c.dead || (c.def.flying ? !d.targetsAir : !d.targetsGround)) continue;
         const dx = c.x - t.x, dy = c.y - t.y;
-        if (Math.abs(dx) > R || Math.abs(dy) > R) continue;   // cheap reject before the exact checks
+        if (Math.abs(dx) > R || Math.abs(dy) > R) continue;   // cheap reject before the exact checks (pure filters: order is free)
+        if (c.dead || (isAirTarget(c.def) ? !d.targetsAir : !d.targetsGround)) continue;
         if (this.canHit(t, c) && this.inRange(t, c)) best = c;
       }
       t.target = best;
@@ -120,7 +130,7 @@ export class Field {
     const d = t.def, dmg = d.dmgBase + this.roll(d.dice, d.sides);
     this.emit({ type: 'shot', tower: t, target: c });
     if (d.weapon === 'instant' || d.weapon === 'normal') { this.impact(t, c, dmg, c.x, c.y); return; }
-    const m = { id: nextId(), tower: t, def: d, target: c, dmg, x: t.x, y: t.y - 0.45, sx: t.x, sy: t.y - 0.45,
+    const m = { id: this.nextId(), tower: t, def: d, target: c, dmg, x: t.x, y: t.y - 0.45, sx: t.x, sy: t.y - 0.45,
       tx: c.x, ty: c.y, speed: d.missileSpeed / TILE, done: false, bounces: d.bounce ? d.bounce.targets : 0, hit: new Set(), t: 0 };
     if (d.weapon === 'artillery') {   // lands where the target was, after a ballistic arc
       m.flight = Math.max(0.35, Math.hypot(m.tx - m.x, m.ty - m.y) / m.speed);
@@ -170,7 +180,8 @@ export class Field {
   impact(t, c, dmg, x, y, m) {
     const d = t.def;
     this.emit({ type: 'impact', tower: t, creep: c, x, y, missile: d.missile, splash: d.splash && d.weapon !== 'mbounce' ? d.splash : null });
-    if (c && !c.dead && !(c.def.evasion && this.rng() < 0.1)) {
+    // Evasion: Line Tower Wars units carry the ability's own chance (`evade`); Classic creeps keep 10%.
+    if (c && !c.dead && !(c.def.evasion && this.rng() < (c.def.evade ?? 0.1))) {
       this.damage(t, c, dmg);
       this.onHit(t, c);
       if (d.bash && this.rng() * 100 < d.bash.chance) { this.damage(t, c, d.bash.dmg); c.stunUntil = this.time + d.bash.stun; this.emit({ type: 'bash', creep: c }); }

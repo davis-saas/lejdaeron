@@ -1,0 +1,99 @@
+// The overlay dialogs: the mode menu, the vs Computer setup and a helper every mode uses for its pause and end screens.
+// They all reuse the one dialog in index.html (#overlay: crest, h1, .ov-sub, #ov-body and #ov-foot with the main #ov-btn).
+// The body scrolls when the window is too short for it; the dialog's own buttons stay in view under it.
+import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME } from './common.js?v=c7bd234229c1';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=c7bd234229c1';
+
+const $ = (id) => document.getElementById(id);
+const box = () => document.querySelector('.ov-box');
+// The page's own title and credit line (tools/publish.mjs swaps in the public name and adds the credits).
+export const TITLE = document.querySelector('.ov-box h1').textContent;
+const CREDIT = document.querySelector('.ov-credit') ? document.querySelector('.ov-credit').outerHTML : '';
+const SETUP_KEY = 'lejdaeron.vsComputer';
+const MAX_BOTS = 7;
+
+// screen({ title, sub, body, primary: { label, run, disabled }, wide, cls }) shows the dialog; buttons in `body` are
+// wired by the caller after it returns. cls: an extra class for the box (the lobby's is wider still).
+export function screen({ title, sub = '', body = '', primary = null, wide = false, cls = '' }) {
+  $('overlay').classList.add('show');
+  box().className = 'ov-box' + (wide ? ' wide' : '') + (cls ? ' ' + cls : '');
+  box().querySelector('h1').textContent = title;
+  box().querySelector('.ov-sub').textContent = sub;
+  $('ov-body').innerHTML = body;
+  // the body's own row of buttons (its last .ov-actions) and the lobby's .ov-foot go into the foot, above #ov-btn
+  const foot = $('ov-foot'), b = $('ov-btn');
+  for (const e of [...foot.children]) if (e !== b) e.remove();
+  for (const e of $('ov-body').querySelectorAll(':scope > .ov-actions:last-child, .ov-foot')) foot.insertBefore(e, b);
+  b.style.display = primary ? '' : 'none';
+  if (primary) { b.textContent = primary.label; b.disabled = !!primary.disabled; b.onclick = primary.run; }
+  else b.onclick = null;
+}
+export function hideScreen() { $('overlay').classList.remove('show'); }
+export const screenShown = () => $('overlay').classList.contains('show');
+
+// ---------------------------------------------------------------- mode menu
+export function modeMenu({ classic, computer, players = null }) {
+  screen({
+    title: TITLE, sub: 'Choose your battle',
+    body: `<div class="modes">
+      <button class="mode" data-mode="classic"><b>Classic Defense</b><span>One road and 28 levels of creeps. Build, upgrade and hold the castle.</span></button>
+      <button class="mode" data-mode="computer"><b>vs Computer</b><span>Line Tower Wars against 1 to 7 computer players. Maze your lane, send creeps, steal lives.</span></button>
+      <button class="mode" data-mode="players" ${players ? '' : 'disabled'}><b>vs Players</b><span>${players ? 'Line Tower Wars online, 2 to 8 players. Host a game and send the invite link; empty seats can be computers.' : 'Online with friends · coming soon'}</span></button>
+    </div>${CREDIT}`,
+  });
+  const run = { classic, computer, players };
+  for (const b of document.querySelectorAll('#ov-body .mode')) b.onclick = () => { const f = run[b.dataset.mode]; if (f) f(); };
+}
+
+// ---------------------------------------------------------------- vs Computer setup
+export function loadSetup() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SETUP_KEY) || 'null');
+    if (s && Array.isArray(s.bots) && s.bots.length >= 1 && s.bots.length <= MAX_BOTS) return { bots: s.bots.map(d => (DIFFICULTIES.includes(d) ? d : 'normal')) };
+  } catch { /* storage blocked: use the default */ }
+  return { bots: ['normal'] };
+}
+function saveSetup(setup) { try { localStorage.setItem(SETUP_KEY, JSON.stringify(setup)); } catch { /* not kept */ } }
+
+// The human is Red (slot 1); bots take slots 2, 3 and so on.
+export function slotsFor(setup) {
+  return [{ slot: 1, name: LTW_COLORS[1], kind: 'human' },
+    ...setup.bots.map((d, i) => ({ slot: i + 2, name: LTW_COLORS[i + 2], kind: 'bot', difficulty: d }))];
+}
+
+export function setupScreen({ start, back }) {
+  const setup = loadSetup();
+  const render = () => {
+    let rows = `<div class="seat"><i class="sw" style="background:${PLAYER_HEX[1]}"></i><b style="color:${PLAYER_TEXT[1]}">${LTW_COLORS[1]}</b><span class="who">You</span></div>`;
+    setup.bots.forEach((d, i) => {
+      const slot = i + 2;
+      rows += `<div class="seat" data-i="${i}"><i class="sw" style="background:${PLAYER_HEX[slot]}"></i><b style="color:${PLAYER_TEXT[slot]}">${LTW_COLORS[slot]}</b>
+        <span class="diffs">${DIFFICULTIES.map(k => `<button data-d="${k}" class="${k === d ? 'on' : ''}">${DIFF_NAME[k]}</button>`).join('')}</span>
+        <button class="rm" title="Remove this computer" ${setup.bots.length <= 1 ? 'disabled' : ''}>✕</button></div>`;
+    });
+    screen({
+      title: 'vs Computer', sub: 'Line Tower Wars', wide: true,
+      body: `<div class="setup">${rows}
+          <div class="seat-tools">
+            <button class="wc-btn small" id="su-add" ${setup.bots.length >= MAX_BOTS ? 'disabled' : ''}>Add computer</button>
+            <span class="diffs all"><em>All</em>${DIFFICULTIES.map(k => `<button data-d="${k}">${DIFF_NAME[k]}</button>`).join('')}</span>
+          </div>
+        </div>
+        <p class="setup-note">Everyone starts with ${LTW_RULES.startGold} gold, ${LTW_RULES.startIncome} income and ${LTW_RULES.startLives} lives, and income is paid every
+          ${LTW_RULES.incomeInterval} seconds. Sending creeps to the next player raises your income (a few of the strongest lower it). A creep
+          that gets through steals a life for its sender, then walks on into the next lane. The last player standing wins.</p>
+        <div class="ov-actions"><button class="wc-btn small" id="su-back">Back</button></div>`,
+      primary: { label: 'Start', run: () => { saveSetup(setup); start({ bots: setup.bots.slice() }); } },
+    });
+    for (const row of document.querySelectorAll('#ov-body .seat[data-i]')) {
+      const i = +row.dataset.i;
+      for (const b of row.querySelectorAll('.diffs button')) b.onclick = () => { setup.bots[i] = b.dataset.d; render(); };
+      row.querySelector('.rm').onclick = () => { if (setup.bots.length > 1) { setup.bots.splice(i, 1); render(); } };
+    }
+    for (const b of document.querySelectorAll('#ov-body .diffs.all button')) b.onclick = () => { setup.bots = setup.bots.map(() => b.dataset.d); render(); };
+    $('su-add').onclick = () => { if (setup.bots.length < MAX_BOTS) { setup.bots.push(setup.bots[setup.bots.length - 1] || 'normal'); render(); } };
+    $('su-back').onclick = back;
+  };
+  render();
+}
+

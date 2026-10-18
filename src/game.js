@@ -1,11 +1,11 @@
 // Classic Warcraft TD rules. Tower, creep and economy numbers come from Line Tower Wars 45 (see tools/gen_ltw.py).
 // The combat itself (towers, creeps, missiles, damage, buffs, events) is the shared core in src/field.js; this file adds
 // the snake road, the level-by-level waves, the income timer, lives and the build grid.
-import { TOWERS, BUILD_ROOTS } from './data/towers.js';
-import { CREEPS } from './data/creeps.js';
-import { RULES } from './data/rules.js';
-import { COLS, PATH, buildable, pointAt, TOTAL_LEN } from './level.js';
-import { Field, nextId, BUILD_TIME, SPLASH_MED, SPLASH_SMALL, typeFactor, avgDamage } from './field.js';
+import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=c7bd234229c1';
+import { CREEPS } from './data/creeps.js?v=c7bd234229c1';
+import { RULES } from './data/rules.js?v=c7bd234229c1';
+import { COLS, PATH, buildable, pointAt, TOTAL_LEN } from './level.js?v=c7bd234229c1';
+import { Field, BUILD_TIME, SPLASH_MED, SPLASH_SMALL, typeFactor, avgDamage } from './field.js?v=c7bd234229c1';
 
 export { TOWERS, BUILD_ROOTS, CREEPS, RULES, BUILD_TIME, SPLASH_MED, SPLASH_SMALL, typeFactor, avgDamage };
 export const LEVELS = CREEPS.length;
@@ -43,7 +43,7 @@ export class Game extends Field {
     if (!BUILD_ROOTS.includes(id) || !this.canBuild(id, c, r)) return null;
     const def = TOWERS[id];
     this.gold -= def.cost;
-    const t = { id: nextId(), def, c, r, x: c + 0.5, y: r + 0.5, cd: 0, target: null, building: BUILD_TIME, buildTotal: BUILD_TIME, kills: 0, spent: def.cost };
+    const t = { id: this.nextId(), def, c, r, x: c + 0.5, y: r + 0.5, cd: 0, target: null, building: BUILD_TIME, buildTotal: BUILD_TIME, kills: 0, spent: def.cost };
     this.towers.push(t); this.occupied.set(r * COLS + c, t); this.stats.built++;
     this.towersChanged();
     this.emit({ type: 'build', tower: t });
@@ -76,7 +76,7 @@ export class Game extends Field {
   spawn() {
     const def = CREEPS[this.level - 1];
     const lane = ((this.toSpawn * 0.37) % 1 - 0.5) * 0.36;   // small sideways offset so creeps don't stack
-    this.creeps.push({ id: nextId(), def, hp: def.hp, maxHp: def.hp, dist: 0, lane, x: PATH[0][0], y: PATH[0][1], dirx: 0, diry: 1,
+    this.creeps.push({ id: this.nextId(), def, hp: def.hp, maxHp: def.hp, dist: 0, lane, x: PATH[0][0], y: PATH[0][1], dirx: 0, diry: 1,
       slowPct: 0, slowUntil: 0, auraSlow: 0, poisons: [], stunUntil: 0, dead: false, walk: this.rng() * 10 });
   }
 
