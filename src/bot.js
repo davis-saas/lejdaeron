@@ -27,11 +27,11 @@
 // - Difficulty sets the reaction delay, how often it thinks, how noisy and short-sighted its choices are, the maze it
 //   aims for, how much it saves and how aggressive it is. Decisions run a few times per second on cached evaluations
 //   (flow probes and coverage are recomputed only when towers change), so ten bots fit in a browser frame budget.
-import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=99dfd38af943';
-import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_CREEP_FIX, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_ARCADE } from './data/ltw.js?v=99dfd38af943';
-import { typeFactor, armorFactor, avgDamage, TILE } from './field.js?v=99dfd38af943';
-import { flowField, INF, LANE_COLS, LANE_ROWS, SPAWN_U, EXIT_U, tileOf, unitSpeed, RESOURCE_MAX } from './lane.js?v=99dfd38af943';
-import { mulberry32 } from './rng.js?v=99dfd38af943';
+import { TOWERS, BUILD_ROOTS } from './data/towers.js?v=3947ef6d39d3';
+import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_CREEP_FIX, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_ARCADE } from './data/ltw.js?v=3947ef6d39d3';
+import { typeFactor, armorFactor, avgDamage, TILE } from './field.js?v=3947ef6d39d3';
+import { flowField, INF, LANE_COLS, LANE_ROWS, SPAWN_U, EXIT_U, tileOf, unitSpeed, RESOURCE_MAX } from './lane.js?v=3947ef6d39d3';
+import { mulberry32 } from './rng.js?v=3947ef6d39d3';
 
 const COLS = LANE_COLS, ROWS = LANE_ROWS, N = COLS * ROWS;
 const SOLD = LTW_SHOPS.flatMap(s => s.units);

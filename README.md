@@ -29,4 +29,4 @@ On a phone or tablet everything works by touch: tap to select and build, drag to
 
 ## Credits
 
-Rules, towers, creeps and numbers come from the custom map Line Tower Wars 45 by Loss05, Nob, Trymio and t3tr1s. This is a fan project, not affiliated with or endorsed by Blizzard Entertainment. All art is original, modelled and rendered in Blender. Online play uses Trystero (MIT licence, `src/net/vendor/`).
+Rules, towers, creeps and numbers come from the custom map Line Tower Wars 45 by Loss05, Nob, Trymio and t3tr1s. This is an unofficial fan project. All art is original, modelled and rendered in Blender. Online play uses Trystero (MIT licence, `src/net/vendor/`).

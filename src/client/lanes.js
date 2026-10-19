@@ -4,15 +4,19 @@
 // unchanged. Per frame: the lane ground (cached at the current zoom, one canvas shared by every lane) for each lane in
 // view, then each lane's depth-sorted props, towers, creeps and tech area, then missiles, particles and bars, then the
 // name plates.
-import { Renderer, P, K, TK, sx, sy, hexA, drawFlame } from '../render.js?v=99dfd38af943';
-import { SIN, TOP, TILE } from '../level.js?v=99dfd38af943';
-import { SPAWN_U, EXIT_U, LANE_ROWS } from '../lane.js?v=99dfd38af943';
-import { mulberry32 } from '../rng.js?v=99dfd38af943';
-import { tinted } from '../assets.js?v=99dfd38af943';
-import { pixelRatio, canvasScale } from '../device.js?v=99dfd38af943';
-import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, BAND, laneDY, PLAYER_HEX, PLAYER_TEXT, techArea, botNamed } from './common.js?v=99dfd38af943';
+import { Renderer, P, K, TK, sx, sy, hexA, drawFlame, arrived } from '../render.js?v=3947ef6d39d3';
+import { SIN, TOP, TILE } from '../level.js?v=3947ef6d39d3';
+import { SPAWN_U, EXIT_U, LANE_ROWS } from '../lane.js?v=3947ef6d39d3';
+import { mulberry32 } from '../rng.js?v=3947ef6d39d3';
+import { art, src } from '../assets.js?v=3947ef6d39d3';
+import { pixelRatio, canvasScale, LIGHT } from '../device.js?v=3947ef6d39d3';
+import { sheet, drawFrame, loopFrame } from '../sheets.js?v=3947ef6d39d3';
+import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, BAND, laneDY, PLAYER_HEX, PLAYER_TEXT, techArea, botNamed } from './common.js?v=3947ef6d39d3';
 
-const GX0 = sx(LANE_X0), GX1 = sx(LANE_X1), GY0 = sy(LANE_Y0), GY1 = sy(LANE_Y1);   // one band, logical px
+// One band, logical px. The lane art may reach past the plazas (manifest.lane x0, x1: water beyond them); the
+// constructor takes its extent from the manifest.
+let GX0 = sx(LANE_X0), GX1 = sx(LANE_X1);
+const GY0 = sy(LANE_Y0), GY1 = sy(LANE_Y1);
 const REACH = 3.2 * P;              // how far tall sprites reach above their tile (logical px), for culling
 const DARK = '#070906';             // the world beyond the lane art (the map's black boundary, a touch of forest green)
 const FRINGE = LANE_ROWS + 0.25;    // the forest floor past the south kerb, which tiles onto the next lane's north edge
@@ -21,7 +25,10 @@ const SHADOWS_FROM = 30;            // css px per tile: the light set leaves out
 const byKey = (a, b) => a.key - b.key;
 // The ring an aura's bonus puts at the feet of every creep that has it this tick (WC3's aura target art), one colour per
 // kind of bonus: haste (Endurance and Unholy Aura), healing (Unholy), healing in percent (Regeneration), damage (Command).
-const AURA_RINGS = [['moveBonus', '#ffb84a'], ['regenBonus', '#7dff5a'], ['regenPct', '#4affd0'], ['dmgBonus', '#ff6a4a']];
+// Drawn with the effect sheets aura_haste, aura_heal, aura_regen and aura_damage (docs/FX-v2.md), or as stroked rings
+// without them (and on light devices past AURA_SHEETS ringed creeps in view).
+const AURA_RINGS = [['moveBonus', '#ffb84a', 'aura_haste'], ['regenBonus', '#7dff5a', 'aura_heal'], ['regenPct', '#4affd0', 'aura_regen'], ['dmgBonus', '#ff6a4a', 'aura_damage']];
+const AURA_STEP = [1, 1.23, 1.46], AURA_SHEETS = LIGHT ? 40 : Infinity;
 const overlap = (a, b) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
 let BLOB = null;                    // pre-rendered contact shadow
 
@@ -29,6 +36,7 @@ export class LaneRenderer extends Renderer {
   constructor(canvas, assets) {
     super(canvas, assets);
     const L = this.man.lane;
+    if (L && L.ground && L.ground.img) { GX0 = sx(L.x0 ?? LANE_X0); GX1 = sx(L.x1 ?? LANE_X1); this.res = 2 * (L.ground.q || 1); }
     this.spawnAt = (L && L.spawn) || { x: 1, y: LANE_ROWS / 2 };
     this.exitAt = (L && L.exit) || { x: EXIT_U + 1, y: LANE_ROWS / 2 };
     // gate glows after the art (a blue waygate, a red portal); the fallback lane has the Classic violet portal
@@ -44,18 +52,18 @@ export class LaneRenderer extends Renderer {
   // every prop with effect points: braziers, the gates, and the banners, which take each lane owner's colour) are
   // depth-sorted with the towers and creeps every frame. The lane art is never mirrored: its shadows are baked in.
   buildProps() {
-    const L = this.man.lane, M = this.man.props, art = !!(L && Array.isArray(L.layout));
-    const layout = art ? L.layout : fallbackLayout(M);
+    const L = this.man.lane, M = this.man.props, own = !!(L && Array.isArray(L.layout));
+    const layout = own ? L.layout : fallbackLayout(M);
     const cloth = M.lane_banner_cloth && M.lane_banner_cloth.img ? M.lane_banner_cloth : null;
     const list = [];
     const darks = new Map();
     for (const p of layout) {
-      const m = M[p.type];
+      const m = this.propOf(p.type);
       if (!m || !m.img) continue;
       if (!darks.has(m)) darks.set(m, darkened(m));
-      const box = [sx(p.x) - m.ax * K, sy(p.y) - m.ay * K, m.w * K, m.h * K];
+      const z = p.z || 0, box = [sx(p.x) - m.ax * K, sy(p.y, z) - m.ay * K, m.w * K, m.h * K];
       const animated = !!(m.fx && m.fx.length), banner = !!cloth && p.type === 'lane_banner';
-      list.push({ m, dark: darks.get(m), x: p.x, y: p.y, flip: !art && !!p.flip, key: p.y, box, animated, banner,
+      list.push({ m, dark: darks.get(m), x: p.x, y: p.y, z, flip: !own && !!p.flip, key: p.y, box, animated, banner,
         baked: !animated && !banner && p.y < 0 && box[1] >= GY0 - 1 });
     }
     list.sort(byKey);
@@ -72,10 +80,10 @@ export class LaneRenderer extends Renderer {
         const M = this.man.props, m = M.lane_banner, cl = M.lane_banner_cloth, q = m.ss, w = m.w * q, h = m.h * q;
         const c = document.createElement('canvas'); c.width = Math.ceil(w); c.height = Math.ceil(h);
         const x = c.getContext('2d');
-        x.drawImage(cl.img, cl.sx, cl.sy, cl.w * cl.ss, cl.h * cl.ss, 0, 0, w, h);
+        x.drawImage(cl.img, ...src(cl), 0, 0, w, h);
         x.globalCompositeOperation = 'multiply'; x.fillStyle = PLAYER_HEX[slot] || '#ffffff'; x.fillRect(0, 0, w, h);
-        x.globalCompositeOperation = 'destination-in'; x.drawImage(cl.img, cl.sx, cl.sy, cl.w * cl.ss, cl.h * cl.ss, 0, 0, w, h);
-        x.globalCompositeOperation = 'destination-over'; x.drawImage(m.img, m.sx, m.sy, w, h, 0, 0, w, h);
+        x.globalCompositeOperation = 'destination-in'; x.drawImage(cl.img, ...src(cl), 0, 0, w, h);
+        x.globalCompositeOperation = 'destination-over'; x.drawImage(m.img, ...src(m), 0, 0, w, h);
         b = { img: c, sx: 0, sy: 0, w: m.w, h: m.h, ax: m.ax, ay: m.ay, ss: q };
       }
       this.banners.set(key, b);
@@ -96,20 +104,34 @@ export class LaneRenderer extends Renderer {
   // ---------------------------------------------------------------- the cached ground
   // Device px per logical px of the cache: the view's, capped at the art's own (96 px per tile, the light art's 48) and
   // the device's canvas budget.
+  // Zoomed in past the art, the ground's upgrade (hd tiles) once loaded; a cache made while upgrades were on their way is
+  // made again when they are in (the zoom still).
   groundCache(s, zooming) {
-    const cs = canvasScale(GX1 - GX0, GY1 - GY0, Math.min(this.res, s));
-    if (this.cache && (Math.abs(this.cache.cs - cs) < 1e-6 || zooming)) return this.cache;
+    const L = this.man.lane, g = L && L.ground && L.ground.img && !L.ground.missing ? L.ground : null;
+    const up = g && art.groundUp(g), res = up ? 2 * up[0].q : this.res;
+    const cs = canvasScale(GX1 - GX0, GY1 - GY0, Math.min(res, s));
+    if (this.cache && (zooming || (Math.abs(this.cache.cs - cs) < 1e-6 && !arrived(this.cache.wait)))) return this.cache;
     const c = document.createElement('canvas');
     c.width = Math.ceil((GX1 - GX0) * cs); c.height = Math.ceil((GY1 - GY0) * cs);
     const x = c.getContext('2d');
     x.imageSmoothingQuality = 'high';
     x.setTransform(cs, 0, 0, cs, -GX0 * cs, -GY0 * cs);
-    const L = this.man.lane;
-    if (L && L.ground && L.ground.img) {
-      x.drawImage(L.ground.img, sx(L.x0 ?? LANE_X0), sy(L.y0 ?? LANE_Y0), ((L.x1 ?? LANE_X1) - (L.x0 ?? LANE_X0)) * P, sy(L.y1 ?? LANE_Y1) - sy(L.y0 ?? LANE_Y0));
+    art.track = [];
+    if (g) {
+      const X0 = sx(L.x0 ?? LANE_X0), Y0 = sy(L.y0 ?? LANE_Y0), gw = ((L.x1 ?? LANE_X1) - (L.x0 ?? LANE_X0)) * P, gh = sy(L.y1 ?? LANE_Y1) - Y0;
+      if (up) {   // the hd tiles, each edge on a whole cache pixel: tiles meeting mid-pixel leave a see-through seam
+        const kx = gw / g.w, ky = gh / g.h, X = (v) => Math.round((v - GX0) * cs), Y = (v) => Math.round((v - GY0) * cs);
+        x.setTransform(1, 0, 0, 1, 0, 0);
+        for (const u of up) {
+          const x0 = X(X0 + u.x * kx), y0 = Y(Y0 + u.y * ky);
+          x.drawImage(u.img, 0, 0, u.img.width, u.img.height, x0, y0, X(X0 + (u.x + u.w) * kx) - x0, Y(Y0 + (u.y + u.h) * ky) - y0);
+        }
+        x.setTransform(cs, 0, 0, cs, -GX0 * cs, -GY0 * cs);
+      } else x.drawImage(g.img, X0, Y0, gw, gh);
     } else this.paintFallback(x, cs);
-    for (const p of this.props) if (p.baked) this.sprite(x, p.m, sx(p.x), sy(p.y), p.flip);
-    this.cache = { canvas: c, cs, dark: null, version: (this.cache ? this.cache.version : 0) + 1 };
+    for (const p of this.props) if (p.baked) this.sprite(x, p.m, sx(p.x), sy(p.y, p.z), p.flip);
+    this.cache = { canvas: c, cs, dark: null, wait: art.track, version: (this.cache ? this.cache.version : 0) + 1 };
+    art.track = null;
     return this.cache;
   }
   // The same ground greyed and darkened for eliminated lanes, composed once per zoom instead of blended every frame.
@@ -129,6 +151,7 @@ export class LaneRenderer extends Renderer {
   // kerbs, and stone platforms with rune circles in the spawn and exit zones.
   paintFallback(x, cs) {
     const ground = this.man.ground;
+    if (!ground.img || ground.missing) { x.fillStyle = '#2e4a1c'; x.fillRect(GX0, GY0, GX1 - GX0, GY1 - GY0); return; }
     const forest = mirrorPattern(x, ground, 420, 12, 1300, 180), grass = mirrorPattern(x, ground, 480, 380, 960, 190);
     x.fillStyle = forest; x.fillRect(GX0, GY0, GX1 - GX0, GY1 - GY0);
     const fx0 = sx(SPAWN_U), fx1 = sx(EXIT_U), fy0 = sy(0), fy1 = sy(LANE_ROWS);
@@ -200,8 +223,8 @@ export class LaneRenderer extends Renderer {
     ctx.globalCompositeOperation = op; ctx.globalAlpha = 1;
   }
   healthBar(ctx, c) {
-    const { m, k: ck } = this.look(c.def), X = sx(c.x), Y = sy(c.y);
-    this.hpBar(ctx, X, Y - m.ay * ck - 5, Math.max(22, Math.min(46, m.fw * ck * 0.75)), Math.max(0, c.hp / c.maxHp));
+    const L = this.look(c.def), X = sx(c.x), Y = sy(c.y);
+    this.hpBar(ctx, X, Y - this.creepTop(c) * L.k - 5, Math.max(22, Math.min(46, L.fw * L.k * 0.75)), Math.max(0, c.hp / c.maxHp));
   }
   // a tower that attackers have hurt (phase 3), over its roof
   towerBar(ctx, tw) {
@@ -219,30 +242,7 @@ export class LaneRenderer extends Renderer {
     ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(X - w / 2 - 1, Y - 1, w + 2, 5);
     ctx.fillStyle = color; ctx.fillRect(X - w / 2, Y, w * Math.max(0, Math.min(1, k)), 3);
   }
-  drawCreep(ctx, c, lane, t, fx) {
-    const { m, k } = this.look(c.def), X = sx(c.x), Y = sy(c.y);
-    const { row, flip } = this.creepDir(c);
-    const hidden = c.def.invisible && !lane.visible(c);
-    if (c.reviving) {   // lying dead until it reincarnates: a faded, still body that firms up as the time comes
-      const left = Math.max(0, Math.min(1, (c.reviveAt - lane.time) / ((c.def.reincarnation && c.def.reincarnation.delay) || 7)));
-      this.frame(ctx, m, m.img, 0, row, X, Y, flip, (0.3 + 0.4 * (1 - left)) * (hidden ? 0.4 : 1), k);
-      return;
-    }
-    const col = Math.floor(c.walk * 1.7) % m.frames;
-    let slowed = (c.slowUntil > lane.time && c.slowPct > 0) || c.auraSlow > 0;
-    if (!slowed) for (const p of c.poisons) if (p.slow) { slowed = true; break; }
-    const hit = fx.hitFlash.get(c.id);
-    const look = hit !== undefined && fx.t - hit < 0.06 ? tinted(m, 'hit') : slowed ? tinted(m, 'slow') : m;
-    this.frame(ctx, look, look.img, col, row, X, Y, flip, hidden ? 0.28 : 1, k);
-    if (c.stunUntil > lane.time) {
-      const top = Y - m.ay * k - 4;
-      ctx.fillStyle = '#ffe36b';
-      for (let i = 0; i < 3; i++) {
-        const a = t * 6 + i * 2.1;
-        ctx.beginPath(); ctx.arc(X + Math.cos(a) * 9, top + Math.sin(a) * 3, 2, 0, Math.PI * 2); ctx.fill();
-      }
-    }
-  }
+  // creeps: Renderer.drawCreep (the lane is their field: its time and true sight)
 
   // ---------------------------------------------------------------- frame
   // Which stacked lanes (indices) the camera can see, sprites reaching up from the lane below included.
@@ -262,6 +262,7 @@ export class LaneRenderer extends Renderer {
     ctx.fillStyle = DARK; ctx.fillRect(0, 0, W, H);
     if (!W || !H) return;
     const s = cam.zoom * this.dpr;
+    art.frame(s * P);
     const tx = Math.round(W / 2 - cam.x * s), ty = Math.round(H / 2 - cam.y * s);
     const [i0, i1] = this.visibleRange(cam, order.length);
     const rect = cam.rect();
@@ -342,11 +343,11 @@ export class LaneRenderer extends Renderer {
   }
   // a prop's effect points (braziers, gate orbs), animated like tower effects
   propFx(ctx, p, t) {
-    const m = p.m, X0 = sx(p.x), Y0 = sy(p.y), dir = p.flip ? -1 : 1;
+    const m = p.m, X0 = sx(p.x), Y0 = sy(p.y, p.z || 0), dir = p.flip ? -1 : 1;
     for (const f of m.fx) {
       const X = X0 + dir * (f.px - m.ax) * K, Y = Y0 + (f.py - m.ay) * K;
       const ph = t * 2.6 + p.x * 1.7, s = f.size || 1;
-      if (f.kind === 'flame') drawFlame(ctx, X, Y, 10 * s, 18 * s, t + p.x);
+      if (f.kind === 'flame') drawFlame(ctx, X, Y, 10 * s, 18 * s, t + p.x * 0.37 + p.y * 0.61);
       else if (f.kind === 'orb') this.glow(ctx, X, Y, (9 + 2.5 * Math.sin(ph)) * s, f.color, 0.75);
       else if (f.kind === 'wisp') { const bob = Math.sin(ph * 0.8) * 3; this.glow(ctx, X, Y + bob, 18 * s, f.color, 0.6); this.glow(ctx, X, Y + bob, 6 * s, '#ffffff', 0.95); }
       else if (f.kind !== 'muzzle') this.glow(ctx, X, Y, 10 * s, f.color, 0.3 + 0.1 * Math.sin(ph));
@@ -370,9 +371,13 @@ export class LaneRenderer extends Renderer {
     const vis = (o) => o.x >= ux0 && o.x <= ux1 && o.y >= vy0 && o.y <= vy1;
     const box = [rect[0], rect[1] - dy, rect[2] - rect[0], rect[3] - rect[1] + REACH];
 
+    const out = !world.players[slot].alive;
+    if (!out) this.glints(ctx, this.man.lane && this.man.lane.terrain_fx, t);
     const mine = slot === view.me;
     if (mine && view.placing) this.drawGrid(ctx, lane, view);
-    if (fx) fx.drawGround(ctx);
+    const lv = [rect[0], rect[1] - dy, rect[2], rect[3] - dy];
+    if (fx) fx.drawGround(ctx, lv);
+    for (const tw of lane.towers) if (vis(tw)) this.towerRing(ctx, tw, t, false);
 
     const sel = view.sel && view.sel.slot === slot && !view.sel.away ? view.sel.o : null;   // away: between two lanes
     const hov = view.hoverTower && view.hoverSlot === slot ? view.hoverTower : null;
@@ -400,7 +405,6 @@ export class LaneRenderer extends Renderer {
     for (const c of lane.creeps) if (vis(c)) n = this.addItem(n, c.y + 0.001, 2, c);
     if (fx) for (const d of fx.corpses) if (vis(d)) n = this.addItem(n, d.y, 3, d);
     for (const s of techArea(world.players[slot])) if (vis(s)) n = this.addItem(n, s.y, s.id ? 5 : 6, s);
-    const out = !world.players[slot].alive;
     for (const p of this.props) if (!p.baked && overlap(p.box, box)) n = this.addItem(n, p.key, out ? 4 : 0, p);
     const items = this.items;
     items.length = 0;
@@ -411,9 +415,9 @@ export class LaneRenderer extends Renderer {
       else if (it.kind === 2) this.drawCreep(ctx, it.o, lane, t, fx);
       else if (it.kind === 3) fx.drawCorpse(ctx, it.o, this);
       else if (it.kind === 5 || it.kind === 6) this.drawTech(ctx, it.o, t);
-      else if (it.o.banner) this.sprite(ctx, this.banner(slot, it.kind === 4), sx(it.o.x), sy(it.o.y));
-      else if (it.kind === 4) this.sprite(ctx, it.o.dark, sx(it.o.x), sy(it.o.y), it.o.flip);
-      else { this.sprite(ctx, it.o.m, sx(it.o.x), sy(it.o.y), it.o.flip); if (it.o.animated) this.propFx(ctx, it.o, t); }
+      else if (it.o.banner) this.sprite(ctx, this.banner(slot, it.kind === 4), sx(it.o.x), sy(it.o.y, it.o.z));
+      else if (it.kind === 4) this.sprite(ctx, it.o.dark, sx(it.o.x), sy(it.o.y, it.o.z), it.o.flip);
+      else { this.sprite(ctx, it.o.m, sx(it.o.x), sy(it.o.y, it.o.z), it.o.flip); if (it.o.animated) this.propFx(ctx, it.o, t); }
     }
     if (mine && view.placing && view.hover && view.hover.slot === slot) this.drawGhost(ctx, lane, view);
   }
@@ -430,25 +434,36 @@ export class LaneRenderer extends Renderer {
     }
     ctx.restore();
   }
-  // The aura rings of a lane's creeps in view (one path per colour), breathing slowly.
+  // The aura rings of a lane's creeps in view: the aura sheets (additive, turning on their own) at each creep's feet, a
+  // second and third ring a size up; without the sheets (or past AURA_SHEETS creeps on a light device) stroked rings,
+  // one path per colour, breathing slowly.
   auraRings(ctx, lane, vis, t) {
-    let paths = null;
+    let paths = null, n = 0;
+    const sheets = AURA_RINGS.map(([, , key]) => sheet(key));
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
     for (const c of lane.creeps) {
       if (c.reviving || !vis(c) || !(c.moveBonus > 0 || c.regenBonus > 0 || c.regenPct > 0 || c.dmgBonus > 0)) continue;
       if (c.def.invisible && !lane.visible(c)) continue;
-      paths ||= AURA_RINGS.map(() => new Path2D());
-      const X = sx(c.x), Y = sy(c.y), r0 = P * (c.def.flying ? 0.2 : 0.26);
+      const X = sx(c.x), Y = sy(c.y), r0 = P * (c.def.flying ? 0.2 : 0.26), s0 = c.def.flying ? 0.8 : 1.04, many = ++n > AURA_SHEETS;
       let k = 0;
       AURA_RINGS.forEach(([field], i) => {
         if (!(c[field] > 0)) return;
-        const r = r0 + k++ * P * 0.06;
-        paths[i].moveTo(X + r, Y); paths[i].ellipse(X, Y, r, r * SIN, 0, 0, Math.PI * 2);
+        const a = sheets[i];
+        if (a && !many) drawFrame(ctx, a, loopFrame(a, t, (c.id || 0) * 0.37 * a.fps + i), X, Y, K * s0 * AURA_STEP[Math.min(2, k)]);
+        else {
+          const r = r0 + k * P * 0.06;
+          paths ||= AURA_RINGS.map(() => new Path2D());
+          paths[i].moveTo(X + r, Y); paths[i].ellipse(X, Y, r, r * SIN, 0, 0, Math.PI * 2);
+        }
+        k++;
       });
     }
-    if (!paths) return;
-    ctx.save();
-    ctx.lineWidth = 1.6; ctx.globalAlpha = 0.6 + 0.2 * Math.sin(t * 2.2);
-    AURA_RINGS.forEach(([, color], i) => { ctx.strokeStyle = color; ctx.stroke(paths[i]); });
+    ctx.globalCompositeOperation = 'source-over';
+    if (paths) {
+      ctx.lineWidth = 1.6; ctx.globalAlpha = 0.6 + 0.2 * Math.sin(t * 2.2);
+      AURA_RINGS.forEach(([, color], i) => { ctx.strokeStyle = color; ctx.stroke(paths[i]); });
+    }
     ctx.restore();
   }
 
@@ -490,7 +505,7 @@ export class LaneRenderer extends Renderer {
     const dy = laneDY(i);
     const ux0 = rect[0] / P - 2, ux1 = rect[2] / P + 2;
     const vy0 = ((rect[1] - dy) / P - TOP) / SIN - 0.6, vy1 = ((rect[3] - dy + REACH) / P - TOP) / SIN + 0.6;
-    if (fx) fx.drawAir(ctx, this);
+    if (fx) fx.drawAir(ctx, this, [rect[0], rect[1] - dy, rect[2], rect[3] - dy + REACH]);
     for (const c of lane.creeps) {
       if (c.x < ux0 || c.x > ux1 || c.y < vy0 || c.y > vy1) continue;
       if ((far && c.hp >= c.maxHp) || c.reviving || (c.def.invisible && !lane.visible(c))) continue;
@@ -598,9 +613,9 @@ export class LaneRenderer extends Renderer {
       const L = world.lanes[order[j]], ly = Y - laneDY(j);
       for (const k of L.creeps) {
         if (k.def.invisible && !L.visible(k)) continue;
-        const { X: cx, Y: cy } = this.creepCenter(k), { m, k: ck } = this.look(k.def);
+        const { X: cx, Y: cy } = this.creepCenter(k), L = this.look(k.def);
         const d = Math.hypot(X - cx, ly - cy);
-        if (d < Math.max(14, m.fw * ck * 0.45) && d < bd) { bd = d; out.creep = k; out.creepSlot = order[j]; }
+        if (d < Math.max(14, L.fw * L.k * 0.45) && d < bd) { bd = d; out.creep = k; out.creepSlot = order[j]; }
       }
     }
     if (out.creep) return out;
@@ -644,7 +659,7 @@ export class LaneRenderer extends Renderer {
 // A canvas pattern from a rectangle (in the full art's pixels) of the Classic ground, mirrored both ways so its repeats
 // have no seams, mapped from the ground's 96 px per tile to logical px.
 function mirrorPattern(ctx, ground, x, y, w, h) {
-  const q = ground.ss;
+  const q = ground.q || 1;
   x *= q; y *= q; w = Math.round(w * q); h = Math.round(h * q);
   const c = document.createElement('canvas'); c.width = w * 2; c.height = h * 2;
   const g = c.getContext('2d');
@@ -662,10 +677,10 @@ function darkened(m) {
   const q = m.ss, w = m.w * q, h = m.h * q;
   const c = document.createElement('canvas'); c.width = Math.ceil(w); c.height = Math.ceil(h);
   const x = c.getContext('2d');
-  x.drawImage(m.img, m.sx, m.sy, w, h, 0, 0, w, h);
+  x.drawImage(m.img, ...src(m), 0, 0, w, h);
   x.globalCompositeOperation = 'saturation'; x.fillStyle = '#808080'; x.fillRect(0, 0, w, h);
   x.globalCompositeOperation = 'source-over'; x.fillStyle = 'rgba(6,8,12,0.5)'; x.fillRect(0, 0, w, h);
-  x.globalCompositeOperation = 'destination-in'; x.drawImage(m.img, m.sx, m.sy, w, h, 0, 0, w, h);
+  x.globalCompositeOperation = 'destination-in'; x.drawImage(m.img, ...src(m), 0, 0, w, h);
   return { img: c, sx: 0, sy: 0, w: m.w, h: m.h, ax: m.ax, ay: m.ay, ss: q };
 }
 

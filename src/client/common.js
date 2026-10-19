@@ -1,6 +1,6 @@
 // Shared bits of the Line Tower Wars client: the stacked-lane layout, player colours and number formatting.
-import { SIN } from '../level.js?v=99dfd38af943';
-import { P } from '../render.js?v=99dfd38af943';
+import { SIN } from '../level.js?v=3947ef6d39d3';
+import { P } from '../render.js?v=3947ef6d39d3';
 
 // The lanes are 9 rows across (LTW_RULES.laneWidth, one more than the map's), as the lane art (manifest.lane) is drawn.
 export const LANE_PITCH = 13;                  // world rows per lane band: 2 border, 9 buildable (v 0-9), 2 border

@@ -5,16 +5,16 @@
 // docs/SPEC-client.md lists, so it works the same on a live Match and on an online replica.
 // The build phase (docs/SPEC-ltw.md): a timer window counts down to the shrines opening, the Send and Arcade buttons say
 // why they wait, and every clock the console shows is the map's (match time minus the build phase).
-import { UI, ARMOR_NAME, ATK_NAME, kindName, specials, mapNote, placeTip, cardTipRect, keepLine } from '../ui.js?v=99dfd38af943';
-import { TOWERS, BUILD_ROOTS } from '../data/towers.js?v=99dfd38af943';
-import { LTW_UNITS, LTW_SHOPS, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_CHAT, LTW_CREEP_FIX, LTW_MESSAGES, LTW_RULES } from '../data/ltw.js?v=99dfd38af943';
-import { unitSpeed, missingTech, requiresText, techName, LANE_ROWS } from '../lane.js?v=99dfd38af943';
-import { TPS, prepWhy } from '../match.js?v=99dfd38af943';
-import { P, sx, sy } from '../render.js?v=99dfd38af943';
-import { laneDY, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, short, signed, botNamed } from './common.js?v=99dfd38af943';
-import { tipButton, heldClick, clickWord, phone } from './touch.js?v=99dfd38af943';
-import { src } from '../assets.js?v=99dfd38af943';
-import { pixelRatio } from '../device.js?v=99dfd38af943';
+import { UI, ARMOR_NAME, ATK_NAME, kindName, specials, mapNote, placeTip, cardTipRect, keepLine } from '../ui.js?v=3947ef6d39d3';
+import { TOWERS, BUILD_ROOTS } from '../data/towers.js?v=3947ef6d39d3';
+import { LTW_UNITS, LTW_SHOPS, LTW_TECH, LTW_TECH_ORDER, LTW_TOWER_STATS, LTW_CHAT, LTW_CREEP_FIX, LTW_MESSAGES, LTW_RULES } from '../data/ltw.js?v=3947ef6d39d3';
+import { unitSpeed, missingTech, requiresText, techName, LANE_ROWS } from '../lane.js?v=3947ef6d39d3';
+import { TPS, prepWhy } from '../match.js?v=3947ef6d39d3';
+import { P, sx, sy } from '../render.js?v=3947ef6d39d3';
+import { laneDY, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, clock, short, signed, botNamed } from './common.js?v=3947ef6d39d3';
+import { tipButton, heldClick, clickWord, phone } from './touch.js?v=3947ef6d39d3';
+import { src } from '../assets.js?v=3947ef6d39d3';
+import { pixelRatio } from '../device.js?v=3947ef6d39d3';
 
 const $ = (id) => document.getElementById(id);
 export const GRID_KEYS = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F', 'Z', 'X', 'C', 'V'];
@@ -286,9 +286,8 @@ export class LtwHud extends UI {
       const p = this.man.portraits && (this.man.portraits[u.id] || this.man.portraits[u.look]);
       if (p && p.img) x.drawImage(p.img, ...src(p, p.fw * 0.08, p.fh * 0.04, p.fw * 0.84, p.fh * 0.84), 0, 0, 108, 108);
       else {
-        const m = this.r.creepMeta({ def: u });
-        const s = Math.min(96 / m.fw, 96 / m.fh) * 1.25;
-        x.drawImage(m.img, ...src(m, 0, m.fh, m.fw, m.fh), 54 - m.ax * s, 100 - m.ay * s, m.fw * s, m.fh * s);
+        const b = this.r.lookBox(u), s = Math.min(96 / b.fw, 96 / b.fh) * 1.25;
+        this.r.drawStill(x, u, 0, 54, 100, s);
       }
       x.strokeStyle = 'rgba(0,0,0,0.8)'; x.lineWidth = 4; x.strokeRect(0, 0, 108, 108);
     }
@@ -559,7 +558,7 @@ export class LtwHud extends UI {
       const ic = this.iconRect(sel.def.id);
       if (ic) { x.drawImage(ic.img, ...src(ic), 0, 0, S, S); return; }
       const m = this.man.towers[sel.def.id], s = Math.min((S - 10) / m.w, (S - 10) / m.h);
-      x.drawImage(m.img, ...src(m), S / 2 - (m.w * s) / 2, S - 4 - m.h * s, m.w * s, m.h * s);
+      if (m.img) x.drawImage(m.img, ...src(m), S / 2 - (m.w * s) / 2, S - 4 - m.h * s, m.w * s, m.h * s);
       return;
     }
     if (sel) {
@@ -571,9 +570,8 @@ export class LtwHud extends UI {
         x.globalAlpha = k; x.drawImage(p.img, ...src(p, f1 * p.fw, 0, p.fw, p.fh), 0, 0, S, S); x.globalAlpha = 1;
         return;
       }
-      const m = this.r.creepMeta(sel), col = Math.floor(performance.now() / 110) % m.frames;
-      const s = Math.min((S - 16) / m.fw, (S - 16) / m.fh) * 1.1;
-      x.drawImage(m.img, ...src(m, col * m.fw, m.fh, m.fw, m.fh), S / 2 - m.ax * s, S - m.fh * s, m.fw * s, m.fh * s);
+      const b = this.r.lookBox(d), s = Math.min((S - 16) / b.fw, (S - 16) / b.fh) * 1.1;
+      this.r.drawStill(x, d, Math.floor(performance.now() / 110), S / 2, S - (b.fh - b.ay) * s, s);
       return;
     }
     // an empty lane: its owner's colour

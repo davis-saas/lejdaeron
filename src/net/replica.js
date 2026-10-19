@@ -13,13 +13,13 @@
 // player may do). world.tech(slot) and world.arcade(slot) run the engine's own Match code on the mirrored state, so their
 // reasons read exactly as the host's. The build phase: the phase comes in the frames and its length in START's options;
 // world.prepLeft and the shop and Arcade countdowns run on the host's clock, playTime and incomeTimer on world.time.
-import { Lane, tileIndex } from '../lane.js?v=99dfd38af943';
-import { TOWERS } from '../data/towers.js?v=99dfd38af943';
-import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_ARCADE } from '../data/ltw.js?v=99dfd38af943';
-import { TILE } from '../field.js?v=99dfd38af943';
-import { Match, TPS, PREP_TIME, PREP_MAX } from '../match.js?v=99dfd38af943';
-import * as P from './protocol.js?v=99dfd38af943';
-import { NET_TICKS, OTHER_TICKS } from './config.js?v=99dfd38af943';
+import { Lane, tileIndex } from '../lane.js?v=3947ef6d39d3';
+import { TOWERS } from '../data/towers.js?v=3947ef6d39d3';
+import { LTW_UNITS, LTW_SHOPS, LTW_RULES, LTW_ARCADE } from '../data/ltw.js?v=3947ef6d39d3';
+import { TILE } from '../field.js?v=3947ef6d39d3';
+import { Match, TPS, PREP_TIME, PREP_MAX } from '../match.js?v=3947ef6d39d3';
+import * as P from './protocol.js?v=3947ef6d39d3';
+import { NET_TICKS, OTHER_TICKS } from './config.js?v=3947ef6d39d3';
 
 const { F, LB, CM, CF, EV } = P;
 const FAR = 1e9;                          // "until further notice" for slowUntil and stunUntil
@@ -333,7 +333,7 @@ export class Replica {
       lane.rt = rt - lane.rt > 2 * TPS || lane.rt === 0 ? rt : Math.max(lane.rt, rt);
       lane.time = lane.rt / TPS;
       this.place(lane, dt);
-      if (s === this.watching) this.release(lane);
+      if (s === this.watching) { this.release(lane); this.cooldowns(lane); }
       this.fly(lane, dt);
       for (const t of lane.towers) if (t.building > 0) t.building = Math.max(0, t.doneAt - host);
     }
@@ -359,7 +359,12 @@ export class Replica {
     }
     for (const c of list) {   // what an attacker is hitting: a tower (odd ref) or a creep of this lane
       const a = c.ta;
-      c.attacking = !a ? null : a % 2 ? lane.byId.get((a - 1) / 2) || null : lane.creepById.get(a / 2) || null;
+      const T = c.attacking = !a ? null : a % 2 ? lane.byId.get((a - 1) / 2) || null : lane.creepById.get(a / 2) || null;
+      if (T) {   // it faces what it hits, as on the host (src/lane.js fight): its swing is drawn in that facing
+        const tx = T.def.upgrades ? Math.max(T.c, Math.min(T.c + 1, c.x)) : T.x, ty = T.def.upgrades ? Math.max(T.r, Math.min(T.r + 1, c.y)) : T.y;
+        const d = Math.hypot(tx - c.x, ty - c.y);
+        if (d > 1e-9) { c.dirx = (tx - c.x) / d; c.diry = (ty - c.y) / d; }
+      }
     }
     lane.visEpoch++;
   }
@@ -373,6 +378,14 @@ export class Replica {
       else if (e.type === 'attack') e.creep.firedAt = lane.time;
     }
     if (lane.events.length > 3000) lane.events.splice(0, lane.events.length - 1500);
+  }
+  // Each tower's cooldown as the host counts it (src/field.js attack), from its last shot while its target is alive and
+  // in range, so the renderer shows the attack's wind-up frame just before the next shot (render.js towerAnim).
+  cooldowns(lane) {
+    for (const t of lane.towers) {
+      const c = t.target;
+      t.cd = c && !c.dead && t.firedAt && Math.hypot(c.x - t.x, c.y - t.y) * TILE <= t.def.range + 48 ? t.firedAt + t.def.cooldown - lane.time : 0;
+    }
   }
   // A shot: the tower turns and flashes, and missile weapons get a missile, flown like Field.fly flies it.
   shoot(lane, t, c) {

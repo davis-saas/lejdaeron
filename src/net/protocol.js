@@ -33,8 +33,8 @@
 // Joining: HELLO { v, data, name, nonce, token | rejoin } -> WELCOME { you, token, phase, proof } or ERROR { fatal,
 // message, proof }; a player with a rejoin token first sends { rejoin: true } without it and gets PROOF { proof }, then
 // sends the token. Every proof is the host's signature for that nonce (src/net/auth.js).
-import { TOWERS } from '../data/towers.js?v=99dfd38af943';
-import { LTW_UNITS, LTW_SHOPS, LTW_TECH_ORDER, LTW_RULES } from '../data/ltw.js?v=99dfd38af943';
+import { TOWERS } from '../data/towers.js?v=3947ef6d39d3';
+import { LTW_UNITS, LTW_SHOPS, LTW_TECH_ORDER, LTW_RULES } from '../data/ltw.js?v=3947ef6d39d3';
 
 export const PROTO = 4;
 export const C = { HELLO: 1, LOBBY: 2, CMD: 3, WATCH: 4, PING: 5, RESYNC: 6, LEAVE: 7 };                  // client -> host

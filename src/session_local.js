@@ -7,8 +7,8 @@
 //   s.command({ type: 'send', unit: 'n00E' }).then(r => r.ok || ui.error(r.why));
 //   s.command({ type: 'chat', text: '-destroy', towers: [id] });   // chat goes through match.command: 'chat' {slot, name, text}
 //   s.speed = 2; s.paused = true;
-import { Match, STEP } from './match.js?v=99dfd38af943';
-import { Bot } from './bot.js?v=99dfd38af943';
+import { Match, STEP } from './match.js?v=3947ef6d39d3';
+import { Bot } from './bot.js?v=3947ef6d39d3';
 
 const MAX_CATCHUP = 1.0;     // seconds of real time one timer call may make up (background tabs fire about once a second)
 const BUDGET = 40;           // ms of simulation per call; beyond it the match runs slower instead of freezing the page

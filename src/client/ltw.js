@@ -6,18 +6,18 @@
 // banner shows while the host doesn't answer. The lobby and the screens after a lost connection are src/client/online.js.
 // A finger plays it too (src/client/touch.js): taps, long presses for what hovering shows, one finger to pan, two to
 // pinch, and buttons over the view for the zoom and the jumps that F1 and F2 make.
-import { createLocalSession } from '../session_local.js?v=99dfd38af943';
-import { FX } from '../fx.js?v=99dfd38af943';
-import { P, sx, sy } from '../render.js?v=99dfd38af943';
-import { SIN, TOP } from '../level.js?v=99dfd38af943';
-import { LTW_UNITS, LTW_RULES, LTW_TECH } from '../data/ltw.js?v=99dfd38af943';
-import { Camera } from './camera.js?v=99dfd38af943';
-import { Gestures, isTouch, lastInput, clickWord } from './touch.js?v=99dfd38af943';
-import { LaneRenderer } from './lanes.js?v=99dfd38af943';
-import { LtwHud, TECH_TAB, mapClock } from './hud.js?v=99dfd38af943';
-import { screen, hideScreen, screenShown, slotsFor, settingsLine, bindSettings } from './screens.js?v=99dfd38af943';
-import { LIGHT, pixelRatio } from '../device.js?v=99dfd38af943';
-import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, laneDY, laneOrder, techArea, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, ordinal, short, botNamed } from './common.js?v=99dfd38af943';
+import { createLocalSession } from '../session_local.js?v=3947ef6d39d3';
+import { FX } from '../fx.js?v=3947ef6d39d3';
+import { P, sx, sy } from '../render.js?v=3947ef6d39d3';
+import { SIN, TOP } from '../level.js?v=3947ef6d39d3';
+import { LTW_UNITS, LTW_RULES, LTW_TECH } from '../data/ltw.js?v=3947ef6d39d3';
+import { Camera } from './camera.js?v=3947ef6d39d3';
+import { Gestures, isTouch, lastInput, clickWord } from './touch.js?v=3947ef6d39d3';
+import { LaneRenderer } from './lanes.js?v=3947ef6d39d3';
+import { LtwHud, TECH_TAB, mapClock } from './hud.js?v=3947ef6d39d3';
+import { screen, hideScreen, screenShown, slotsFor, settingsLine, bindSettings } from './screens.js?v=3947ef6d39d3';
+import { LIGHT, pixelRatio } from '../device.js?v=3947ef6d39d3';
+import { LANE_PITCH, LANE_X0, LANE_X1, LANE_Y0, LANE_Y1, laneDY, laneOrder, techArea, PLAYER_HEX, PLAYER_TEXT, DIFF_NAME, esc, ordinal, short, botNamed } from './common.js?v=3947ef6d39d3';
 
 const $ = (id) => document.getElementById(id);
 const PAN = 1100;          // css px per second for the arrow keys and the screen edges

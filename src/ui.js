@@ -1,11 +1,11 @@
 // Warcraft III Reforged-style console: resources, minimap, animated portrait + info, command card, tooltips, messages.
-// The chrome itself (frames, plates, buttons) is CSS over Blender-rendered images in assets/ui/ (see style.css).
-import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=99dfd38af943';
-import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=99dfd38af943';
-import { W, H, K, sx, sy } from './render.js?v=99dfd38af943';
-import { tipButton, heldClick, lastInput, clickWord, phone } from './client/touch.js?v=99dfd38af943';
-import { src } from './assets.js?v=99dfd38af943';
-import { pixelRatio } from './device.js?v=99dfd38af943';
+// The chrome itself (frames, plates, buttons) is CSS over Blender-rendered images in assets/v2/ui/ (see style.css).
+import { TOWERS, BUILD_ROOTS, CREEPS, RULES, LEVELS, avgDamage, typeFactor } from './game.js?v=3947ef6d39d3';
+import { TILE, COLS, ROWS, SCREEN_W, SCREEN_H } from './level.js?v=3947ef6d39d3';
+import { W, H, K, sx, sy } from './render.js?v=3947ef6d39d3';
+import { tipButton, heldClick, lastInput, clickWord, phone } from './client/touch.js?v=3947ef6d39d3';
+import { src } from './assets.js?v=3947ef6d39d3';
+import { pixelRatio } from './device.js?v=3947ef6d39d3';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -51,7 +51,7 @@ export class UI {
       g.addColorStop(0, acc); g.addColorStop(1, '#050403');
       x.fillStyle = g; x.fillRect(0, 0, 108, 108);
       const s = Math.min(100 / m.w, 102 / m.h);
-      x.drawImage(m.img, ...src(m), 54 - (m.w * s) / 2, 106 - m.h * s, m.w * s, m.h * s);
+      if (m.img) x.drawImage(m.img, ...src(m), 54 - (m.w * s) / 2, 106 - m.h * s, m.w * s, m.h * s);
     }
     this.icons.set(def.id, c);
     return c;
@@ -303,7 +303,7 @@ export class UI {
       if (ic) { x.drawImage(ic.img, ...src(ic), 0, 0, S, S); return; }
       const m = this.man.towers[sel.def.id];
       const s = Math.min((S - 10) / m.w, (S - 10) / m.h);
-      x.drawImage(m.img, ...src(m), S / 2 - (m.w * s) / 2, S - 4 - m.h * s, m.w * s, m.h * s);
+      if (m.img) x.drawImage(m.img, ...src(m), S / 2 - (m.w * s) / 2, S - 4 - m.h * s, m.w * s, m.h * s);
       return;
     }
     const d = sel && sel.hp !== undefined ? sel.def : (this.g.phase === 'countdown' ? this.g.nextCreep() : this.g.currentCreep());
@@ -319,10 +319,8 @@ export class UI {
       x.globalAlpha = 1;
       return;
     }
-    const m = this.r.creepMeta({ def: d });
-    const col = Math.floor(performance.now() / 110) % m.frames;
-    const s = Math.min((S - 16) / m.fw, (S - 16) / m.fh) * 1.1;
-    x.drawImage(m.img, ...src(m, col * m.fw, m.fh, m.fw, m.fh), S / 2 - m.ax * s, S - 6 - m.fh * s + 6, m.fw * s, m.fh * s);
+    const b = this.r.lookBox(d), s = Math.min((S - 16) / b.fw, (S - 16) / b.fh) * 1.1;
+    this.r.drawStill(x, d, Math.floor(performance.now() / 110), S / 2, S - (b.fh - b.ay) * s, s);
   }
 
   // ---------------------------------------------------------------- minimap
@@ -335,8 +333,18 @@ export class UI {
     x.fillStyle = '#000'; x.fillRect(0, 0, c.width, c.height);
     const s = Math.min(c.width / W, c.height / H);
     const ox = (c.width - W * s) / 2, oy = (c.height - H * s) / 2;
+    // the ground and props, scaled down once per ground the renderer makes (at hd it is up to 16.7 MP)
+    const st = this.r.static;
+    if (st && st.width && st.height && (this.mmStatic !== st || this.mmBase.width !== c.width || this.mmBase.height !== c.height)) {
+      this.mmBase ||= document.createElement('canvas');
+      this.mmBase.width = c.width; this.mmBase.height = c.height;
+      const b = this.mmBase.getContext('2d');
+      b.imageSmoothingQuality = 'high';
+      b.drawImage(st, ox, oy, W * s, H * s);
+      this.mmStatic = st;
+    }
+    if (this.mmStatic) x.drawImage(this.mmBase, 0, 0);
     x.setTransform(s, 0, 0, s, ox, oy);
-    if (this.r.static && this.r.static.width && this.r.static.height) x.drawImage(this.r.static, 0, 0, W, H);
     for (const t of this.g.towers) { x.fillStyle = '#5aa0ff'; x.fillRect(sx(t.x) - 9, sy(t.y) - 7, 18, 14); }
     for (const cr of this.g.creeps) { x.fillStyle = '#ff3b2b'; x.beginPath(); x.arc(sx(cr.x), sy(cr.y), 9, 0, Math.PI * 2); x.fill(); }
     x.setTransform(1, 0, 0, 1, 0, 0);

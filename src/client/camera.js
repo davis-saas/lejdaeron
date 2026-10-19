@@ -2,7 +2,7 @@
 // (src/render.js: x * P across, (y * SIN - z * COS + TOP) * P down), so the projection is exactly Classic's.
 // x, y is the logical point at the centre of the view; zoom is css px per logical px. The wheel and the zoom buttons
 // step between its levels (eased); a pinch zooms freely between the farthest and the closest.
-import { P } from '../render.js?v=99dfd38af943';
+import { P } from '../render.js?v=3947ef6d39d3';
 
 export const ZOOMS = [26, 36, 48, 62];   // css px per tile, far to close; the farthest narrows so a whole lane fits
 const EASE = 14;                         // zoom easing rate (1/s)

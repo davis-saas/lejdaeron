@@ -1,5 +1,5 @@
 /* Warcraft III Reforged-style Human interface. The ornate pieces (frames, plates, buttons, crest) are rendered
-   in Blender by tools/blender/ui_art.py into assets/ui/ and used here as backgrounds and 9-slice border images. */
+   in Blender by tools/blender/ui_art.py into assets/ui/ (the game loads the copy in assets/v2/ui/) and used here as backgrounds and 9-slice border images. */
 :root {
   --gold: #f0c860;
   --gold-d: #a07a2c;
@@ -32,7 +32,7 @@ button { font: inherit; color: inherit; }
 input, select { touch-action: manipulation; }
 /* preload the hover/active chrome so the first hover does not flicker */
 #app::after { content: ''; position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;
-  background: url(assets/ui/button_hover.png?v=99dfd38af943), url(assets/ui/button_active.png?v=99dfd38af943), url(assets/ui/button_empty.png?v=99dfd38af943), url(assets/ui/btn_wide_hover.png?v=99dfd38af943); }
+  background: url(assets/v2/ui/button_hover.png?v=3947ef6d39d3), url(assets/v2/ui/button_active.png?v=3947ef6d39d3), url(assets/v2/ui/button_empty.png?v=3947ef6d39d3), url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); }
 
 .gold-text { background: linear-gradient(#fff3c4 0%, #f6d27a 38%, #c8922e 62%, #f4cf72 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
@@ -41,7 +41,7 @@ input, select { touch-action: manipulation; }
 #topbar::before {
   content: ''; position: absolute; left: 0; right: 0; top: 0; height: 56px; z-index: -1; pointer-events: none;
   border-style: solid; border-color: transparent; border-width: 0 75px;
-  border-image: url(assets/ui/topbar.png?v=99dfd38af943) 0 96 fill / 0 75px stretch;
+  border-image: url(assets/v2/ui/topbar.png?v=3947ef6d39d3) 0 96 fill / 0 75px stretch;
   filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75));
 }
 .tb-left { display: flex; flex: none; gap: 4px; align-items: center; }
@@ -49,16 +49,16 @@ input, select { touch-action: manipulation; }
   height: 26px; padding: 0 12px; cursor: pointer; font: 700 12px/16px var(--title); letter-spacing: 0.08em; color: var(--gold-l);
   text-shadow: 0 1px 1px #000, 0 0 4px #000; background: none;
   border-style: solid; border-color: transparent; border-width: 7px 10px;
-  border-image: url(assets/ui/btn_wide.png?v=99dfd38af943) 22 34 fill / 7px 10px stretch;
+  border-image: url(assets/v2/ui/btn_wide.png?v=3947ef6d39d3) 22 34 fill / 7px 10px stretch;
 }
-.tb-btn:hover, .tb-speed button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); color: #fff; }
+.tb-btn:hover, .tb-speed button:hover { border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); color: #fff; }
 .tb-btn:active, .tb-speed button:active { transform: translateY(1px); }
 .tb-speed { display: flex; gap: 1px; margin-left: 6px; }
 .tb-speed button { padding: 0 3px; min-width: 38px; }
-.tb-speed button.on { border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); color: #fff; text-shadow: 0 0 6px rgba(255,210,100,0.9), 0 1px 1px #000; }
+.tb-speed button.on { border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); color: #fff; text-shadow: 0 0 6px rgba(255,210,100,0.9), 0 1px 1px #000; }
 
 .tb-plaque { position: absolute; left: 50%; top: 0; width: 280px; height: 78px; transform: translateX(-50%); pointer-events: none;
-  background: url(assets/ui/topbar_center.png?v=99dfd38af943) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7)); }
+  background: url(assets/v2/ui/topbar_center.png?v=3947ef6d39d3) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.7)); }
 .tb-title { position: absolute; left: 56px; right: 56px; top: 9px; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .tb-title b { font: 800 15px/1.05 var(--title); letter-spacing: 0.12em; text-transform: uppercase; filter: drop-shadow(0 1px 1px #000); }
 .tb-title small { display: block; max-width: 100%; margin-top: 2px; font: 600 11px/1.1 var(--body); color: var(--muted); letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 1px #000; }
@@ -71,12 +71,12 @@ input, select { touch-action: manipulation; }
 #r-gold { color: #ffe08a; }
 .res-sub { color: var(--muted); font-size: 12px; font-weight: 600; }
 .ico { width: 24px; height: 24px; display: inline-block; flex: 0 0 auto; background: center / contain no-repeat; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.8)); }
-.ico-gold { background-image: url(assets/ui/res_gold.png?v=99dfd38af943); }
-.ico-income { background-image: url(assets/ui/res_income.png?v=99dfd38af943); }
-.ico-lives { background-image: url(assets/ui/res_lives.png?v=99dfd38af943); }
-.ico-level { background-image: url(assets/ui/res_level.png?v=99dfd38af943); }
-.ico-lumber { background-image: url(assets/ui/res_lumber.png?v=99dfd38af943); }
-.ico-wisp { background-image: url(assets/ui/res_wisp.png?v=99dfd38af943); }
+.ico-gold { background-image: url(assets/v2/ui/res_gold.png?v=3947ef6d39d3); }
+.ico-income { background-image: url(assets/v2/ui/res_income.png?v=3947ef6d39d3); }
+.ico-lives { background-image: url(assets/v2/ui/res_lives.png?v=3947ef6d39d3); }
+.ico-level { background-image: url(assets/v2/ui/res_level.png?v=3947ef6d39d3); }
+.ico-lumber { background-image: url(assets/v2/ui/res_lumber.png?v=3947ef6d39d3); }
+.ico-wisp { background-image: url(assets/v2/ui/res_wisp.png?v=3947ef6d39d3); }
 
 /* ---------------- battlefield ---------------- */
 #stage { position: relative; background: radial-gradient(ellipse at center, #10140c, #000 75%); overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -99,13 +99,13 @@ input, select { touch-action: manipulation; }
 #msgs { position: absolute; left: 16px; bottom: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; max-width: min(620px, 55%); pointer-events: none; font: 700 14px var(--body); }
 #msgs div { text-shadow: 0 1px 2px #000, 0 0 6px #000; transition: opacity 1s; }
 #wave-timer { position: absolute; right: 12px; top: 12px; padding: 0 6px; min-width: 150px; font: 700 14px var(--title); color: var(--gold-l); text-shadow: 0 1px 2px #000; pointer-events: none;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 18px stretch; }
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 18px stretch; }
 #wave-timer:empty { display: none; }
 #wave-timer.tap { pointer-events: auto; cursor: pointer; }   /* a finger calls the level by tapping it */
 /* what a finger does next (placing a tower), over the bottom of the view */
 #hint { position: absolute; left: 50%; bottom: 10px; z-index: 3; display: none; max-width: calc(100% - 120px); padding: 0 6px; transform: translateX(-50%);
   font: 700 13px/1.3 var(--body); color: var(--gold-l); text-align: center; text-shadow: 0 1px 2px #000; pointer-events: none;
-  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 16px stretch; }
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 16px stretch; }
 #hint.show { display: block; }
 #msgs.hinted { bottom: 54px; }
 #wave-timer small { display: block; font: 600 12px var(--body); color: var(--muted); letter-spacing: 0; }
@@ -114,25 +114,25 @@ input, select { touch-action: manipulation; }
 #console {
   position: relative; z-index: 5; display: grid; align-items: stretch;
   grid-template-columns: minmax(210px, 290px) auto minmax(0, 1fr) auto; gap: 10px; padding: 30px 30px 8px 30px;
-  background: #15130f url(assets/ui/console_bg.png?v=99dfd38af943) repeat-x 0 0 / auto 100%;
+  background: #15130f url(assets/v2/ui/console_bg.png?v=3947ef6d39d3) repeat-x 0 0 / auto 100%;
   box-shadow: 0 -6px 14px rgba(0,0,0,0.75);
 }
 #console::before, #console::after {
   content: ''; position: absolute; top: -4px; width: 88px; height: 88px; z-index: 3; pointer-events: none;
-  background: url(assets/ui/corner.png?v=99dfd38af943) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
+  background: url(assets/v2/ui/corner.png?v=3947ef6d39d3) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.8));
 }
 #console::before { left: -4px; }
 #console::after { right: -4px; transform: scaleX(-1); }
 .panel {
   position: relative; min-width: 0; min-height: 0;
   border-style: solid; border-color: transparent; border-width: 18px;
-  border-image: url(assets/ui/frame_gold.png?v=99dfd38af943) 64 / 32px round;
+  border-image: url(assets/v2/ui/frame_gold.png?v=3947ef6d39d3) 64 / 32px round;
   background: radial-gradient(ellipse at 50% 0%, rgba(60,52,40,0.55), rgba(0,0,0,0) 70%), linear-gradient(#0f0d0b, #070605);
   background-clip: padding-box; background-origin: padding-box;
   box-shadow: inset 0 0 18px rgba(0,0,0,0.9);
   filter: drop-shadow(0 3px 4px rgba(0,0,0,0.7));
 }
-#mm-panel { display: flex; align-items: center; justify-content: center; border-width: 22px; border-image: url(assets/ui/frame_minimap.png?v=99dfd38af943) 72 / 36px stretch; background: #000; background-clip: padding-box; }
+#mm-panel { display: flex; align-items: center; justify-content: center; border-width: 22px; border-image: url(assets/v2/ui/frame_minimap.png?v=3947ef6d39d3) 72 / 36px stretch; background: #000; background-clip: padding-box; }
 #minimap { width: 100%; height: 100%; display: block; }
 /* zoom in / out, small round buttons on the minimap frame's left edge (as WC3 keeps its minimap buttons beside it) */
 #mm-zoom { position: absolute; z-index: 2; left: -19px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 5px; }
@@ -148,7 +148,7 @@ input, select { touch-action: manipulation; }
   background: radial-gradient(circle at 50% 38%, #26303e, #07090c 78%); }
 #portrait-frame::after { content: ''; position: absolute; pointer-events: none;
   left: calc(var(--pw) * -36 / 216); top: calc(var(--pw) * -108 / 216); width: calc(var(--pw) * 288 / 216); height: calc(var(--pw) * 360 / 216);
-  background: url(assets/ui/portrait_frame.png?v=99dfd38af943) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75)); }
+  background: url(assets/v2/ui/portrait_frame.png?v=3947ef6d39d3) 0 0 / 100% 100% no-repeat; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.75)); }
 #portrait { width: 100%; height: 100%; display: block; }
 
 #info-panel { display: flex; padding: 2px 8px; }
@@ -190,8 +190,8 @@ input, select { touch-action: manipulation; }
 #commands { display: grid; grid-template-columns: repeat(4, var(--btn)); grid-template-rows: repeat(3, var(--btn)); gap: var(--gap); }
 .cmd { position: relative; width: var(--btn); height: var(--btn); padding: 0; cursor: pointer; border: 0; background: #0b0a09; overflow: visible; }
 .cmd canvas { position: absolute; left: 2px; top: 2px; width: calc(100% - 4px); height: calc(100% - 4px); display: block; transition: filter 0.15s; }
-.cmd::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: url(assets/ui/button.png?v=99dfd38af943) 0 0 / 100% 100% no-repeat; }
-.cmd:hover::after { background-image: url(assets/ui/button_hover.png?v=99dfd38af943); }
+.cmd::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: url(assets/v2/ui/button.png?v=3947ef6d39d3) 0 0 / 100% 100% no-repeat; }
+.cmd:hover::after { background-image: url(assets/v2/ui/button_hover.png?v=3947ef6d39d3); }
 .cmd:hover canvas { filter: brightness(1.18) saturate(1.08); }
 .cmd:hover { box-shadow: 0 0 10px rgba(255,205,90,0.55); }
 .cmd:active canvas { transform: translateY(1px); filter: brightness(0.9); }
@@ -200,13 +200,13 @@ input, select { touch-action: manipulation; }
 .cmd.poor canvas { filter: grayscale(0.85) brightness(0.5); }
 .cmd.poor .cost { color: #ff7a6a; }
 .cmd.empty { cursor: default; background: transparent; box-shadow: none; }
-.cmd.empty::after { background-image: url(assets/ui/button_empty.png?v=99dfd38af943); }
-.cmd.active::after { background-image: url(assets/ui/button_active.png?v=99dfd38af943); }
+.cmd.empty::after { background-image: url(assets/v2/ui/button_empty.png?v=3947ef6d39d3); }
+.cmd.active::after { background-image: url(assets/v2/ui/button_active.png?v=3947ef6d39d3); }
 .cmd.active { box-shadow: 0 0 12px rgba(125,255,90,0.6); }
 
 /* ---------------- tooltip ---------------- */
 #tooltip { position: fixed; z-index: 10; max-width: 330px; padding: 2px 4px; pointer-events: none; display: none; font-size: 14px;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 18px stretch;
   filter: drop-shadow(0 6px 12px rgba(0,0,0,0.75)); }
 #tooltip.show { display: block; }
 #tooltip .t-title { font: 800 15px var(--body); color: #fff; letter-spacing: 0.01em; }
@@ -228,13 +228,13 @@ input, select { touch-action: manipulation; }
 .ov-box { position: relative; display: flex; flex-direction: column; align-items: stretch; width: min(580px, 94vw); max-height: calc(100vh - var(--crest-room) - 14px);
   max-height: calc(100dvh - var(--crest-room) - 14px);   /* a phone's browser bars: the dialog's buttons stay above them */
   padding: 46px 30px 18px; text-align: center;
-  border-style: solid; border-color: transparent; border-width: 34px; border-image: url(assets/ui/dialog.png?v=99dfd38af943) 120 fill / 60px round;
+  border-style: solid; border-color: transparent; border-width: 34px; border-image: url(assets/v2/ui/dialog.png?v=3947ef6d39d3) 120 fill / 60px round;
   filter: drop-shadow(0 20px 40px rgba(0,0,0,0.9)); }
 .ov-box > h1, .ov-box > .ov-sub, #ov-foot { flex: none; }
 #ov-foot { display: flex; flex-direction: column; align-items: center; }
 #ov-foot > .ov-actions { margin-top: 8px; }
 .ov-crest { position: absolute; left: 50%; top: -158px; width: 236px; height: 184px; transform: translateX(-50%); pointer-events: none;
-  background: url(assets/ui/crest.png?v=99dfd38af943) center / contain no-repeat; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8)); }
+  background: url(assets/v2/ui/crest.png?v=3947ef6d39d3) center / contain no-repeat; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.8)); }
 .ov-box h1 { margin: 0; font: 900 46px/1.1 var(--title); letter-spacing: 0.08em;
   background: linear-gradient(#fff6cf 0%, #f8d77e 40%, #c58c26 62%, #f6d47a 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 3px 0 #000) drop-shadow(0 0 14px rgba(232,192,90,0.25)); }
@@ -253,8 +253,8 @@ input, select { touch-action: manipulation; }
 #ov-progress div { height: 100%; width: 0%; background: linear-gradient(#fff0b8, #e0a83a 50%, #8a5a18); transition: width 0.2s; }
 .wc-btn { min-width: 210px; height: 46px; padding: 0 22px; cursor: pointer; font: 800 17px/1 var(--title); letter-spacing: 0.12em; color: var(--gold-l);
   text-shadow: 0 1px 1px #000, 0 0 6px #000; background: none;
-  border-style: solid; border-color: transparent; border-width: 11px 17px; border-image: url(assets/ui/btn_wide.png?v=99dfd38af943) 22 34 fill / 11px 17px stretch; }
-.wc-btn:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
+  border-style: solid; border-color: transparent; border-width: 11px 17px; border-image: url(assets/v2/ui/btn_wide.png?v=3947ef6d39d3) 22 34 fill / 11px 17px stretch; }
+.wc-btn:hover:not(:disabled) { border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
 .wc-btn:active:not(:disabled) { transform: translateY(1px); }
 .wc-btn:disabled { opacity: 0.6; cursor: default; }
 
@@ -265,7 +265,7 @@ body.ltw .classic-only, body.ltw #commands, body.ltw #wave-timer { display: none
 /* ---------------- Line Tower Wars: scoreboard (multiboard) and the income list under it ---------------- */
 #side { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; pointer-events: none; }
 #board { position: relative; min-width: 214px; padding: 0 3px 1px; font: 700 13px/1.25 var(--body); color: var(--text); pointer-events: auto;
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 18px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); user-select: none; }
 .bd-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 3px 3px; margin-bottom: 2px;
   border-bottom: 1px solid; border-image: linear-gradient(90deg, rgba(232,192,90,0.7), rgba(232,192,90,0.08)) 1; }
@@ -297,7 +297,7 @@ body.ltw .classic-only, body.ltw #commands, body.ltw #wave-timer { display: none
 .bd-row .xt.on { display: inline-block; }
 /* a click or a tap puts the income list away until the next one (#side lets everything else through to the map) */
 #income-list { display: none; min-width: 150px; padding: 0 4px 1px; font: 700 12.5px/1.3 var(--body); color: var(--text); pointer-events: auto; cursor: pointer;
-  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 16px stretch;
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 16px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); animation: fade-in 0.25s; }
 #income-list.show { display: block; }
 .il-title { font: 800 11px var(--title); letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-l); text-shadow: 0 1px 1px #000; margin-bottom: 2px; }
@@ -313,9 +313,9 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 #cmd-tabs { display: flex; flex-direction: column; gap: 2px; width: 74px; }
 .cmd-tab { position: relative; flex: 1; min-height: 0; padding: 0 2px; cursor: pointer; font: 800 11px/1 var(--body); letter-spacing: 0.02em; color: var(--muted); white-space: nowrap;
   text-shadow: 0 1px 1px #000; background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=99dfd38af943) 22 34 fill / 5px 9px stretch; }
-.cmd-tab:hover { color: #fff; border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); }
-.cmd-tab.on { color: var(--gold-l); border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); text-shadow: 0 0 6px rgba(255,210,100,0.85), 0 1px 1px #000; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/v2/ui/btn_wide.png?v=3947ef6d39d3) 22 34 fill / 5px 9px stretch; }
+.cmd-tab:hover { color: #fff; border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); }
+.cmd-tab.on { color: var(--gold-l); border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); text-shadow: 0 0 6px rgba(255,210,100,0.85), 0 1px 1px #000; }
 .cmd-tab .tab-n { margin-left: 4px; color: #a6d6ff; font-size: 10px; }
 .cmd-tab .tab-n:empty { display: none; }
 /* the card keeps one size; the Tech tab packs its 5 x 3 grid (one column per element) into it (--tb, set on :root so
@@ -377,7 +377,7 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 
 /* ---------------- Line Tower Wars: the chat line (Enter or the Chat button) ---------------- */
 #chat { position: absolute; left: 16px; bottom: 10px; z-index: 4; display: none; align-items: center; gap: 6px; width: min(460px, calc(100% - 32px)); padding: 0 4px;
-  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 16px stretch;
+  border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 16px stretch;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); }
 #chat.open { display: flex; }
 #chat label { font: 800 13px var(--body); color: var(--gold-l); white-space: nowrap; text-shadow: 0 1px 1px #000; }
@@ -385,8 +385,8 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
   border: 1px solid rgba(232,192,90,0.35); outline: none; }
 #chat input:focus { border-color: rgba(255,216,74,0.7); }
 #chat button { height: 24px; padding: 0 10px; cursor: pointer; font: 700 11px/1 var(--title); letter-spacing: 0.06em; color: var(--gold-l); background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=99dfd38af943) 22 34 fill / 5px 9px stretch; }
-#chat button:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); color: #fff; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/v2/ui/btn_wide.png?v=3947ef6d39d3) 22 34 fill / 5px 9px stretch; }
+#chat button:hover { border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); color: #fff; }
 
 /* ---------------- menu, setup and end screens ---------------- */
 .ov-box.wide { width: min(720px, 96vw); }
@@ -412,14 +412,14 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 .ov-app-x:hover { color: var(--gold-l); }
 .modes { display: flex; flex-direction: column; gap: 8px; max-width: 470px; margin: 4px auto 16px; }
 .mode { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 14px 8px; cursor: pointer; background: none; color: var(--gold-l); text-align: center;
-  border-style: solid; border-color: transparent; border-width: 12px 18px; border-image: url(assets/ui/btn_wide.png?v=99dfd38af943) 22 34 fill / 12px 18px stretch; }
+  border-style: solid; border-color: transparent; border-width: 12px 18px; border-image: url(assets/v2/ui/btn_wide.png?v=3947ef6d39d3) 22 34 fill / 12px 18px stretch; }
 .mode b { font: 800 19px/1.1 var(--title); letter-spacing: 0.1em; text-transform: uppercase; text-shadow: 0 1px 1px #000, 0 0 6px #000; }
 .mode span { font: 600 13.5px/1.25 var(--body); color: var(--muted); text-shadow: 0 1px 1px #000; }
-.mode:hover:not(:disabled) { border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); }
+.mode:hover:not(:disabled) { border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); }
 .mode:hover:not(:disabled) b { color: #fff; text-shadow: 0 0 8px rgba(255,210,100,0.9), 0 1px 1px #000; }
 .mode:active:not(:disabled) { transform: translateY(1px); }
 .mode:disabled { opacity: 0.5; cursor: default; }
-.mode:focus-visible { outline: none; border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgba(255,200,80,0.5); }
+.mode:focus-visible { outline: none; border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); box-shadow: 0 0 0 2px var(--gold), 0 0 14px rgba(255,200,80,0.5); }
 /* the map picker (src/client/screens.js): a card per map, its picture in the minimap's frame, its name and players under
    it; two by two, as wide as the window's height lets both rows show (a short window takes one row of four, a phone a
    column or a row of its own, below). A locked map is greyed with "Coming later" over it. */
@@ -441,7 +441,7 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 .map-card.locked .map-cap b { color: var(--muted); }
 /* the picture: 2:1 in the frame; a picture of another shape is shown whole (.fit), a missing one is an unexplored map */
 .map-pic { position: relative; display: block; flex: none; border-style: solid; border-color: transparent; border-width: 14px;
-  border-image: url(assets/ui/frame_minimap.png?v=99dfd38af943) 72 / 28px stretch; background: #050403 padding-box; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.7)); }
+  border-image: url(assets/v2/ui/frame_minimap.png?v=3947ef6d39d3) 72 / 28px stretch; background: #050403 padding-box; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.7)); }
 .map-pic img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; object-fit: cover; transition: filter 0.15s; -webkit-user-drag: none; }
 .map-pic.fit img { object-fit: contain; }
 .map-pic.none img { visibility: hidden; }
@@ -455,7 +455,7 @@ body.ltw #cmd-panel { display: flex; gap: 5px; align-items: stretch; }
 .map-card.locked .map-pic img { filter: saturate(0.55) brightness(0.72); }
 .map-lock { position: absolute; left: 50%; top: -7px; transform: translate(-50%, -50%); padding: 1px 10px; white-space: nowrap;
   font: 800 11px/1.2 var(--title); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-l); text-shadow: 0 1px 1px #000;
-  border-style: solid; border-color: transparent; border-width: 6px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 12px stretch; }
+  border-style: solid; border-color: transparent; border-width: 6px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 12px stretch; }
 /* a map's own screen (and Classic's intro): the picture beside what the map is and its ways to play, as a WC3 game
    setup shows the map; upright windows put the picture on top (below) */
 .ov-box.map-box { width: min(1060px, 96vw); }
@@ -560,8 +560,8 @@ body.online #btn-pause, body.online #speed { display: none !important; }
 .lb-room { font-size: 13px; color: var(--muted); }
 .lb-room b { font: 800 15px var(--title); letter-spacing: 0.14em; color: #fff; }
 .lb-btn { flex: none; height: 26px; padding: 0 12px; cursor: pointer; font: 700 11.5px/1 var(--title); letter-spacing: 0.06em; color: var(--gold-l); background: none;
-  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/ui/btn_wide.png?v=99dfd38af943) 22 34 fill / 5px 9px stretch; text-shadow: 0 1px 1px #000; }
-.lb-btn:hover { border-image-source: url(assets/ui/btn_wide_hover.png?v=99dfd38af943); color: #fff; }
+  border-style: solid; border-color: transparent; border-width: 5px 9px; border-image: url(assets/v2/ui/btn_wide.png?v=3947ef6d39d3) 22 34 fill / 5px 9px stretch; text-shadow: 0 1px 1px #000; }
+.lb-btn:hover { border-image-source: url(assets/v2/ui/btn_wide_hover.png?v=3947ef6d39d3); color: #fff; }
 .lb-net { min-height: 18px; font-size: 13px; color: #e6dcc6; }
 .lb-opt { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--muted); }
 .lb-opt b { color: #ffd84a; }
@@ -583,7 +583,7 @@ body.online #btn-pause, body.online #speed { display: none !important; }
 .tb-net { display: inline-flex; align-items: center; margin-left: 8px; font: 700 12px var(--body); color: #e6dcc6; white-space: nowrap; text-shadow: 0 1px 1px #000; }
 .tb-net span { color: var(--muted); margin-left: 4px; }
 #net-banner { position: absolute; left: 50%; top: 58px; z-index: 5; display: none; flex-direction: column; align-items: center; gap: 1px; padding: 2px 16px; transform: translateX(-50%);
-  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 18px stretch;
+  border-style: solid; border-color: transparent; border-width: 12px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 18px stretch;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8)); pointer-events: none; animation: banner 1.2s ease-in-out infinite alternate; }
 #net-banner.show { display: flex; }
 #net-banner b { font: 800 15px var(--title); letter-spacing: 0.08em; color: #ffd84a; text-shadow: 0 1px 1px #000; }
@@ -726,7 +726,7 @@ body.online #btn-pause, body.online #speed { display: none !important; }
   body.ltw #cmd-tabs { grid-area: tabs; flex-direction: row; width: auto; height: 36px; gap: 2px; }
   .cmd-tab { font-size: 10.5px; padding: 0 1px; border-width: 5px 6px; border-image-width: 5px 6px; }
   body.ltw #ltw-commands { grid-area: cmd; justify-self: end; align-self: center; box-sizing: content-box; padding: 2px;
-    border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/ui/frame_gold.png?v=99dfd38af943) 64 / 20px round;
+    border-style: solid; border-color: transparent; border-width: 10px; border-image: url(assets/v2/ui/frame_gold.png?v=3947ef6d39d3) 64 / 20px round;
     background: linear-gradient(#0f0d0b, #070605) padding-box; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.7)); }
   #ltw-commands.tech { width: calc(5 * var(--tb) + 4 * var(--gap)); }
   #wave-timer { font-size: 12px; min-width: 0; right: 6px; top: 6px; }
@@ -859,7 +859,7 @@ body.online #btn-pause, body.online #speed { display: none !important; }
 @media (orientation: portrait) and (max-width: 600px) and (pointer: coarse) {
   body:not(.rotate-ok) #rotate-hint { position: absolute; left: 4px; right: 4px; bottom: 4px; z-index: 6; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 0 0 8px;
     pointer-events: none; font: 700 13px/1.25 var(--body); color: var(--gold-l); text-shadow: 0 1px 1px #000;
-    border-style: solid; border-color: transparent; border-width: 8px; border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 16px stretch; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.8)); }
+    border-style: solid; border-color: transparent; border-width: 8px; border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 16px stretch; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.8)); }
   #rotate-hint span::before { content: ''; display: inline-block; width: 11px; height: 17px; margin-right: 8px; vertical-align: -3px; border: 2px solid var(--gold-l); border-radius: 3px; transform: rotate(-90deg); }
   #rotate-hint button { flex: none; width: 40px; height: 40px; padding: 0; cursor: pointer; pointer-events: auto; font: 800 15px var(--body); color: var(--gold-l); background: none; border: 0; }
   body:not(.rotate-ok) #view-tools, body:not(.rotate-ok) #msgs { bottom: 64px; }
@@ -976,10 +976,10 @@ body.online #btn-pause, body.online #speed { display: none !important; }
    was just pressed does not look selected */
 @media (hover: none) {
   .cmd:hover { box-shadow: none; }
-  .cmd:hover::after { background-image: url(assets/ui/button.png?v=99dfd38af943); }
+  .cmd:hover::after { background-image: url(assets/v2/ui/button.png?v=3947ef6d39d3); }
   .cmd:hover canvas { filter: none; }
-  .cmd.empty:hover::after { background-image: url(assets/ui/button_empty.png?v=99dfd38af943); }
-  .cmd.active:hover::after { background-image: url(assets/ui/button_active.png?v=99dfd38af943); }
+  .cmd.empty:hover::after { background-image: url(assets/v2/ui/button_empty.png?v=3947ef6d39d3); }
+  .cmd.active:hover::after { background-image: url(assets/v2/ui/button_active.png?v=3947ef6d39d3); }
   .cmd.active:hover { box-shadow: 0 0 12px rgba(125,255,90,0.6); }
   .cmd.poor:hover canvas { filter: grayscale(0.85) brightness(0.5); }
   .cmd.locked:hover canvas, .cmd.out:hover canvas, .cmd.off:hover canvas { filter: grayscale(0.85) brightness(0.55); }
@@ -989,7 +989,7 @@ body.online #btn-pause, body.online #speed { display: none !important; }
    the battlefield in the console's tooltip frame, as WC3 shows a map's timer. Appended by the build-phase work. ===== */
 #prep-timer { position: absolute; left: 50%; top: 10px; z-index: 3; display: none; min-width: 230px; padding: 0 10px; transform: translateX(-50%);
   text-align: center; pointer-events: none; border-style: solid; border-color: transparent; border-width: 12px;
-  border-image: url(assets/ui/tooltip.png?v=99dfd38af943) 36 fill / 18px stretch; }
+  border-image: url(assets/v2/ui/tooltip.png?v=3947ef6d39d3) 36 fill / 18px stretch; }
 #prep-timer.show { display: block; }
 #prep-timer b { display: block; font: 800 14px var(--title); letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-l); text-shadow: 0 1px 1px #000; }
 #prep-timer span { display: block; font: 700 13px var(--body); color: var(--text); text-shadow: 0 1px 1px #000; }
@@ -1183,7 +1183,7 @@ body.prep #announce { top: max(11%, 78px); }   /* an announcement in the build p
 @media (min-width: 901px) and (min-height: 501px) {
   body:not(.ltw) #stage { background: #050604; }
   body:not(.ltw) #stage::before { content: ''; position: absolute; inset: -40px; pointer-events: none;
-    background: url(assets/maps/classic.jpg?v=99dfd38af943) center / cover no-repeat; filter: blur(22px) brightness(0.32) saturate(0.85); }
+    background: url(assets/maps/classic.jpg?v=3947ef6d39d3) center / cover no-repeat; filter: blur(22px) brightness(0.32) saturate(0.85); }
   body:not(.ltw) #stage::after { content: ''; position: absolute; inset: 0; pointer-events: none;
     background: radial-gradient(ellipse 70% 90% at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.8) 100%); }
   body:not(.ltw) #view-wrap { z-index: 1; }   /* the map over them */

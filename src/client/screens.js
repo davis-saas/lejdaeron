@@ -3,11 +3,11 @@
 // in index.html (#overlay: crest, h1, .ov-sub, #ov-body and #ov-foot with the main #ov-btn). The body scrolls when the
 // window is too short for it; the dialog's own buttons stay in view under it. On the menu screens the arrow keys move
 // between the cards and the mode buttons, Enter presses the one in focus and Esc goes back.
-import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME } from './common.js?v=99dfd38af943';
-import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=99dfd38af943';
-import { LIGHT, capped, setCapped } from '../device.js?v=99dfd38af943';
-import { appHint, bindAppHint } from './app.js?v=99dfd38af943';
-import { MAPS, MAP, playable, previewUrl } from './maps.js?v=99dfd38af943';
+import { PLAYER_HEX, PLAYER_TEXT, DIFFICULTIES, DIFF_NAME } from './common.js?v=3947ef6d39d3';
+import { LTW_COLORS, LTW_RULES } from '../data/ltw.js?v=3947ef6d39d3';
+import { LIGHT, capped, setCapped } from '../device.js?v=3947ef6d39d3';
+import { appHint, bindAppHint } from './app.js?v=3947ef6d39d3';
+import { MAPS, MAP, playable, previewUrl } from './maps.js?v=3947ef6d39d3';
 
 const $ = (id) => document.getElementById(id);
 const box = () => document.querySelector('.ov-box');

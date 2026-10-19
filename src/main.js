@@ -5,21 +5,22 @@
 // Classic's camera starts on the whole map (on a touch screen: the map filling the stage, from its west end); the wheel,
 // the + and - buttons and a pinch zoom it up to about 2.5 times closer, and a right or middle drag, the arrow keys or a
 // finger pan it, anywhere on the stage (also on the bands beside a map zoomed out).
-import { Game, TOWERS, LEVELS } from './game.js?v=99dfd38af943';
-import { buildable } from './level.js?v=99dfd38af943';
-import { loadAssets } from './assets.js?v=99dfd38af943';
-import { Renderer, W, H, P } from './render.js?v=99dfd38af943';
-import { FX } from './fx.js?v=99dfd38af943';
-import { UI } from './ui.js?v=99dfd38af943';
-import { SIN, TOP } from './level.js?v=99dfd38af943';
-import { LtwMode } from './client/ltw.js?v=99dfd38af943';
-import { Online } from './client/online.js?v=99dfd38af943';
-import { Camera } from './client/camera.js?v=99dfd38af943';
-import { Gestures, isTouch, lastInput, phone, touchFirst } from './client/touch.js?v=99dfd38af943';
-import { screen, hideScreen, screenShown, mapPicker, mapScreen, mapPicture, bindPictures, setupScreen, settingsLine, bindSettings } from './client/screens.js?v=99dfd38af943';
-import { MAP } from './client/maps.js?v=99dfd38af943';
-import { startApp } from './client/app.js?v=99dfd38af943';
-import { frameDue } from './device.js?v=99dfd38af943';
+import { Game, TOWERS, LEVELS } from './game.js?v=3947ef6d39d3';
+import { buildable } from './level.js?v=3947ef6d39d3';
+import { loadAssets } from './assets.js?v=3947ef6d39d3';
+import { Renderer, W, H, P } from './render.js?v=3947ef6d39d3';
+import { FX } from './fx.js?v=3947ef6d39d3';
+import { UI } from './ui.js?v=3947ef6d39d3';
+import { SIN, TOP } from './level.js?v=3947ef6d39d3';
+import { LtwMode } from './client/ltw.js?v=3947ef6d39d3';
+import { Online } from './client/online.js?v=3947ef6d39d3';
+import { Camera } from './client/camera.js?v=3947ef6d39d3';
+import { Gestures, isTouch, lastInput, phone, touchFirst } from './client/touch.js?v=3947ef6d39d3';
+import { screen, hideScreen, screenShown, mapPicker, mapScreen, mapPicture, bindPictures, setupScreen, settingsLine, bindSettings } from './client/screens.js?v=3947ef6d39d3';
+import { MAP } from './client/maps.js?v=3947ef6d39d3';
+import { startApp } from './client/app.js?v=3947ef6d39d3';
+import { frameDue } from './device.js?v=3947ef6d39d3';
+import { art } from './assets.js?v=3947ef6d39d3';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('view'), stage = $('stage');
@@ -459,4 +460,4 @@ function frame(now) {
 window.wc = { get game() { return mode === 'ltw' ? ltw.world : game; }, get view() { return mode === 'ltw' ? ltw.view : view; }, get fx() { return mode === 'ltw' ? ltw.fxs : fx; },
   get renderer() { return mode === 'ltw' ? ltw.renderer : renderer; }, get ui() { return mode === 'ltw' ? ltw.hud : ui; }, get actions() { return mode === 'ltw' ? ltw.actions : actions; },
   get mode() { return mode; }, get ltw() { return ltw; }, get session() { return ltw && ltw.session; }, get online() { return online; },
-  get cam() { return mode === 'ltw' ? ltw.cam : cam; } };
+  get cam() { return mode === 'ltw' ? ltw.cam : cam; }, art };

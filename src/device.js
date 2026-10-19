@@ -1,13 +1,28 @@
 // What this device can afford. Phones and tablets (a small screen or a finger for a pointer) and computers with little
-// memory get the light set: the half-size art in assets/light (tools/light_art.mjs, loaded by src/assets.js), smaller
+// memory get the light set: the half-size pages of assets/v2 (48 px per tile, loaded by src/assets.js), smaller
 // offscreen canvases, half the particles and, unless the player turns it off in the menu, 30 frames a second. Computers
-// keep the full art and everything as it was. ?art=light or ?art=full in the page's URL overrides the choice (testing).
+// get the normal set (96 px per tile) and everything as it was. ?art=light or ?art=full in the page's URL overrides the
+// choice (testing). Zoomed in past the art's own detail, both load the next set up for what is on screen (UP_SET).
 const web = typeof window !== 'undefined';
 const media = (q) => web && typeof matchMedia === 'function' && matchMedia(q).matches;
 const forced = web ? new URLSearchParams(location.search).get('art') : null;
 const lowMemory = web && navigator.deviceMemory > 0 && navigator.deviceMemory <= 2;   // GB (Chrome only reports it)
 const small = web && Math.min(screen.width, screen.height) < 600;                     // css px: phones (tablets are 744 and up)
 export const LIGHT = forced === 'light' || (forced !== 'full' && (small || media('(pointer: coarse)') || lowMemory));
+
+// The art sets of assets/v2 (docs/GRAPHICS-v2.md): the one loaded at start, and the next one up, loaded lazily (page by
+// page, ground tile by tile) for what is drawn while the view shows more device px per tile than UP_AT times the base
+// set's own. Kept in a least-recently-used store of at most UP_CAP decoded bytes. Only high-DPI screens upgrade (a
+// 1x screen at the closest zoom stays on the base set), and never a computer with little memory. ?hd=0 turns it off.
+// Light devices upgrade only zoomed in past the default views (81.6 device px per tile: vs Computer's default is 72,
+// Classic's cover level on a portrait phone about 80), so a phone's start screen and normal play stay on the light set
+// (about 100 MB decoded) and the normal art loads only for a closer look.
+export const BASE_SET = LIGHT ? 'light' : 'normal';
+export const UP_SET = LIGHT ? 'normal' : 'hd';
+export const UP_CAP = (LIGHT ? 96 : 384) * 1048576;
+export const UP_AT = LIGHT ? 1.7 : 1.15;
+const noUp = lowMemory || (web && new URLSearchParams(location.search).get('hd') === '0');
+export const upgrades = () => !noUp && ((web && window.devicePixelRatio) || 1) >= 1.5;
 
 // Canvas pixels per css pixel. A phone's 3x screen is drawn at 2x (the light art has no more detail than that), 1.5x
 // with little memory.

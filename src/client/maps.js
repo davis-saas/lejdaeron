@@ -3,7 +3,7 @@
 // tools/make_map_previews.mjs), ttw.jpg and gemtd.jpg come from the map research (docs/maps-research.md). A map with no
 // modes is not playable yet: its card is locked and starts nothing. The paths are written out in full so that
 // tools/publish.mjs, which copies every assets/... path a module names, publishes the pictures.
-import { BUILD } from '../assets.js?v=99dfd38af943';
+import { BUILD } from '../assets.js?v=3947ef6d39d3';
 
 const V = BUILD || String(Date.now());   // as src/assets.js versions the art: the build's stamp, or a fresh load
 
